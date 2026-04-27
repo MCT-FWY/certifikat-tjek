@@ -177,6 +177,27 @@
     .days-danger { background: #fef2f2; color: #b91c1c; }
     .days-gray   { background: #f1f5f9; color: #64748b; }
 
+    .card-info-icon {
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 15px; height: 15px; border-radius: 50%;
+      background: #e0f2fe; color: #0369a1;
+      font-size: 0.6rem; font-weight: 800; font-style: normal;
+      cursor: default; flex-shrink: 0; margin-left: 4px;
+      position: relative;
+    }
+    .card-info-icon::after {
+      content: attr(data-tip);
+      position: absolute; bottom: calc(100% + 6px); left: 50%;
+      transform: translateX(-50%);
+      background: #1e293b; color: #f1f5f9;
+      font-size: 0.7rem; font-weight: 400;
+      padding: 5px 9px; border-radius: 6px;
+      white-space: nowrap; pointer-events: none;
+      opacity: 0; transition: opacity .15s;
+      z-index: 10;
+    }
+    .card-info-icon:hover::after { opacity: 1; }
+
     .card-error {
       margin-top: 9px; font-size: 0.74rem; color: #b91c1c;
       background: #fff5f5; border: 1px solid #fecaca;
@@ -477,11 +498,12 @@ let allResults = [];
 
 function certUrl(r) {
   if (r.type === "msc")
-    return `https://cert.msc.org/supplierdirectory/Default.aspx?certno=${encodeURIComponent(r.certificate_id)}`;
+    return `https://fisheries.msc.org/en/fisheries/search-a-fishery/?q=${encodeURIComponent(r.certificate_id)}`;
   if (r.type === "asc")
     return `https://asc-aqua.org/find-a-supplier/${encodeURIComponent(r.certificate_id)}/`;
-  // eco – TRACES NT søgning på leverandørnavn
-  return `https://webgate.ec.europa.eu/tracesnt/directory/publication/organic-operator/index#!?query=${encodeURIComponent(r.name)}&sort=-issuedOn&states=ISSUED`;
+  // eco – TRACES NT søgning på certifikatreference (eller certifikat-ID som fallback)
+  const ref = r.traces_reference || r.certificate_id;
+  return `https://webgate.ec.europa.eu/tracesnt/directory/publication/organic-operator/index#!?query=${encodeURIComponent(ref)}&sort=-issuedOn&states=ISSUED`;
 }
 
 function safeClass(s) {
@@ -543,6 +565,7 @@ function buildCard(r) {
         <div class="card-meta-row">
           <span style="font-weight:600;color:#334155">${TYPE_LABEL[r.type] || r.type.toUpperCase()}</span>
           <span class="cert-id">${r.certificate_id}</span>
+          ${r.type === "msc" ? `<i class="card-info-icon" data-tip="MSC direkte link aktiveres når API er godkendt">i</i>` : ""}
         </div>
         ${operatorRow}${refRow}
         ${dateStr ? `<div class="card-meta-row">Udløber: <strong>${dateStr}</strong></div>` : ""}
