@@ -29,9 +29,8 @@ jobs:
 
       - name: Kør certifikat-tjek
         env:
-          # Tilføj MSC_API_KEY under Settings → Secrets and variables → Actions
-          # når nøglen ankommer. Scriptet bruger cert.msc.org som fallback indtil da.
-          MSC_API_KEY: ${{ secrets.MSC_API_KEY }}
+          MSC_API_KEY:      ${{ secrets.MSC_API_KEY }}
+          SENDGRID_API_KEY: ${{ secrets.SENDGRID_API_KEY }}
         run: python check_certificates.py
 
       - name: Gem resultater i repo

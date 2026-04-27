@@ -9,6 +9,7 @@ import os
 import re
 from datetime import datetime
 from pathlib import Path
+from urllib.parse import quote as _url_quote
 
 import requests
 
@@ -443,6 +444,163 @@ def check_eco_all(eco_suppliers: list[dict]) -> list[dict]:
     return results
 
 # ---------------------------------------------------------------------------
+# E-mail notifikationer via SendGrid
+# ---------------------------------------------------------------------------
+
+NOTIFICATION_THRESHOLD_DAYS = 14
+_NOTIFICATION_FROM = "noreply@foodwithyou.com"
+_NOTIFICATION_TO   = ["quality@foodwithyou.com", "info@foodwithyou.com"]
+_TYPE_LABELS       = {"msc": "MSC", "asc": "ASC", "eco": "Øko"}
+_DASHBOARD_URL     = "https://mct-fwy.github.io/certifikat-tjek/"
+
+
+def _cert_url(result: dict) -> str:
+    """Bygger certifikatlink – spejl af certUrl() i dashboard/index.html."""
+    cert_type = result.get("type", "")
+    cert_id   = result.get("certificate_id", "")
+    if cert_type == "msc":
+        return f"https://fisheries.msc.org/en/fisheries/search-a-fishery/?q={_url_quote(cert_id)}"
+    if cert_type == "asc":
+        return f"https://asc-aqua.org/find-a-supplier/{_url_quote(cert_id)}/"
+    ref = result.get("traces_reference") or cert_id
+    return (
+        "https://webgate.ec.europa.eu/tracesnt/directory/publication/"
+        f"organic-operator/index#!?query={_url_quote(ref)}&sort=-issuedOn&states=ISSUED"
+    )
+
+
+def _build_email_html(result: dict, is_expired: bool) -> str:
+    name        = result.get("name", "")
+    cert_id     = result.get("certificate_id", "")
+    cert_type   = result.get("type", "")
+    valid_until = result.get("valid_until") or "Ukendt"
+    days        = result.get("days_until_expiry")
+    type_label  = _TYPE_LABELS.get(cert_type, cert_type.upper())
+    url         = _cert_url(result)
+
+    if is_expired:
+        header_color = "#dc2626"
+        heading      = "&#128308;&nbsp; Certifikat udl&oslash;bet"
+        days_row     = ""
+    else:
+        header_color = "#d97706"
+        heading      = "&#9888;&#65039;&nbsp; Certifikat udl&oslash;ber snart"
+        days_row     = f"""
+        <tr>
+          <td style="padding:8px 0;color:#64748b;border-top:1px solid #f1f5f9">Dage tilbage</td>
+          <td style="border-top:1px solid #f1f5f9;color:#d97706;font-weight:700">{days} dage</td>
+        </tr>"""
+
+    return f"""<!DOCTYPE html>
+<html lang="da">
+<head><meta charset="UTF-8"></head>
+<body style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#f0f2f5;padding:40px 0;margin:0">
+  <div style="max-width:540px;margin:0 auto;background:#fff;border-radius:12px;overflow:hidden;box-shadow:0 4px 16px rgba(0,0,0,.08)">
+    <div style="background:{header_color};padding:22px 32px">
+      <p style="color:#fff;font-size:1.05rem;font-weight:700;margin:0">{heading}</p>
+    </div>
+    <div style="padding:28px 32px">
+      <table style="width:100%;border-collapse:collapse;font-size:0.9rem">
+        <tr>
+          <td style="padding:8px 0;color:#64748b;width:140px">Leverand&oslash;r</td>
+          <td style="font-weight:600">{name}</td>
+        </tr>
+        <tr>
+          <td style="padding:8px 0;color:#64748b;border-top:1px solid #f1f5f9">Certifikat-ID</td>
+          <td style="font-family:monospace;border-top:1px solid #f1f5f9">{cert_id}</td>
+        </tr>
+        <tr>
+          <td style="padding:8px 0;color:#64748b;border-top:1px solid #f1f5f9">Type</td>
+          <td style="border-top:1px solid #f1f5f9">{type_label}</td>
+        </tr>
+        <tr>
+          <td style="padding:8px 0;color:#64748b;border-top:1px solid #f1f5f9">Udl&oslash;bsdato</td>
+          <td style="border-top:1px solid #f1f5f9">{valid_until}</td>
+        </tr>
+        {days_row}
+      </table>
+      <a href="{url}" style="display:inline-block;margin-top:22px;padding:11px 22px;background:#1a1a2e;color:#fff;border-radius:7px;text-decoration:none;font-weight:700;font-size:0.9rem">
+        &Aring;bn certifikat &rarr;
+      </a>
+      <a href="{_DASHBOARD_URL}" style="display:inline-block;margin-top:10px;margin-left:12px;font-size:0.82rem;color:#64748b;text-decoration:none">
+        &Aring;bn dashboard
+      </a>
+    </div>
+    <div style="padding:14px 32px;background:#f8fafc;border-top:1px solid #e2e8f0">
+      <p style="font-size:0.74rem;color:#94a3b8;margin:0">
+        Food with You Certifikat Dashboard &middot; Automatisk dagligt tjek
+      </p>
+    </div>
+  </div>
+</body>
+</html>"""
+
+
+def send_notifications(results: list[dict]) -> None:
+    """Sender e-mail via SendGrid for certifikater der udløber inden for
+    NOTIFICATION_THRESHOLD_DAYS dage eller allerede er udløbet."""
+    api_key = os.getenv("SENDGRID_API_KEY", "")
+    if not api_key:
+        print("\nSendGrid: SENDGRID_API_KEY ikke sat – springer notifikationer over.")
+        return
+
+    try:
+        from sendgrid import SendGridAPIClient
+        from sendgrid.helpers.mail import Mail
+    except ImportError:
+        print("\nSendGrid: pakken er ikke installeret – springer notifikationer over.")
+        return
+
+    sg   = SendGridAPIClient(api_key)
+    sent = 0
+
+    for result in results:
+        if result.get("error"):
+            continue
+
+        status = result.get("status", "")
+        days   = result.get("days_until_expiry")
+
+        is_expired = (status == "udløbet") or (days is not None and days < 0)
+        is_warning = (
+            not is_expired
+            and days is not None
+            and 0 <= days <= NOTIFICATION_THRESHOLD_DAYS
+        )
+
+        if not (is_expired or is_warning):
+            continue
+
+        name    = result.get("name", "")
+        cert_id = result.get("certificate_id", "")
+        subject = (
+            f"\U0001f534 Certifikat udløbet: {name}"
+            if is_expired else
+            f"⚠️ Certifikat udløber snart: {name} ({days} dage)"
+        )
+        html = _build_email_html(result, is_expired)
+
+        for to_addr in _NOTIFICATION_TO:
+            try:
+                message = Mail(
+                    from_email=_NOTIFICATION_FROM,
+                    to_emails=to_addr,
+                    subject=subject,
+                    html_content=html,
+                )
+                sg.send(message)
+                sent += 1
+                print(f"  Mail sendt til {to_addr}: {subject}")
+            except Exception as exc:
+                print(f"  SendGrid-fejl ({to_addr}): {exc}")
+
+    if sent == 0:
+        print("\nSendGrid: ingen notifikationer nødvendige i dag.")
+    else:
+        print(f"\nSendGrid: {sent} e-mail(s) sendt.")
+
+
+# ---------------------------------------------------------------------------
 # Hovedfunktion
 # ---------------------------------------------------------------------------
 
@@ -493,6 +651,8 @@ def run_checks() -> dict:
     s = output["summary"]
     print(f"  Gyldige: {s['gyldig']}  |  Udløber snart: {s['udloeber_snart']}  "
           f"|  Udløbet: {s['udloebet']}  |  Ukendt: {s['ukendt']}")
+
+    send_notifications(all_results)
     return output
 
 

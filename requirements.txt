@@ -1,1 +1,2 @@
 requests>=2.31
+sendgrid>=6.0
