@@ -4,6 +4,9 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Certifikat Dashboard</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"
+          integrity="sha512-XMVd28F1oH/O71fzwBnV7HucLxVwtxf26XV8P4wPk26EDxuGZ91N8bsOttmnomcCD3CS5ZMRL50H0GgOHveXg=="
+          crossorigin="anonymous" referrerpolicy="no-referrer"></script>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -12,6 +15,81 @@
       background: #f0f2f5;
       color: #1a1a2e;
     }
+
+    /* ── Login overlay ── */
+    #login-overlay {
+      position: fixed;
+      inset: 0;
+      background: #0f1117;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 999;
+    }
+    #login-box {
+      background: #1a1a2e;
+      border: 1px solid #2d3752;
+      border-radius: 14px;
+      padding: 44px 40px 40px;
+      width: 100%;
+      max-width: 380px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+    .login-logo {
+      font-size: 1rem;
+      font-weight: 800;
+      letter-spacing: .12em;
+      color: #38bdf8;
+      text-transform: uppercase;
+      margin-bottom: 4px;
+    }
+    #login-box h2 {
+      font-size: 1.3rem;
+      font-weight: 700;
+      color: #f1f5f9;
+    }
+    #login-box p.subtitle {
+      font-size: 0.85rem;
+      color: #94a3b8;
+      margin-top: -6px;
+    }
+    #pw-input {
+      padding: 11px 14px;
+      border-radius: 8px;
+      border: 1px solid #334155;
+      background: #0f172a;
+      color: #f1f5f9;
+      font-size: 0.95rem;
+      outline: none;
+      transition: border-color .15s;
+    }
+    #pw-input:focus { border-color: #38bdf8; }
+    #pw-btn {
+      padding: 11px 0;
+      border-radius: 8px;
+      border: none;
+      background: #38bdf8;
+      color: #0f172a;
+      font-size: 0.95rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background .15s;
+    }
+    #pw-btn:hover { background: #7dd3fc; }
+    #pw-error {
+      display: none;
+      font-size: 0.82rem;
+      color: #f87171;
+      background: #450a0a;
+      border: 1px solid #7f1d1d;
+      padding: 8px 12px;
+      border-radius: 7px;
+    }
+
+    /* ── App wrapper (hidden until logged in) ── */
+    #app { display: none; }
 
     /* ── Header ── */
     header {
@@ -26,6 +104,21 @@
     }
     header h1 { font-size: 1.25rem; font-weight: 700; letter-spacing: -.01em; }
     #last-checked { font-size: 0.82rem; opacity: .65; white-space: nowrap; }
+
+    .btn-dl-all {
+      background: #38bdf8;
+      color: #0f172a;
+      border: none;
+      border-radius: 7px;
+      padding: 8px 16px;
+      font-size: 0.82rem;
+      font-weight: 700;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: background .15s, opacity .15s;
+    }
+    .btn-dl-all:hover { background: #7dd3fc; }
+    .btn-dl-all:disabled { opacity: .5; cursor: default; }
 
     /* ── Summary strip ── */
     .summary {
@@ -93,9 +186,24 @@
       border-left: 4px solid #cbd5e1;
       box-shadow: 0 1px 3px rgba(0,0,0,.05);
       transition: box-shadow .15s, transform .15s;
-      cursor: default;
+      cursor: pointer;
+      position: relative;
     }
-    .card:hover { box-shadow: 0 4px 16px rgba(0,0,0,.1); transform: translateY(-1px); }
+    .card:hover {
+      box-shadow: 0 4px 16px rgba(0,0,0,.1);
+      transform: translateY(-1px);
+    }
+    .card:hover::after {
+      content: "Åbn certifikat ↗";
+      position: absolute;
+      bottom: 10px;
+      right: 12px;
+      font-size: 0.68rem;
+      color: #94a3b8;
+      font-weight: 600;
+      letter-spacing: .02em;
+      pointer-events: none;
+    }
 
     .card.gyldig          { border-left-color: #22c55e; }
     .card.udloeber_snart  { border-left-color: #f59e0b; }
@@ -190,46 +298,104 @@
       header, main { padding-left: 16px; padding-right: 16px; }
       .summary { padding-left: 16px; flex-wrap: wrap; }
       .summary-item { padding-right: 16px; margin-right: 16px; }
+      #login-box { padding: 32px 24px 28px; }
     }
   </style>
 </head>
 <body>
 
-<header>
-  <h1>Certifikat Dashboard</h1>
-  <span id="last-checked">Indlæser…</span>
-</header>
-
-<div class="summary" id="summary" style="display:none">
-  <div class="summary-item">
-    <span class="summary-count c-green"  id="s-gyldig">0</span>
-    <span>Gyldige</span>
-  </div>
-  <div class="summary-item">
-    <span class="summary-count c-orange" id="s-snart">0</span>
-    <span>Udløber snart</span>
-  </div>
-  <div class="summary-item">
-    <span class="summary-count c-red"    id="s-udloebet">0</span>
-    <span>Udløbet</span>
-  </div>
-  <div class="summary-item">
-    <span class="summary-count c-gray"   id="s-ukendt">0</span>
-    <span>Ukendt</span>
+<!-- ── Login overlay ── -->
+<div id="login-overlay">
+  <div id="login-box">
+    <div class="login-logo">FWY</div>
+    <h2>Certifikat Dashboard</h2>
+    <p class="subtitle">Indtast adgangskode for at fortsætte</p>
+    <input type="password" id="pw-input" placeholder="Adgangskode" autocomplete="current-password">
+    <button id="pw-btn">Log ind</button>
+    <p id="pw-error">Forkert adgangskode – prøv igen</p>
   </div>
 </div>
 
-<main id="main">
-  <div id="no-data">
-    <h2>Ingen data endnu</h2>
-    <p>Kør certifikat-scriptet for at hente status:</p>
-    <code>python check_certificates.py</code>
-    <p style="margin-top:16px">Åbn derefter dashboardet via:</p>
-    <code>python serve.py</code>
+<!-- ── Dashboard ── -->
+<div id="app">
+
+  <header>
+    <h1>Certifikat Dashboard</h1>
+    <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap">
+      <span id="last-checked">Indlæser&hellip;</span>
+      <button class="btn-dl-all" id="dl-all-btn">&#8659; Download alle certifikater</button>
+    </div>
+  </header>
+
+  <div class="summary" id="summary" style="display:none">
+    <div class="summary-item">
+      <span class="summary-count c-green"  id="s-gyldig">0</span>
+      <span>Gyldige</span>
+    </div>
+    <div class="summary-item">
+      <span class="summary-count c-orange" id="s-snart">0</span>
+      <span>Udløber snart</span>
+    </div>
+    <div class="summary-item">
+      <span class="summary-count c-red"    id="s-udloebet">0</span>
+      <span>Udløbet</span>
+    </div>
+    <div class="summary-item">
+      <span class="summary-count c-gray"   id="s-ukendt">0</span>
+      <span>Ukendt</span>
+    </div>
   </div>
-</main>
+
+  <main id="main">
+    <div id="no-data">
+      <h2>Ingen data endnu</h2>
+      <p>Kør certifikat-scriptet for at hente status:</p>
+      <code>python check_certificates.py</code>
+      <p style="margin-top:16px">Åbn derefter dashboardet via:</p>
+      <code>python serve.py</code>
+    </div>
+  </main>
+
+</div><!-- /#app -->
 
 <script>
+/* ─────────────────────────────────────────────
+   LOGIN
+───────────────────────────────────────────── */
+const _PW = "FWY-Certifikat/dash#26";
+
+function tryLogin() {
+  if (document.getElementById("pw-input").value === _PW) {
+    sessionStorage.setItem("cert_auth", "1");
+    showApp();
+  } else {
+    document.getElementById("pw-error").style.display = "block";
+    document.getElementById("pw-input").value = "";
+    document.getElementById("pw-input").focus();
+  }
+}
+
+function showApp() {
+  document.getElementById("login-overlay").style.display = "none";
+  document.getElementById("app").style.display = "";
+  load();
+}
+
+document.getElementById("pw-btn").addEventListener("click", tryLogin);
+document.getElementById("pw-input").addEventListener("keydown", e => {
+  if (e.key === "Enter") tryLogin();
+  if (document.getElementById("pw-error").style.display !== "none") {
+    document.getElementById("pw-error").style.display = "none";
+  }
+});
+
+if (sessionStorage.getItem("cert_auth") === "1") {
+  showApp();
+}
+
+/* ─────────────────────────────────────────────
+   DASHBOARD LOGIC
+───────────────────────────────────────────── */
 const TYPE_LABEL = { eco: "Øko", msc: "MSC", asc: "ASC" };
 const STATUS_LABEL = {
   gyldig: "Gyldig",
@@ -238,12 +404,23 @@ const STATUS_LABEL = {
   ukendt: "Ukendt",
 };
 
+let allResults = [];
+
+function certUrl(r) {
+  if (r.type === "msc")
+    return `https://cert.msc.org/api/download?certcode=${encodeURIComponent(r.certificate_id)}`;
+  if (r.type === "asc")
+    return `https://www.asc-aqua.org/find-a-farm/asc-certificates/?cert=${encodeURIComponent(r.certificate_id)}`;
+  // eco – EU TRACES NT
+  const ref = r.traces_reference || r.certificate_id;
+  return `https://webgate.ec.europa.eu/tracesnt/certificate/view?ref=${encodeURIComponent(ref)}`;
+}
+
 function safeClass(s) {
-  // Normalize Danish chars for CSS class names
   return (s || "ukendt")
-    .replace("ø", "o").replace("Ø", "O")
-    .replace("æ", "ae").replace("Æ", "AE")
-    .replace("å", "aa").replace("Å", "AA")
+    .replace(/ø/g, "o").replace(/Ø/g, "O")
+    .replace(/æ/g, "ae").replace(/Æ/g, "AE")
+    .replace(/å/g, "aa").replace(/Å/g, "AA")
     .replace(/\s/g, "_");
 }
 
@@ -265,12 +442,12 @@ function daysChip(r) {
 }
 
 function buildCard(r) {
-  const sc  = safeClass(r.status);
+  const sc        = safeClass(r.status);
   const badgeLabel = STATUS_LABEL[r.status] || r.status;
-  const dateStr    = formatDate(r.valid_until);
+  const dateStr   = formatDate(r.valid_until);
 
   const errorHtml = r.error
-    ? `<div class="card-error">⚠ ${r.error}</div>`
+    ? `<div class="card-error">&#9888; ${r.error}</div>`
     : "";
 
   const dbName = r.traces_operator || r.asc_cert_holder || r.msc_cert_holder;
@@ -284,8 +461,10 @@ function buildCard(r) {
     ? `<div class="card-meta-row"><span class="cert-id" style="font-size:0.7rem">${r.traces_reference}</span></div>`
     : "";
 
+  const chipHtml = daysChip(r);
+
   return `
-    <div class="card ${sc}">
+    <div class="card ${sc}" data-url="${certUrl(r)}">
       <div class="card-top">
         <div class="card-name">${r.name}</div>
         <span class="badge badge-${sc}">${badgeLabel}</span>
@@ -298,7 +477,7 @@ function buildCard(r) {
         ${operatorRow}
         ${refRow}
         ${dateStr ? `<div class="card-meta-row">Udløber: <strong>${dateStr}</strong></div>` : ""}
-        ${daysChip(r) ? `<div class="card-meta-row">${daysChip(r)}</div>` : ""}
+        ${chipHtml ? `<div class="card-meta-row">${chipHtml}</div>` : ""}
       </div>
       ${errorHtml}
     </div>`;
@@ -316,17 +495,21 @@ function buildSection(title, results) {
     </div>`;
 }
 
+function attachCardClicks() {
+  document.querySelectorAll(".card[data-url]").forEach(card => {
+    card.addEventListener("click", () => window.open(card.dataset.url, "_blank", "noopener,noreferrer"));
+  });
+}
+
 async function load() {
   try {
     const resp = await fetch("../results/latest.json?_=" + Date.now());
     if (!resp.ok) throw new Error();
     const data = await resp.json();
 
-    // Header
     document.getElementById("last-checked").textContent =
       "Sidst tjekket: " + new Date(data.checked_at).toLocaleString("da-DK");
 
-    // Summary
     const s = data.summary || {};
     document.getElementById("summary").style.display = "flex";
     document.getElementById("s-gyldig").textContent   = s.gyldig         || 0;
@@ -334,11 +517,12 @@ async function load() {
     document.getElementById("s-udloebet").textContent = s.udloebet       || 0;
     document.getElementById("s-ukendt").textContent   = s.ukendt         || 0;
 
-    // Sort: udløbet og udløber_snart først
     const priority = { udloebet: 0, udloeber_snart: 1, gyldig: 2, ukendt: 3 };
     const sorted = [...data.results].sort((a, b) =>
       (priority[safeClass(a.status)] ?? 9) - (priority[safeClass(b.status)] ?? 9)
     );
+
+    allResults = sorted;
 
     const groups = { eco: [], msc: [], asc: [] };
     for (const r of sorted) (groups[r.type] ??= []).push(r);
@@ -348,13 +532,108 @@ async function load() {
       + buildSection("MSC-certifikater", groups.msc)
       + buildSection("ASC-certifikater", groups.asc);
 
+    attachCardClicks();
+
   } catch {
     // Behold "ingen data"-besked
   }
 }
 
-load();
-setInterval(load, 60 * 60 * 1000); // Genindlæs hvert 60. minut
+/* ─────────────────────────────────────────────
+   DOWNLOAD ALL AS ZIP
+───────────────────────────────────────────── */
+function certFilename(r) {
+  return `${r.type}_${r.certificate_id}_${r.name}`
+    .replace(/[^a-zA-Z0-9_\-]/g, "_")
+    .replace(/_+/g, "_")
+    .slice(0, 80);
+}
+
+function buildSummaryHtml(checkedAt) {
+  const rows = allResults.map(r => {
+    const url = certUrl(r);
+    const sc = safeClass(r.status);
+    const colors = { gyldig: "#16a34a", udloebet: "#dc2626", udloeber_snart: "#d97706", ukendt: "#94a3b8" };
+    const color = colors[sc] || "#94a3b8";
+    return `<tr>
+      <td>${r.name}</td>
+      <td>${(r.type || "").toUpperCase()}</td>
+      <td style="font-family:monospace">${r.certificate_id}</td>
+      <td style="color:${color};font-weight:600">${STATUS_LABEL[r.status] || r.status}</td>
+      <td>${r.valid_until || "–"}</td>
+      <td><a href="${url}" target="_blank">Åbn</a></td>
+    </tr>`;
+  }).join("\n");
+
+  return `<!DOCTYPE html>
+<html lang="da"><head><meta charset="UTF-8">
+<title>Certifikater – FWY</title>
+<style>
+  body { font-family: sans-serif; padding: 32px; color: #1a1a2e; }
+  h1 { font-size: 1.3rem; margin-bottom: 4px; }
+  p  { font-size: 0.85rem; color: #64748b; margin-bottom: 20px; }
+  table { border-collapse: collapse; width: 100%; font-size: 0.88rem; }
+  th { background: #1a1a2e; color: #fff; padding: 8px 12px; text-align: left; }
+  td { padding: 7px 12px; border-bottom: 1px solid #e2e8f0; }
+  tr:hover td { background: #f8fafc; }
+  a { color: #0284c7; }
+</style></head><body>
+<h1>FWY – Certifikatoversigt</h1>
+<p>Genereret: ${checkedAt}</p>
+<table>
+  <thead><tr><th>Leverandør</th><th>Type</th><th>Certifikat-ID</th><th>Status</th><th>Udløber</th><th>Link</th></tr></thead>
+  <tbody>${rows}</tbody>
+</table>
+</body></html>`;
+}
+
+document.getElementById("dl-all-btn").addEventListener("click", async () => {
+  if (!allResults.length) return;
+
+  const btn = document.getElementById("dl-all-btn");
+  btn.disabled = true;
+
+  const zip = new JSZip();
+  const total = allResults.length;
+  let done = 0;
+
+  for (const r of allResults) {
+    btn.textContent = `Henter… ${done}/${total}`;
+    const url = certUrl(r);
+    const base = certFilename(r);
+
+    try {
+      const resp = await fetch(url, { mode: "cors" });
+      if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+      const ct = resp.headers.get("content-type") || "";
+      const blob = await resp.blob();
+      const ext = ct.includes("pdf") ? ".pdf" : ct.includes("html") ? ".html" : "";
+      zip.file(base + ext, blob);
+    } catch {
+      // CORS-blokeret eller ikke tilgængeligt – gem som genvejsfil
+      zip.file(base + ".url", `[InternetShortcut]\r\nURL=${url}\r\n`);
+    }
+
+    done++;
+  }
+
+  const checkedAt = document.getElementById("last-checked").textContent.replace("Sidst tjekket: ", "");
+  zip.file("index.html", buildSummaryHtml(checkedAt));
+
+  const blob = await zip.generateAsync({ type: "blob" });
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = `fwy-certifikater_${new Date().toISOString().slice(0, 10)}.zip`;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(a.href);
+
+  btn.disabled = false;
+  btn.textContent = "⇓ Download alle certifikater";
+});
+
+setInterval(load, 60 * 60 * 1000);
 </script>
 </body>
 </html>
