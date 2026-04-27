@@ -477,11 +477,11 @@ let allResults = [];
 
 function certUrl(r) {
   if (r.type === "msc")
-    return `https://cert.msc.org/api/download?certcode=${encodeURIComponent(r.certificate_id)}`;
+    return `https://cert.msc.org/supplierdirectory/Default.aspx?certno=${encodeURIComponent(r.certificate_id)}`;
   if (r.type === "asc")
-    return `https://www.asc-aqua.org/find-a-farm/asc-certificates/?cert=${encodeURIComponent(r.certificate_id)}`;
-  const ref = r.traces_reference || r.certificate_id;
-  return `https://webgate.ec.europa.eu/tracesnt/certificate/view?ref=${encodeURIComponent(ref)}`;
+    return `https://asc-aqua.org/find-a-supplier/${encodeURIComponent(r.certificate_id)}/`;
+  // eco – TRACES NT søgning på leverandørnavn
+  return `https://webgate.ec.europa.eu/tracesnt/directory/publication/organic-operator/index#!?query=${encodeURIComponent(r.name)}&sort=-issuedOn&states=ISSUED`;
 }
 
 function safeClass(s) {
