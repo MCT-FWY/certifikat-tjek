@@ -4,9 +4,6 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Certifikat Dashboard</title>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"
-          integrity="sha512-XMVd28F1oH/O71fzwBnV7HucLxVwtxf26XV8P4wPk26EDxuGZ91N8bsOttmnomcCD3CS5ZMRL50H0GgOHveXg=="
-          crossorigin="anonymous" referrerpolicy="no-referrer"></script>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -795,78 +792,8 @@ async function confirmDelete(name, type, certId) {
   }
 }
 
-/* ═══════════════════════════════════════════
-   DOWNLOAD ALL AS ZIP
-═══════════════════════════════════════════ */
-function certFilename(r) {
-  return `${r.type}_${r.certificate_id}_${r.name}`
-    .replace(/[^a-zA-Z0-9_\-]/g, "_").replace(/_+/g, "_").slice(0, 80);
-}
-
-function buildSummaryHtml(checkedAt) {
-  const rows = allResults.map(r => {
-    const url = certUrl(r);
-    const sc = safeClass(r.status);
-    const colors = { gyldig:"#16a34a", udloebet:"#dc2626", udloeber_snart:"#d97706", ukendt:"#94a3b8" };
-    return `<tr>
-      <td>${r.name}</td><td>${(r.type||"").toUpperCase()}</td>
-      <td style="font-family:monospace">${r.certificate_id}</td>
-      <td style="color:${colors[sc]||"#94a3b8"};font-weight:600">${STATUS_LABEL[r.status]||r.status}</td>
-      <td>${r.valid_until||"–"}</td>
-      <td><a href="${url}" target="_blank">Åbn</a></td>
-    </tr>`;
-  }).join("\n");
-
-  return `<!DOCTYPE html><html lang="da"><head><meta charset="UTF-8">
-<title>Certifikater – FWY</title>
-<style>body{font-family:sans-serif;padding:32px;color:#1a1a2e}h1{font-size:1.3rem;margin-bottom:4px}
-p{font-size:.85rem;color:#64748b;margin-bottom:20px}table{border-collapse:collapse;width:100%;font-size:.88rem}
-th{background:#1a1a2e;color:#fff;padding:8px 12px;text-align:left}td{padding:7px 12px;border-bottom:1px solid #e2e8f0}
-tr:hover td{background:#f8fafc}a{color:#0284c7}</style></head>
-<body><h1>FWY – Certifikatoversigt</h1><p>Genereret: ${checkedAt}</p>
-<table><thead><tr><th>Leverandør</th><th>Type</th><th>Certifikat-ID</th><th>Status</th><th>Udløber</th><th>Link</th></tr></thead>
-<tbody>${rows}</tbody></table></body></html>`;
-}
-
-document.getElementById("dl-all-btn").addEventListener("click", async () => {
-  if (!allResults.length) return;
-  const btn = document.getElementById("dl-all-btn");
-  btn.disabled = true;
-  const zip = new JSZip();
-  let done = 0;
-  const total = allResults.length;
-
-  for (const r of allResults) {
-    btn.textContent = `Henter… ${done}/${total}`;
-    const url  = certUrl(r);
-    const base = certFilename(r);
-    try {
-      const resp = await fetch(url, { mode: "cors" });
-      if (!resp.ok) throw new Error();
-      const ct   = resp.headers.get("content-type") || "";
-      const blob = await resp.blob();
-      const ext  = ct.includes("pdf") ? ".pdf" : ct.includes("html") ? ".html" : "";
-      zip.file(base + ext, blob);
-    } catch {
-      zip.file(base + ".url", `[InternetShortcut]\r\nURL=${url}\r\n`);
-    }
-    done++;
-  }
-
-  const checkedAt = document.getElementById("last-checked").textContent.replace("Sidst tjekket: ", "");
-  zip.file("index.html", buildSummaryHtml(checkedAt));
-
-  const blob = await zip.generateAsync({ type: "blob" });
-  const a = document.createElement("a");
-  a.href = URL.createObjectURL(blob);
-  a.download = `fwy-certifikater_${new Date().toISOString().slice(0,10)}.zip`;
-  document.body.appendChild(a);
-  a.click();
-  a.remove();
-  URL.revokeObjectURL(a.href);
-
-  btn.disabled = false;
-  btn.textContent = "⇓ Download alle certifikater";
+document.getElementById("dl-all-btn").addEventListener("click", () => {
+  alert("⏳ Kommer snart – vi afventer API-godkendelse fra MSC og ASC. Funktionen aktiveres automatisk når adgang er på plads.");
 });
 </script>
 </body>
