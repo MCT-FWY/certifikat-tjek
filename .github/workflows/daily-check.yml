@@ -1,0 +1,43 @@
+name: Dagligt certifikat-tjek
+
+on:
+  schedule:
+    # 06:00 UTC = 08:00 dansk sommertid (CEST).
+    # I vintertid (CET) kører det kl. 07:00 dansk tid.
+    - cron: '0 6 * * *'
+  workflow_dispatch:   # Tillader manuel kørsel fra GitHub Actions-fanen
+
+permissions:
+  contents: write      # Nødvendigt for at gemme results/latest.json i repoen
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Hent kode
+        uses: actions/checkout@v4
+
+      - name: Sæt Python op
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: 'pip'
+
+      - name: Installér afhængigheder
+        run: pip install -r requirements.txt
+
+      - name: Kør certifikat-tjek
+        env:
+          # Tilføj MSC_API_KEY under Settings → Secrets and variables → Actions
+          # når nøglen ankommer. Scriptet bruger cert.msc.org som fallback indtil da.
+          MSC_API_KEY: ${{ secrets.MSC_API_KEY }}
+        run: python check_certificates.py
+
+      - name: Gem resultater i repo
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add results/latest.json
+          git diff --staged --quiet || git commit -m "chore: certifikat-tjek $(date -u +%Y-%m-%d)"
+          git push

@@ -1,0 +1,147 @@
+{
+  "eco": [
+    {
+      "name": "Bantry Bay",
+      "certificate_id": "IE-ORG-03",
+      "country": "IE",
+      "search_query": "Bantry Bay Premium"
+    },
+    {
+      "name": "BG Salmon",
+      "certificate_id": "PL-EKO-01",
+      "country": "PL",
+      "search_query": "BG PRODUCTION"
+    },
+    {
+      "name": "Heiploeg",
+      "certificate_id": "NL-BIO-01",
+      "country": "NL",
+      "search_query": "Heiploeg International"
+    },
+    {
+      "name": "Vega Salmon",
+      "certificate_id": "DE-ÖKO-039",
+      "country": "DE",
+      "search_query": "Vega Salmon"
+    }
+  ],
+  "msc": [
+    {
+      "name": "Bantry Bay",
+      "certificate_ids": ["MSC-C-57012"]
+    },
+    {
+      "name": "BG",
+      "certificate_ids": ["MSC-C-57940"]
+    },
+    {
+      "name": "Chrisfish",
+      "certificate_ids": ["MSC-C-52525"]
+    },
+    {
+      "name": "Dalian Gourmet Industry CO., LTD",
+      "certificate_ids": ["MSC-C-54359"]
+    },
+    {
+      "name": "Dalian Honghe Foods",
+      "certificate_ids": ["MSC-C-65574"]
+    },
+    {
+      "name": "DQ Foods",
+      "certificate_ids": [
+        "MSC-C-56921",
+        "MSC-C-52677",
+        "MSC-C-51457",
+        "MSC-C-51642",
+        "MSC-C-54247",
+        "MSC-C-54621"
+      ]
+    },
+    {
+      "name": "Eastern Fisheries",
+      "certificate_ids": ["MSC-C-52855"]
+    },
+    {
+      "name": "Fjord Supplier",
+      "certificate_ids": ["MSC-C-56699"]
+    },
+    {
+      "name": "Hai Trieu Company Limited",
+      "certificate_ids": ["MSC-C-59334"]
+    },
+    {
+      "name": "Het Urker Zalmhuys",
+      "certificate_ids": ["MSC-C-54194", "MSC-C-57940"]
+    },
+    {
+      "name": "Jeka Fish Cimbric",
+      "certificate_ids": ["MSC-C-50993"]
+    },
+    {
+      "name": "Kangamiut Seafood",
+      "certificate_ids": ["MSC-C-51564"]
+    },
+    {
+      "name": "Kramers Seafood",
+      "certificate_ids": ["MSC-C-51417"]
+    },
+    {
+      "name": "Maresco",
+      "certificate_ids": ["MSC-C-53833"]
+    },
+    {
+      "name": "North Seafood",
+      "certificate_ids": ["MSC-C-50775"]
+    },
+    {
+      "name": "Rifish International",
+      "certificate_ids": ["MSC-C-50748", "MSC-C-51642"]
+    },
+    {
+      "name": "Seawest AS",
+      "certificate_ids": ["MSC-C-56699"]
+    },
+    {
+      "name": "Van der Lee Seafish BV",
+      "certificate_ids": ["MSC-C-50836"]
+    }
+  ],
+  "asc": [
+    {
+      "name": "BG",
+      "certificate_ids": ["ASC-C-01898", "ASC-C-02693"]
+    },
+    {
+      "name": "Danforel",
+      "certificate_ids": ["ASC-C-00438"]
+    },
+    {
+      "name": "Gumusdoga",
+      "certificate_ids": ["ASC-C-00684"]
+    },
+    {
+      "name": "Hanseatic Produkcja Sp. Z.O.O.",
+      "certificate_ids": ["ASC-C-00752"]
+    },
+    {
+      "name": "Heiploeg NL",
+      "certificate_ids": ["ASC-C-00489"]
+    },
+    {
+      "name": "MarinePack",
+      "certificate_ids": ["ASC-C-00532"]
+    },
+    {
+      "name": "Seawest AS",
+      "certificate_ids": ["ASC-C-03009"]
+    },
+    {
+      "name": "Selina",
+      "certificate_ids": ["ASC-C-01847"]
+    },
+    {
+      "name": "Vega Salmon",
+      "certificate_ids": ["ASC-C-00657"]
+    }
+  ]
+}

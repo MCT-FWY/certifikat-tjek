@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="da">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Certifikat Dashboard</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: #f0f2f5;
+      color: #1a1a2e;
+    }
+
+    /* ── Header ── */
+    header {
+      background: #1a1a2e;
+      color: #fff;
+      padding: 18px 32px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+    header h1 { font-size: 1.25rem; font-weight: 700; letter-spacing: -.01em; }
+    #last-checked { font-size: 0.82rem; opacity: .65; white-space: nowrap; }
+
+    /* ── Summary strip ── */
+    .summary {
+      background: #fff;
+      border-bottom: 1px solid #e2e8f0;
+      padding: 0 32px;
+      display: flex;
+      gap: 0;
+    }
+    .summary-item {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      padding: 14px 24px 14px 0;
+      font-size: 0.88rem;
+      color: #475569;
+      border-right: 1px solid #e2e8f0;
+      margin-right: 24px;
+    }
+    .summary-item:last-child { border-right: none; }
+    .summary-count { font-size: 1.35rem; font-weight: 700; line-height: 1; }
+    .c-green  { color: #16a34a; }
+    .c-orange { color: #d97706; }
+    .c-red    { color: #dc2626; }
+    .c-gray   { color: #94a3b8; }
+
+    /* ── Main content ── */
+    main { padding: 28px 32px 48px; }
+
+    /* ── Section ── */
+    .section { margin-bottom: 36px; }
+    .section-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+    .section-title {
+      font-size: 0.72rem;
+      font-weight: 800;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      color: #64748b;
+    }
+    .section-badge {
+      font-size: 0.72rem;
+      background: #e2e8f0;
+      color: #475569;
+      padding: 2px 8px;
+      border-radius: 100px;
+      font-weight: 600;
+    }
+
+    /* ── Cards grid ── */
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
+      gap: 12px;
+    }
+
+    .card {
+      background: #fff;
+      border-radius: 10px;
+      padding: 16px 18px;
+      border-left: 4px solid #cbd5e1;
+      box-shadow: 0 1px 3px rgba(0,0,0,.05);
+      transition: box-shadow .15s, transform .15s;
+      cursor: default;
+    }
+    .card:hover { box-shadow: 0 4px 16px rgba(0,0,0,.1); transform: translateY(-1px); }
+
+    .card.gyldig          { border-left-color: #22c55e; }
+    .card.udloeber_snart  { border-left-color: #f59e0b; }
+    .card.udloebet        { border-left-color: #ef4444; }
+    .card.ukendt          { border-left-color: #cbd5e1; }
+
+    .card-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+    .card-name {
+      font-weight: 600;
+      font-size: 0.93rem;
+      line-height: 1.3;
+    }
+
+    .badge {
+      flex-shrink: 0;
+      font-size: 0.68rem;
+      font-weight: 700;
+      padding: 3px 9px;
+      border-radius: 100px;
+      letter-spacing: .02em;
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
+    .badge-gyldig         { background: #dcfce7; color: #15803d; }
+    .badge-udloeber_snart { background: #fef3c7; color: #b45309; }
+    .badge-udloebet       { background: #fee2e2; color: #b91c1c; }
+    .badge-ukendt         { background: #f1f5f9; color: #64748b; }
+
+    .card-meta {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+      font-size: 0.8rem;
+      color: #64748b;
+    }
+    .card-meta-row { display: flex; align-items: center; gap: 6px; }
+    .cert-id {
+      font-family: ui-monospace, "Cascadia Code", Consolas, monospace;
+      font-size: 0.76rem;
+      background: #f1f5f9;
+      color: #334155;
+      padding: 1px 7px;
+      border-radius: 4px;
+    }
+    .days-chip {
+      font-size: 0.72rem;
+      font-weight: 600;
+      padding: 2px 7px;
+      border-radius: 4px;
+    }
+    .days-ok     { background: #f0fdf4; color: #15803d; }
+    .days-warn   { background: #fffbeb; color: #b45309; }
+    .days-danger { background: #fef2f2; color: #b91c1c; }
+    .days-gray   { background: #f1f5f9; color: #64748b; }
+
+    .card-error {
+      margin-top: 9px;
+      font-size: 0.74rem;
+      color: #b91c1c;
+      background: #fff5f5;
+      border: 1px solid #fecaca;
+      padding: 6px 9px;
+      border-radius: 5px;
+      line-height: 1.4;
+    }
+
+    /* ── Empty / loading state ── */
+    #no-data {
+      text-align: center;
+      padding: 80px 20px;
+      color: #94a3b8;
+    }
+    #no-data h2 { font-size: 1.05rem; margin-bottom: 12px; color: #64748b; }
+    #no-data code {
+      font-size: 0.85rem;
+      background: #f1f5f9;
+      padding: 5px 12px;
+      border-radius: 5px;
+      display: inline-block;
+      margin-top: 6px;
+    }
+    #no-data p { font-size: 0.88rem; margin-top: 8px; }
+
+    /* ── Responsive ── */
+    @media (max-width: 640px) {
+      header, main { padding-left: 16px; padding-right: 16px; }
+      .summary { padding-left: 16px; flex-wrap: wrap; }
+      .summary-item { padding-right: 16px; margin-right: 16px; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>Certifikat Dashboard</h1>
+  <span id="last-checked">Indlæser…</span>
+</header>
+
+<div class="summary" id="summary" style="display:none">
+  <div class="summary-item">
+    <span class="summary-count c-green"  id="s-gyldig">0</span>
+    <span>Gyldige</span>
+  </div>
+  <div class="summary-item">
+    <span class="summary-count c-orange" id="s-snart">0</span>
+    <span>Udløber snart</span>
+  </div>
+  <div class="summary-item">
+    <span class="summary-count c-red"    id="s-udloebet">0</span>
+    <span>Udløbet</span>
+  </div>
+  <div class="summary-item">
+    <span class="summary-count c-gray"   id="s-ukendt">0</span>
+    <span>Ukendt</span>
+  </div>
+</div>
+
+<main id="main">
+  <div id="no-data">
+    <h2>Ingen data endnu</h2>
+    <p>Kør certifikat-scriptet for at hente status:</p>
+    <code>python check_certificates.py</code>
+    <p style="margin-top:16px">Åbn derefter dashboardet via:</p>
+    <code>python serve.py</code>
+  </div>
+</main>
+
+<script>
+const TYPE_LABEL = { eco: "Øko", msc: "MSC", asc: "ASC" };
+const STATUS_LABEL = {
+  gyldig: "Gyldig",
+  udloeber_snart: "Udløber snart",
+  udloebet: "Udløbet",
+  ukendt: "Ukendt",
+};
+
+function safeClass(s) {
+  // Normalize Danish chars for CSS class names
+  return (s || "ukendt")
+    .replace("ø", "o").replace("Ø", "O")
+    .replace("æ", "ae").replace("Æ", "AE")
+    .replace("å", "aa").replace("Å", "AA")
+    .replace(/\s/g, "_");
+}
+
+function formatDate(iso) {
+  if (!iso) return null;
+  try {
+    return new Date(iso).toLocaleDateString("da-DK",
+      { day: "2-digit", month: "short", year: "numeric" });
+  } catch { return iso; }
+}
+
+function daysChip(r) {
+  const d = r.days_until_expiry;
+  if (d === null || d === undefined) return "";
+  if (d < 0)   return `<span class="days-chip days-danger">Udløbet for ${Math.abs(d)} dage siden</span>`;
+  if (d === 0) return `<span class="days-chip days-danger">Udløber i dag!</span>`;
+  if (d <= 30) return `<span class="days-chip days-warn">Udløber om ${d} dage</span>`;
+  return `<span class="days-chip days-ok">Udløber om ${d} dage</span>`;
+}
+
+function buildCard(r) {
+  const sc  = safeClass(r.status);
+  const badgeLabel = STATUS_LABEL[r.status] || r.status;
+  const dateStr    = formatDate(r.valid_until);
+
+  const errorHtml = r.error
+    ? `<div class="card-error">⚠ ${r.error}</div>`
+    : "";
+
+  const dbName = r.traces_operator || r.asc_cert_holder || r.msc_cert_holder;
+  const operatorRow = dbName && dbName !== r.name
+    ? `<div class="card-meta-row" style="color:#64748b;font-size:0.78rem">
+         <span style="font-weight:600;color:#94a3b8;text-transform:uppercase;letter-spacing:.04em;font-size:0.68rem">Certifikatholder&nbsp;</span>${dbName}
+       </div>`
+    : "";
+
+  const refRow = r.traces_reference
+    ? `<div class="card-meta-row"><span class="cert-id" style="font-size:0.7rem">${r.traces_reference}</span></div>`
+    : "";
+
+  return `
+    <div class="card ${sc}">
+      <div class="card-top">
+        <div class="card-name">${r.name}</div>
+        <span class="badge badge-${sc}">${badgeLabel}</span>
+      </div>
+      <div class="card-meta">
+        <div class="card-meta-row">
+          <span style="font-weight:600;color:#334155">${TYPE_LABEL[r.type] || r.type.toUpperCase()}</span>
+          <span class="cert-id">${r.certificate_id}</span>
+        </div>
+        ${operatorRow}
+        ${refRow}
+        ${dateStr ? `<div class="card-meta-row">Udløber: <strong>${dateStr}</strong></div>` : ""}
+        ${daysChip(r) ? `<div class="card-meta-row">${daysChip(r)}</div>` : ""}
+      </div>
+      ${errorHtml}
+    </div>`;
+}
+
+function buildSection(title, results) {
+  if (!results.length) return "";
+  return `
+    <div class="section">
+      <div class="section-header">
+        <span class="section-title">${title}</span>
+        <span class="section-badge">${results.length}</span>
+      </div>
+      <div class="cards">${results.map(buildCard).join("")}</div>
+    </div>`;
+}
+
+async function load() {
+  try {
+    const resp = await fetch("../results/latest.json?_=" + Date.now());
+    if (!resp.ok) throw new Error();
+    const data = await resp.json();
+
+    // Header
+    document.getElementById("last-checked").textContent =
+      "Sidst tjekket: " + new Date(data.checked_at).toLocaleString("da-DK");
+
+    // Summary
+    const s = data.summary || {};
+    document.getElementById("summary").style.display = "flex";
+    document.getElementById("s-gyldig").textContent   = s.gyldig         || 0;
+    document.getElementById("s-snart").textContent    = s.udloeber_snart || 0;
+    document.getElementById("s-udloebet").textContent = s.udloebet       || 0;
+    document.getElementById("s-ukendt").textContent   = s.ukendt         || 0;
+
+    // Sort: udløbet og udløber_snart først
+    const priority = { udloebet: 0, udloeber_snart: 1, gyldig: 2, ukendt: 3 };
+    const sorted = [...data.results].sort((a, b) =>
+      (priority[safeClass(a.status)] ?? 9) - (priority[safeClass(b.status)] ?? 9)
+    );
+
+    const groups = { eco: [], msc: [], asc: [] };
+    for (const r of sorted) (groups[r.type] ??= []).push(r);
+
+    document.getElementById("main").innerHTML =
+      buildSection("Øko-certifikater", groups.eco)
+      + buildSection("MSC-certifikater", groups.msc)
+      + buildSection("ASC-certifikater", groups.asc);
+
+  } catch {
+    // Behold "ingen data"-besked
+  }
+}
+
+load();
+setInterval(load, 60 * 60 * 1000); // Genindlæs hvert 60. minut
+</script>
+</body>
+</html>
