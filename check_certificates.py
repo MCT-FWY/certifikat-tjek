@@ -29,7 +29,9 @@ ECO_API_URL = "https://webgate.ec.europa.eu/tracesnt/directory/publication/organ
 MSC_API_URL = "https://api-msc-api-prod.azure-api.net/api/chaincustody"
 MSC_API_KEY = os.getenv("MSC_API_KEY", "")  # ← Indsæt nøgle her eller sæt MSC_API_KEY som env-variabel
 
-# ASC – ingen API-nøgle kræves (se check_asc_all)
+# ASC – officielt REST API
+ASC_API_BASE = "https://data.asc-aqua.org/api/status/v1"
+ASC_API_KEY  = os.getenv("ASC_API_KEY", "")
 
 # Antal dage før udløb der markeres som "udløber snart"
 EXPIRY_WARNING_DAYS = 30
@@ -261,34 +263,12 @@ def check_msc_all(msc_suppliers: list[dict]) -> list[dict]:
     return _check_msc_cert_dir(checks)
 
 # ---------------------------------------------------------------------------
-# ASC – asc-aqua.org WordPress AJAX (ingen API-nøgle kræves)
-# Henter en frisk nonce fra siden, derefter ét POST-kald per certifikat.
-#
-# Felter i svaret:
-#   Certificate_Status : "Certified" | "Withdrawn" | "Cancelled" | "Suspended"
-#   Valid_Until        : "YYYY-MM-DD"
-#   Valid_From         : "YYYY-MM-DD"
-#   Ch_Name            : certifikatholderens navn
-#   CAB                : certificeringsorgan
+# ASC – officielt REST API (data.asc-aqua.org)
+# GET /api/status/v1/<API-KEY>/certcode/<CERT-CODE>
+# Felter: Certificate_status, Expiry_date, Certificate_holder
 # ---------------------------------------------------------------------------
 
-ASC_PAGE_URL  = "https://asc-aqua.org/find-a-supplier/"
-ASC_AJAX_URL  = "https://asc-aqua.org/wp-admin/admin-ajax.php"
-_ASC_HEADERS  = {
-    "User-Agent": "Mozilla/5.0 (compatible; certifikat-tjek/1.0)",
-    "Referer":    ASC_PAGE_URL,
-}
-_ASC_INVALID_STATUSES = {"Withdrawn", "Cancelled", "Suspended"}
-
-
-def _asc_fetch_nonce(session: requests.Session) -> str:
-    """Henter en frisk nonce fra ASC find-a-supplier siden."""
-    resp = session.get(ASC_PAGE_URL, headers=_ASC_HEADERS, timeout=15)
-    resp.raise_for_status()
-    match = re.search(r'"nonce"\s*:\s*"([a-f0-9]+)"', resp.text)
-    if not match:
-        raise ValueError("Kunne ikke finde nonce på ASC-siden")
-    return match.group(1)
+_ASC_INVALID_STATUSES = {"Cancelled", "Suspended", "Withdrawn", "Certification not awarded"}
 
 
 def check_asc_all(asc_suppliers: list[dict]) -> list[dict]:
@@ -301,74 +281,47 @@ def check_asc_all(asc_suppliers: list[dict]) -> list[dict]:
     if not checks:
         return []
 
-    results = []
-    session = requests.Session()
+    if not ASC_API_KEY:
+        return [make_result(n, "asc", c, error="ASC_API_KEY ikke sat")
+                for n, c in checks]
 
-    try:
-        nonce = _asc_fetch_nonce(session)
-    except Exception as e:
-        return [make_result(name, "asc", cert_id, error=f"Kunne ikke hente ASC nonce: {e}")
-                for name, cert_id in checks]
+    session = requests.Session()
+    headers = {"User-Agent": "Mozilla/5.0 (compatible; certifikat-tjek/1.0)"}
+    results = []
 
     for name, cert_id in checks:
         try:
-            resp = session.post(
-                ASC_AJAX_URL,
-                headers=_ASC_HEADERS,
-                data={
-                    "action":           "ascfb_ajax_process",
-                    "_ajax_nonce":      nonce,
-                    "collection":       "v_Find_Supplier",
-                    "ajaxtype":         "details",
-                    "Certificate_Number": cert_id,
-                },
+            resp = session.get(
+                f"{ASC_API_BASE}/{ASC_API_KEY}/certcode/{cert_id}",
+                headers=headers,
                 timeout=15,
             )
             resp.raise_for_status()
-            payload = resp.json()
-            docs = payload.get("documents", []) if isinstance(payload, dict) else []
-
-            if not docs:
-                # Nonce kan være udløbet — prøv at hente en ny
-                nonce = _asc_fetch_nonce(session)
-                resp = session.post(
-                    ASC_AJAX_URL,
-                    headers=_ASC_HEADERS,
-                    data={
-                        "action":             "ascfb_ajax_process",
-                        "_ajax_nonce":        nonce,
-                        "collection":         "v_Find_Supplier",
-                        "ajaxtype":           "details",
-                        "Certificate_Number": cert_id,
-                    },
-                    timeout=15,
-                )
-                resp.raise_for_status()
-                payload = resp.json()
-                docs = payload.get("documents", []) if isinstance(payload, dict) else []
+            docs = resp.json().get("documents", [])
 
             if not docs:
                 results.append(make_result(name, "asc", cert_id,
-                                           error="Certifikat ikke fundet i ASC-databasen"))
+                                           error="Certifikat ikke fundet i ASC API"))
                 continue
 
-            doc = docs[0]
-            cert_status  = doc.get("Certificate_Status", "")
-            valid_until  = doc.get("Valid_Until")
-            asc_name     = doc.get("Ch_Name", name)
+            doc         = docs[0]
+            cert_status = doc.get("Certificate_status", "")
+            expiry_date = doc.get("Expiry_date")
+            cert_holder = doc.get("Certificate_holder", name)
 
             if cert_status in _ASC_INVALID_STATUSES:
                 status = "udløbet"
             else:
-                status = expiry_status(days_until_expiry(valid_until))
+                status = expiry_status(days_until_expiry(expiry_date))
 
-            result = make_result(name, "asc", cert_id, valid_until=valid_until, status=status)
-            result["asc_cert_holder"] = f"{asc_name} ({name})" if asc_name != name else asc_name
+            result = make_result(name, "asc", cert_id, valid_until=expiry_date, status=status)
+            if cert_holder and cert_holder != name:
+                result["asc_cert_holder"] = cert_holder
             result["asc_cert_status"] = cert_status
             results.append(result)
 
         except requests.RequestException as e:
-            results.append(make_result(name, "asc", cert_id, error=f"HTTP-fejl: {e}"))
+            results.append(make_result(name, "asc", cert_id, error=f"ASC API fejl: {e}"))
 
     return results
 

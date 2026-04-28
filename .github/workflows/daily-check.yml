@@ -29,6 +29,7 @@ jobs:
       - name: Kør certifikat-tjek
         env:
           MSC_API_KEY:    ${{ secrets.MSC_API_KEY }}
+          ASC_API_KEY:    ${{ secrets.ASC_API_KEY }}
           EMAIL_PASSWORD: ${{ secrets.EMAIL_PASSWORD }}
         run: python check_certificates.py
 
@@ -36,7 +37,8 @@ jobs:
         run: |
           git config user.name  "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
+          git fetch origin main
+          git rebase origin/main
           git add results/latest.json
           git diff --staged --quiet || git commit -m "chore: certifikat-tjek $(date -u +%Y-%m-%d)"
-          git pull --rebase origin main
           git push
