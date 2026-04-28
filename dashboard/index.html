@@ -130,7 +130,17 @@
     }
     .card.gyldig         { border-left-color: #22c55e; }
     .card.udloeber_snart { border-left-color: #f59e0b; }
-    .card.udloebet       { border-left-color: #ef4444; }
+    .card.udloebet {
+      border-left-color: #dc2626;
+      border-top: 1px solid #fca5a5;
+      border-right: 1px solid #fca5a5;
+      border-bottom: 1px solid #fca5a5;
+      background: #fff5f5;
+      box-shadow: 0 0 0 1px #fca5a5, 0 2px 8px rgba(220,38,38,.12);
+    }
+    .card.udloebet:hover {
+      box-shadow: 0 0 0 1px #ef4444, 0 6px 20px rgba(220,38,38,.2);
+    }
     .card.ukendt         { border-left-color: #cbd5e1; }
 
     /* Delete button */
