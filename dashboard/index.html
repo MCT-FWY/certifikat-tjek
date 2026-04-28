@@ -452,6 +452,11 @@ const GH_REPO   = "certifikat-tjek";
 const GH_BRANCH = "main";
 const GH_API    = `https://api.github.com/repos/${GH_OWNER}/${GH_REPO}/contents/suppliers.json`;
 
+const RESULTS_URLS = [
+  "../results/latest.json",
+  "https://raw.githubusercontent.com/MCT-FWY/certifikat-tjek/main/results/latest.json",
+];
+
 function ghHeaders(token) {
   return {
     "Authorization": `Bearer ${token}`,
@@ -629,11 +634,6 @@ function attachCardClicks() {
     });
   });
 }
-
-const RESULTS_URLS = [
-  "../results/latest.json",
-  "https://raw.githubusercontent.com/MCT-FWY/certifikat-tjek/main/results/latest.json",
-];
 
 async function load() {
   try {
