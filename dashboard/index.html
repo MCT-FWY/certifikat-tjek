@@ -659,7 +659,13 @@ async function load() {
 
     allResults = data.results || [];
     renderDashboard();
-  } catch { /* behold "ingen data"-besked */ }
+  } catch (err) {
+    document.getElementById("no-data").innerHTML =
+      `<h2>Ingen data endnu</h2>
+       <p style="color:#dc2626;font-size:0.85rem;margin-top:12px">Fejl: ${err.message}</p>
+       <p style="font-size:0.82rem;margin-top:8px;color:#64748b">Åbn browserens konsol (F12) for detaljer.</p>`;
+    console.error("load() fejl:", err);
+  }
 }
 
 setInterval(load, 60 * 60 * 1000);
