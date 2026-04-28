@@ -69,6 +69,8 @@
     .btn-add:hover { background: #16a34a; }
     .btn-dl   { background: #38bdf8; color: #0f172a; }
     .btn-dl:hover { background: #7dd3fc; }
+    .btn-run  { background: #6366f1; color: #fff; }
+    .btn-run:hover { background: #4f46e5; }
     .btn-header:disabled { opacity: .5; cursor: default; }
 
     /* ── Summary strip ── */
@@ -371,6 +373,7 @@
     <h1>Food with You Certifikat Dashboard</h1>
     <div class="header-actions">
       <span id="last-checked">Indlæser&hellip;</span>
+      <button class="btn-header btn-run" id="run-btn">&#9654; Tjek alle nu</button>
       <button class="btn-header btn-add" id="add-btn">&#x2795; Tilf&oslash;j leverand&oslash;r</button>
       <button class="btn-header btn-dl"  id="dl-all-btn">&#8659; Download alle certifikater</button>
     </div>
@@ -794,6 +797,50 @@ async function confirmDelete(name, type, certId) {
 
 document.getElementById("dl-all-btn").addEventListener("click", () => {
   alert("⏳ Kommer snart – vi afventer API-godkendelse fra MSC og ASC. Funktionen aktiveres automatisk når adgang er på plads.");
+});
+
+/* ═══════════════════════════════════════════
+   MANUEL CERTIFIKAT-TJEK
+═══════════════════════════════════════════ */
+document.getElementById("run-btn").addEventListener("click", async () => {
+  let token = sessionStorage.getItem("gh_token");
+  if (!token) {
+    token = window.prompt("Indtast GitHub-token (PAT med Actions: write) for at starte tjek:");
+    if (!token) return;
+  }
+
+  const btn = document.getElementById("run-btn");
+  btn.disabled = true;
+  btn.textContent = "Starter…";
+
+  try {
+    const r = await fetch(
+      `https://api.github.com/repos/${GH_OWNER}/${GH_REPO}/actions/workflows/daily-check.yml/dispatches`,
+      {
+        method: "POST",
+        headers: ghHeaders(token),
+        body: JSON.stringify({ ref: GH_BRANCH }),
+      }
+    );
+
+    if (r.status === 401) throw new Error("Ugyldigt token – tjek at det har Actions: write rettighed.");
+    if (r.status === 404) throw new Error("Workflow ikke fundet – er filen committet til main?");
+    if (!r.ok) throw new Error(`GitHub API fejl: ${r.status}`);
+
+    sessionStorage.setItem("gh_token", token);
+    btn.textContent = "Startet ✓";
+    btn.style.background = "#16a34a";
+    setTimeout(() => {
+      btn.disabled = false;
+      btn.textContent = "▶ Tjek alle nu";
+      btn.style.background = "";
+    }, 4000);
+
+  } catch (err) {
+    alert("Fejl: " + err.message);
+    btn.disabled = false;
+    btn.textContent = "▶ Tjek alle nu";
+  }
 });
 </script>
 </body>
