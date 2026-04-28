@@ -9,7 +9,7 @@ import os
 import re
 import smtplib
 import sys
-from datetime import datetime
+from datetime import datetime, timezone
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from pathlib import Path
@@ -85,7 +85,7 @@ def make_result(name: str, cert_type: str, certificate_id: str,
         "status": status if not error else "ukendt",
         "valid_until": valid_until,
         "days_until_expiry": days,
-        "checked_at": datetime.now().isoformat(timespec="seconds"),
+        "checked_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
         "error": error,
     }
 
@@ -669,7 +669,7 @@ def run_checks() -> dict:
     all_results = eco_results + msc_results + asc_results
 
     output = {
-        "checked_at": datetime.now().isoformat(timespec="seconds"),
+        "checked_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
         "summary": {
             "total":          len(all_results),
             "gyldig":         sum(1 for r in all_results if r["status"] == "gyldig"),
