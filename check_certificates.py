@@ -7,7 +7,11 @@ Kør manuelt eller sæt op som daglig opgave via Windows Task Scheduler.
 import json
 import os
 import re
+import smtplib
+import sys
 from datetime import datetime
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
 from pathlib import Path
 from urllib.parse import quote as _url_quote
 
@@ -444,11 +448,13 @@ def check_eco_all(eco_suppliers: list[dict]) -> list[dict]:
     return results
 
 # ---------------------------------------------------------------------------
-# E-mail notifikationer via SendGrid
+# E-mail notifikationer via Microsoft 365 SMTP
 # ---------------------------------------------------------------------------
 
 NOTIFICATION_THRESHOLD_DAYS = 14
-_NOTIFICATION_FROM = "noreply@foodwithyou.com"
+_SMTP_SERVER       = "smtp.office365.com"
+_SMTP_PORT         = 587
+_NOTIFICATION_FROM = "mt@foodwithyou.com"
 _NOTIFICATION_TO   = ["quality@foodwithyou.com", "info@foodwithyou.com"]
 _TYPE_LABELS       = {"msc": "MSC", "asc": "ASC", "eco": "Øko"}
 _DASHBOARD_URL     = "https://mct-fwy.github.io/certifikat-tjek/"
@@ -536,68 +542,99 @@ def _build_email_html(result: dict, is_expired: bool) -> str:
 </html>"""
 
 
+def _smtp_connect(password: str) -> smtplib.SMTP:
+    smtp = smtplib.SMTP(_SMTP_SERVER, _SMTP_PORT, timeout=30)
+    smtp.ehlo()
+    smtp.starttls()
+    smtp.login(_NOTIFICATION_FROM, password)
+    return smtp
+
+
+def _make_mime(to_addr: str, subject: str, html: str) -> MIMEMultipart:
+    msg = MIMEMultipart("alternative")
+    msg["Subject"] = subject
+    msg["From"]    = _NOTIFICATION_FROM
+    msg["To"]      = to_addr
+    msg.attach(MIMEText(html, "html", "utf-8"))
+    return msg
+
+
 def send_notifications(results: list[dict]) -> None:
-    """Sender e-mail via SendGrid for certifikater der udløber inden for
+    """Sender e-mail via Microsoft 365 SMTP for certifikater der udløber inden for
     NOTIFICATION_THRESHOLD_DAYS dage eller allerede er udløbet."""
-    api_key = os.getenv("SENDGRID_API_KEY", "")
-    if not api_key:
-        print("\nSendGrid: SENDGRID_API_KEY ikke sat – springer notifikationer over.")
+    password = os.getenv("EMAIL_PASSWORD", "")
+    if not password:
+        print("\nSMTP: EMAIL_PASSWORD ikke sat – springer notifikationer over.")
         return
 
-    try:
-        from sendgrid import SendGridAPIClient
-        from sendgrid.helpers.mail import Mail
-    except ImportError:
-        print("\nSendGrid: pakken er ikke installeret – springer notifikationer over.")
-        return
-
-    sg   = SendGridAPIClient(api_key)
-    sent = 0
-
+    to_send = []
     for result in results:
         if result.get("error"):
             continue
-
         status = result.get("status", "")
         days   = result.get("days_until_expiry")
-
         is_expired = (status == "udløbet") or (days is not None and days < 0)
         is_warning = (
             not is_expired
             and days is not None
             and 0 <= days <= NOTIFICATION_THRESHOLD_DAYS
         )
+        if is_expired or is_warning:
+            to_send.append((result, is_expired))
 
-        if not (is_expired or is_warning):
-            continue
+    if not to_send:
+        print("\nSMTP: ingen notifikationer nødvendige i dag.")
+        return
 
-        name    = result.get("name", "")
-        cert_id = result.get("certificate_id", "")
-        subject = (
-            f"\U0001f534 Certifikat udløbet: {name}"
-            if is_expired else
-            f"⚠️ Certifikat udløber snart: {name} ({days} dage)"
-        )
-        html = _build_email_html(result, is_expired)
-
-        for to_addr in _NOTIFICATION_TO:
-            try:
-                message = Mail(
-                    from_email=_NOTIFICATION_FROM,
-                    to_emails=to_addr,
-                    subject=subject,
-                    html_content=html,
+    try:
+        with _smtp_connect(password) as smtp:
+            sent = 0
+            for result, is_expired in to_send:
+                name  = result.get("name", "")
+                days  = result.get("days_until_expiry")
+                subject = (
+                    f"\U0001f534 Certifikat udløbet: {name}"
+                    if is_expired else
+                    f"⚠️ Certifikat udløber snart: {name} ({days} dage)"
                 )
-                sg.send(message)
-                sent += 1
-                print(f"  Mail sendt til {to_addr}: {subject}")
-            except Exception as exc:
-                print(f"  SendGrid-fejl ({to_addr}): {exc}")
+                html = _build_email_html(result, is_expired)
+                for to_addr in _NOTIFICATION_TO:
+                    smtp.send_message(_make_mime(to_addr, subject, html))
+                    sent += 1
+                    print(f"  Mail sendt til {to_addr}: {subject}")
+        print(f"\nSMTP: {sent} e-mail(s) sendt.")
+    except smtplib.SMTPException as exc:
+        print(f"\nSMTP-fejl: {exc}")
 
-    if sent == 0:
-        print("\nSendGrid: ingen notifikationer nødvendige i dag.")
-    else:
-        print(f"\nSendGrid: {sent} e-mail(s) sendt.")
+
+def send_test_email() -> None:
+    """Sender en test-e-mail for at verificere SMTP-konfigurationen."""
+    password = os.getenv("EMAIL_PASSWORD", "")
+    if not password:
+        print("EMAIL_PASSWORD ikke sat – kan ikke sende test-mail.")
+        sys.exit(1)
+
+    fake_result = {
+        "name": "TEST – Leverandør A/S",
+        "type": "msc",
+        "certificate_id": "MSC-C-TEST-001",
+        "status": "udloeber_snart",
+        "valid_until": "2026-05-15",
+        "days_until_expiry": 12,
+        "error": None,
+    }
+    subject = "✅ Test: Food with You certifikat-notifikation"
+    html    = _build_email_html(fake_result, is_expired=False)
+
+    try:
+        with _smtp_connect(password) as smtp:
+            for to_addr in _NOTIFICATION_TO:
+                smtp.send_message(_make_mime(to_addr, subject, html))
+                print(f"  Test-mail sendt til {to_addr}")
+        print("Test-email afsendt.")
+    except smtplib.SMTPException as exc:
+        print(f"SMTP-fejl: {exc}")
+        sys.exit(1)
 
 
 # ---------------------------------------------------------------------------
@@ -663,5 +700,8 @@ def _print_result(r: dict) -> None:
 
 
 if __name__ == "__main__":
-    print(f"Certifikat-tjek startet: {datetime.now().strftime('%Y-%m-%d %H:%M')}")
-    run_checks()
+    if "--test-email" in sys.argv:
+        send_test_email()
+    else:
+        print(f"Certifikat-tjek startet: {datetime.now().strftime('%Y-%m-%d %H:%M')}")
+        run_checks()
