@@ -2,9 +2,8 @@ name: Dagligt certifikat-tjek
 
 on:
   schedule:
-    # 06:00 UTC = 08:00 dansk sommertid (CEST).
-    # I vintertid (CET) kører det kl. 07:00 dansk tid.
-    - cron: '0 6 * * *'
+    - cron: '0 6 * 4-10 *'      # 08:00 CEST (UTC+2) – april–oktober
+    - cron: '0 7 * 1-3,11-12 *' # 08:00 CET  (UTC+1) – november–marts
   workflow_dispatch:   # Tillader manuel kørsel fra GitHub Actions-fanen
 
 permissions:
