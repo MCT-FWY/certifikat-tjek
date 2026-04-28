@@ -519,7 +519,7 @@ function certUrl(r) {
 
 function safeClass(s) {
   return (s || "ukendt")
-    .replace(/ø/g, "o").replace(/Ø/g, "O")
+    .replace(/ø/g, "oe").replace(/Ø/g, "OE")
     .replace(/æ/g, "ae").replace(/Æ/g, "AE")
     .replace(/å/g, "aa").replace(/Å/g, "AA")
     .replace(/\s/g, "_");
