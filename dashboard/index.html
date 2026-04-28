@@ -452,10 +452,6 @@ const GH_REPO   = "certifikat-tjek";
 const GH_BRANCH = "main";
 const GH_API    = `https://api.github.com/repos/${GH_OWNER}/${GH_REPO}/contents/suppliers.json`;
 
-const RESULTS_URLS = [
-  "../results/latest.json",
-  "https://raw.githubusercontent.com/MCT-FWY/certifikat-tjek/main/results/latest.json",
-];
 
 function ghHeaders(token) {
   return {
@@ -636,9 +632,13 @@ function attachCardClicks() {
 }
 
 async function load() {
+  const urls = [
+    "../results/latest.json",
+    "https://raw.githubusercontent.com/MCT-FWY/certifikat-tjek/main/results/latest.json",
+  ];
   try {
     let data = null;
-    for (const url of RESULTS_URLS) {
+    for (const url of urls) {
       try {
         const resp = await fetch(url + "?_=" + Date.now());
         if (resp.ok) { data = await resp.json(); break; }
