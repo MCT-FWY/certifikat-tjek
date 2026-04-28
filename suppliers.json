@@ -28,23 +28,33 @@
   "msc": [
     {
       "name": "Bantry Bay",
-      "certificate_ids": ["MSC-C-57012"]
+      "certificate_ids": [
+        "MSC-C-57012"
+      ]
     },
     {
       "name": "BG",
-      "certificate_ids": ["MSC-C-57940"]
+      "certificate_ids": [
+        "MSC-C-57940"
+      ]
     },
     {
       "name": "Chrisfish",
-      "certificate_ids": ["MSC-C-52525"]
+      "certificate_ids": [
+        "MSC-C-52525"
+      ]
     },
     {
       "name": "Dalian Gourmet Industry CO., LTD",
-      "certificate_ids": ["MSC-C-54359"]
+      "certificate_ids": [
+        "MSC-C-54359"
+      ]
     },
     {
       "name": "Dalian Honghe Foods",
-      "certificate_ids": ["MSC-C-65574"]
+      "certificate_ids": [
+        "MSC-C-65574"
+      ]
     },
     {
       "name": "DQ Foods",
@@ -59,89 +69,133 @@
     },
     {
       "name": "Eastern Fisheries",
-      "certificate_ids": ["MSC-C-52855"]
+      "certificate_ids": [
+        "MSC-C-52855"
+      ]
     },
     {
       "name": "Fjord Supplier",
-      "certificate_ids": ["MSC-C-56699"]
+      "certificate_ids": [
+        "MSC-C-56699"
+      ]
     },
     {
       "name": "Hai Trieu Company Limited",
-      "certificate_ids": ["MSC-C-59334"]
+      "certificate_ids": [
+        "MSC-C-59334"
+      ]
     },
     {
       "name": "Het Urker Zalmhuys",
-      "certificate_ids": ["MSC-C-54194", "MSC-C-57940"]
+      "certificate_ids": [
+        "MSC-C-54194",
+        "MSC-C-57940"
+      ]
     },
     {
       "name": "Jeka Fish Cimbric",
-      "certificate_ids": ["MSC-C-50993"]
+      "certificate_ids": [
+        "MSC-C-50993"
+      ]
     },
     {
       "name": "Kangamiut Seafood",
-      "certificate_ids": ["MSC-C-51564"]
+      "certificate_ids": [
+        "MSC-C-51564"
+      ]
     },
     {
       "name": "Kramers Seafood",
-      "certificate_ids": ["MSC-C-51417"]
+      "certificate_ids": [
+        "MSC-C-51417"
+      ]
     },
     {
       "name": "Maresco",
-      "certificate_ids": ["MSC-C-53833"]
+      "certificate_ids": [
+        "MSC-C-53833"
+      ]
     },
     {
       "name": "North Seafood",
-      "certificate_ids": ["MSC-C-50775"]
+      "certificate_ids": [
+        "MSC-C-50775"
+      ]
     },
     {
       "name": "Rifish International",
-      "certificate_ids": ["MSC-C-50748", "MSC-C-51642"]
+      "certificate_ids": [
+        "MSC-C-50748",
+        "MSC-C-51642"
+      ]
     },
     {
       "name": "Seawest AS",
-      "certificate_ids": ["MSC-C-56699"]
+      "certificate_ids": [
+        "MSC-C-56699"
+      ]
     },
     {
       "name": "Van der Lee Seafish BV",
-      "certificate_ids": ["MSC-C-50836"]
+      "certificate_ids": [
+        "MSC-C-50836"
+      ]
     }
   ],
   "asc": [
     {
       "name": "BG",
-      "certificate_ids": ["ASC-C-01898", "ASC-C-02693"]
+      "certificate_ids": [
+        "ASC-C-01898"
+      ]
     },
     {
       "name": "Danforel",
-      "certificate_ids": ["ASC-C-00438"]
+      "certificate_ids": [
+        "ASC-C-00438"
+      ]
     },
     {
       "name": "Gumusdoga",
-      "certificate_ids": ["ASC-C-00684"]
+      "certificate_ids": [
+        "ASC-C-00684"
+      ]
     },
     {
       "name": "Hanseatic Produkcja Sp. Z.O.O.",
-      "certificate_ids": ["ASC-C-00752"]
+      "certificate_ids": [
+        "ASC-C-00752"
+      ]
     },
     {
       "name": "Heiploeg NL",
-      "certificate_ids": ["ASC-C-00489"]
+      "certificate_ids": [
+        "ASC-C-00489"
+      ]
     },
     {
       "name": "MarinePack",
-      "certificate_ids": ["ASC-C-00532"]
+      "certificate_ids": [
+        "ASC-C-00532"
+      ]
     },
     {
       "name": "Seawest AS",
-      "certificate_ids": ["ASC-C-03009"]
+      "certificate_ids": [
+        "ASC-C-03009"
+      ]
     },
     {
       "name": "Selina",
-      "certificate_ids": ["ASC-C-01847"]
+      "certificate_ids": [
+        "ASC-C-01847"
+      ]
     },
     {
       "name": "Vega Salmon",
-      "certificate_ids": ["ASC-C-00657"]
+      "certificate_ids": [
+        "ASC-C-00657"
+      ]
     }
   ]
 }
