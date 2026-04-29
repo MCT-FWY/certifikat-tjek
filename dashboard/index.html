@@ -855,13 +855,18 @@ document.getElementById("run-btn").addEventListener("click", async () => {
     if (!r.ok) throw new Error(`GitHub API fejl: ${r.status}`);
 
     sessionStorage.setItem("gh_token", token);
-    btn.textContent = "Kører… (ca. 1 min)";
     btn.style.background = "#d97706";
 
-    // Vent ~70 sek på at workflowet er færdigt, genindlæs siden automatisk
-    setTimeout(() => {
-      location.reload();
-    }, 70000);
+    let secs = 150;
+    btn.textContent = `Kører… ca. 2-3 min (${secs}s)`;
+    const countdown = setInterval(() => {
+      secs--;
+      btn.textContent = `Kører… ca. 2-3 min (${secs}s)`;
+      if (secs <= 0) {
+        clearInterval(countdown);
+        location.reload();
+      }
+    }, 1000);
 
   } catch (err) {
     alert("Fejl: " + err.message);
