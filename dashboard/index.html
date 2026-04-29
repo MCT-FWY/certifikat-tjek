@@ -734,6 +734,12 @@ document.getElementById("modal-save").addEventListener("click", async () => {
 
   if (!name)   { setModalStatus("Indtast leverandørnavn.", true); return; }
   if (!certId) { setModalStatus("Indtast certifikatnummer.", true); return; }
+  if (type === "asc" && !certId.toUpperCase().startsWith("ASC-")) {
+    setModalStatus("ASC-certifikatnummer skal starte med ASC- (f.eks. ASC-C-00438).", true); return;
+  }
+  if (type === "msc" && !certId.toUpperCase().startsWith("MSC-")) {
+    setModalStatus("MSC-certifikatnummer skal starte med MSC- (f.eks. MSC-C-52525).", true); return;
+  }
   if (type === "eco" && !country) { setModalStatus("Indtast landekode for ØKO-certifikat.", true); return; }
 
   let token = sessionStorage.getItem("gh_token") || document.getElementById("f-token").value.trim();
