@@ -310,11 +310,12 @@ def check_asc_all(asc_suppliers: list[dict]) -> list[dict]:
             cert_holder = doc.get("Certificate_holder", name)
 
             if cert_status in _ASC_INVALID_STATUSES:
+                # Udløbsdato kan være i fremtiden selvom certifikatet er trukket tilbage
                 status = "udløbet"
+                result = make_result(name, "asc", cert_id, valid_until=None, status=status)
             else:
                 status = expiry_status(days_until_expiry(expiry_date))
-
-            result = make_result(name, "asc", cert_id, valid_until=expiry_date, status=status)
+                result = make_result(name, "asc", cert_id, valid_until=expiry_date, status=status)
             if cert_holder and cert_holder != name:
                 result["asc_cert_holder"] = cert_holder
             result["asc_cert_status"] = cert_status
