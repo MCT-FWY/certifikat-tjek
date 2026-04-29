@@ -858,12 +858,9 @@ document.getElementById("run-btn").addEventListener("click", async () => {
     btn.textContent = "Kører… (ca. 1 min)";
     btn.style.background = "#d97706";
 
-    // Vent ~70 sek på at workflowet er færdigt, hent så nye data
-    setTimeout(async () => {
-      await load();
-      btn.disabled = false;
-      btn.textContent = "▶ Tjek alle nu";
-      btn.style.background = "";
+    // Vent ~70 sek på at workflowet er færdigt, genindlæs siden automatisk
+    setTimeout(() => {
+      location.reload();
     }, 70000);
 
   } catch (err) {
