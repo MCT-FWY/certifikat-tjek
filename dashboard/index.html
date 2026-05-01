@@ -71,7 +71,23 @@
     .btn-dl:hover { background: #7dd3fc; }
     .btn-run  { background: #6366f1; color: #fff; }
     .btn-run:hover { background: #4f46e5; }
+    .btn-log  { background: #64748b; color: #fff; }
+    .btn-log:hover { background: #475569; }
     .btn-header:disabled { opacity: .5; cursor: default; }
+
+    /* ── Tjek log ── */
+    .log-table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+    .log-table th {
+      padding: 8px 12px; text-align: left; background: #f8fafc;
+      font-size: 0.72rem; font-weight: 700; text-transform: uppercase;
+      letter-spacing: .06em; color: #64748b; border-bottom: 2px solid #e2e8f0;
+    }
+    .log-table td { padding: 9px 12px; border-bottom: 1px solid #f1f5f9; }
+    .log-table tr:last-child td { border-bottom: none; }
+    .log-ok   { color: #15803d; font-weight: 600; }
+    .log-fail { color: #b91c1c; font-weight: 600; }
+    .log-run  { color: #b45309; font-weight: 600; }
+    .log-dim  { color: #94a3b8; }
 
     /* ── Summary strip ── */
     .summary {
@@ -376,6 +392,17 @@
   </div>
 </div>
 
+<!-- ── Tjek log modal ── -->
+<div id="log-modal" class="modal-overlay" style="display:none">
+  <div class="modal" style="max-width:580px">
+    <h2>Tjek log</h2>
+    <div id="log-content" style="margin-top:16px">Indlæser&hellip;</div>
+    <div class="modal-actions">
+      <button type="button" class="btn-modal-cancel" id="log-close">Luk</button>
+    </div>
+  </div>
+</div>
+
 <!-- ── Dashboard ── -->
 <div id="app">
 
@@ -383,6 +410,7 @@
     <h1>Food with You Certifikat Dashboard</h1>
     <div class="header-actions">
       <span id="last-checked">Indlæser&hellip;</span>
+      <button class="btn-header btn-log" id="log-btn">&#128203; Tjek log</button>
       <button class="btn-header btn-run" id="run-btn">&#9654; Tjek alle nu</button>
       <button class="btn-header btn-add" id="add-btn">&#x2795; Tilf&oslash;j leverand&oslash;r</button>
       <button class="btn-header btn-dl"  id="dl-all-btn">&#8659; Download alle certifikater</button>
@@ -830,6 +858,67 @@ async function confirmDelete(name, type, certId) {
 
 document.getElementById("dl-all-btn").addEventListener("click", () => {
   alert("⏳ Kommer snart – vi afventer API-godkendelse fra MSC og ASC. Funktionen aktiveres automatisk når adgang er på plads.");
+});
+
+/* ═══════════════════════════════════════════
+   TJEK LOG
+═══════════════════════════════════════════ */
+const GH_RUNS_API = `https://api.github.com/repos/${GH_OWNER}/${GH_REPO}/actions/workflows/daily-check.yml/runs?per_page=20`;
+
+document.getElementById("log-btn").addEventListener("click", async () => {
+  document.getElementById("log-modal").style.display = "flex";
+  const content = document.getElementById("log-content");
+  content.innerHTML = "Indlæser&hellip;";
+
+  try {
+    const resp = await fetch(GH_RUNS_API, {
+      headers: { "Accept": "application/vnd.github.v3+json" }
+    });
+    if (!resp.ok) throw new Error(`GitHub API svarede ${resp.status}`);
+    const runs = (await resp.json()).workflow_runs || [];
+
+    if (!runs.length) {
+      content.innerHTML = "<p style='color:#64748b'>Ingen kørsler fundet.</p>";
+      return;
+    }
+
+    const rows = runs.map(r => {
+      const dt   = new Date(r.run_started_at).toLocaleString("da-DK");
+      const conc = r.conclusion;
+      const stat = r.status;
+      const statusHtml =
+        conc === "success"  ? `<span class="log-ok">&#10003; Gennemført</span>` :
+        conc === "failure"  ? `<span class="log-fail">&#10007; Fejlet</span>`   :
+        stat === "in_progress" ? `<span class="log-run">&#8635; Kører&hellip;</span>` :
+        `<span class="log-dim">${conc || stat}</span>`;
+      const trigger =
+        r.event === "schedule"          ? "Automatisk" :
+        r.event === "workflow_dispatch" ? "Manuel"     : r.event;
+      return `<tr>
+        <td>${dt}</td>
+        <td>${statusHtml}</td>
+        <td class="log-dim">${trigger}</td>
+      </tr>`;
+    }).join("");
+
+    content.innerHTML = `
+      <table class="log-table">
+        <thead><tr>
+          <th>Tidspunkt</th><th>Status</th><th>Udl&oslash;st af</th>
+        </tr></thead>
+        <tbody>${rows}</tbody>
+      </table>`;
+  } catch (err) {
+    content.innerHTML = `<p style="color:#dc2626;font-size:0.85rem">Kunne ikke hente log: ${err.message}</p>`;
+  }
+});
+
+document.getElementById("log-close").addEventListener("click", () => {
+  document.getElementById("log-modal").style.display = "none";
+});
+document.getElementById("log-modal").addEventListener("click", e => {
+  if (e.target === document.getElementById("log-modal"))
+    document.getElementById("log-modal").style.display = "none";
 });
 
 /* ═══════════════════════════════════════════
