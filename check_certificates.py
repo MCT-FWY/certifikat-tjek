@@ -500,6 +500,7 @@ def _smtp_connect(password: str) -> smtplib.SMTP:
     smtp = smtplib.SMTP(_SMTP_SERVER, _SMTP_PORT, timeout=30)
     smtp.ehlo()
     smtp.starttls()
+    smtp.ehlo()  # Re-identify after STARTTLS – required by Office365
     smtp.login(_NOTIFICATION_FROM, password)
     return smtp
 
@@ -561,30 +562,36 @@ def send_notifications(results: list[dict]) -> None:
         print(f"\nSMTP-fejl: {exc}")
 
 
-def send_test_email() -> None:
-    """Sender en test-e-mail for at verificere SMTP-konfigurationen."""
+def send_test_email(scenario: str = "warning") -> None:
+    """Sender en test-e-mail for at verificere SMTP-konfigurationen.
+
+    scenario: 'warning' (udløber snart) eller 'expired' (udløbet).
+    """
     password = os.getenv("EMAIL_PASSWORD", "")
     if not password:
         print("EMAIL_PASSWORD ikke sat – kan ikke sende test-mail.")
         sys.exit(1)
 
+    is_expired = scenario == "expired"
     fake_result = {
         "name": "TEST – Leverandør A/S",
         "type": "msc",
         "certificate_id": "MSC-C-TEST-001",
-        "status": "udloeber_snart",
-        "valid_until": "2026-05-15",
-        "days_until_expiry": 12,
+        "status": "udløbet" if is_expired else "udløber_snart",
+        "valid_until": "2026-04-01" if is_expired else "2026-05-27",
+        "days_until_expiry": -42 if is_expired else 14,
         "error": None,
     }
-    subject = "✅ Test: Food with You certifikat-notifikation"
-    html    = _build_email_html(fake_result, is_expired=False)
+    emoji   = "🔴" if is_expired else "⚠️"
+    subject = f"✅ Test ({emoji}): Food with You certifikat-notifikation"
+    html    = _build_email_html(fake_result, is_expired=is_expired)
 
+    print(f"Sender test-email (scenarie: {scenario}) via {_SMTP_SERVER}:{_SMTP_PORT} ...")
     try:
         with _smtp_connect(password) as smtp:
             for to_addr in _NOTIFICATION_TO:
                 smtp.send_message(_make_mime(to_addr, subject, html))
-                print(f"  Test-mail sendt til {to_addr}")
+                print(f"  Mail sendt til {to_addr}")
         print("Test-email afsendt.")
     except smtplib.SMTPException as exc:
         print(f"SMTP-fejl: {exc}")
@@ -655,7 +662,8 @@ def _print_result(r: dict) -> None:
 
 if __name__ == "__main__":
     if "--test-email" in sys.argv:
-        send_test_email()
+        _scenario = "expired" if "--scenario" in sys.argv and sys.argv[sys.argv.index("--scenario") + 1] == "expired" else "warning"
+        send_test_email(_scenario)
     else:
         print(f"Certifikat-tjek startet: {datetime.now().strftime('%Y-%m-%d %H:%M')}")
         run_checks()
