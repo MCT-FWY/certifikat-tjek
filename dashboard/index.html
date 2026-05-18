@@ -570,8 +570,11 @@ const STATUS_LABEL = {
 let allResults = [];
 
 function certUrl(r) {
-  if (r.type === "msc")
+  if (r.type === "msc") {
+    if (r.msc_detail_pk)
+      return `https://cert.msc.org/SupplierDirectory/VController.aspx?Path=dfb82023-cc58-4550-9918-b1bd00a2f95c&pk=${encodeURIComponent(r.msc_detail_pk)}&PCIdx=0&dtstrg=0`;
     return `https://cert.msc.org/supplierdirectory/Default.aspx?certno=${encodeURIComponent(r.certificate_id)}`;
+  }
   if (r.type === "asc")
     return `https://asc-aqua.org/find-a-supplier/${encodeURIComponent(r.certificate_id)}/`;
   // eco – TRACES NT søgning på certifikatreference (eller certifikat-ID som fallback)
