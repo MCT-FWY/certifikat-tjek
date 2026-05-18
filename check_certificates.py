@@ -200,8 +200,9 @@ def _check_msc_cert_dir(checks: list[tuple]) -> list[dict]:
 
 
 def check_msc_all(msc_suppliers: list[dict]) -> list[dict]:
+    # (name, cert_id, species_codes)
     checks = [
-        (s["name"], cert_id)
+        (s["name"], cert_id, s.get("species_codes", []))
         for s in msc_suppliers
         for cert_id in s["certificate_ids"]
     ]
@@ -209,11 +210,23 @@ def check_msc_all(msc_suppliers: list[dict]) -> list[dict]:
     if not checks:
         return []
 
-    # ── Primær sti: Azure API (kræver API-nøgle) ──────────────────────────────
-    if MSC_API_KEY:
-        payload = [{"certificateCode": cert_id, "speciesCode": ""} for _, cert_id in checks]
+    if not MSC_API_KEY:
+        return _check_msc_cert_dir([(n, c) for n, c, _ in checks])
+
+    # Split: API for certs med kendte art-koder, scraping for resten
+    api_checks     = [(n, c, sc) for n, c, sc in checks if sc]
+    scraping_checks = [(n, c)   for n, c, sc in checks if not sc]
+    results: list[dict] = []
+
+    if api_checks:
+        # Batch: én request med alle cert+art kombinationer
+        payload = [
+            {"certificateCode": cert_id, "speciesCode": species}
+            for _, cert_id, species_codes in api_checks
+            for species in species_codes
+        ]
         try:
-            response = requests.post(
+            resp = requests.post(
                 MSC_API_URL,
                 json=payload,
                 headers={
@@ -222,45 +235,42 @@ def check_msc_all(msc_suppliers: list[dict]) -> list[dict]:
                 },
                 timeout=30,
             )
-            response.raise_for_status()
-            api_data = response.json()
+            resp.raise_for_status()
+            api_data = resp.json()
+            items = api_data if isinstance(api_data, list) else [api_data]
 
-            # TODO: Bekræft feltnavne fra det faktiske API-svar
-            by_code: dict[str, dict] = {}
-            for item in (api_data if isinstance(api_data, list) else [api_data]):
-                code = item.get("certificateCode") or item.get("certificate_code") or ""
+            # Gruppér API-svar per certifikatnummer
+            by_cert: dict[str, list[dict]] = {}
+            for item in items:
+                code = item.get("certificateCode", "")
                 if code:
-                    by_code[code] = item
+                    by_cert.setdefault(code, []).append(item)
 
-            results = []
-            for name, cert_id in checks:
-                item = by_code.get(cert_id)
-                if item is None:
+            for name, cert_id, _ in api_checks:
+                cert_items = by_cert.get(cert_id, [])
+                valid_hit   = next((i for i in cert_items if i.get("result") == "Valid"), None)
+                notfound    = next((i for i in cert_items if i.get("result") == "Not found"), None)
+
+                if valid_hit:
+                    # API bekræfter gyldigt – ingen udløbsdato fra API
+                    results.append(make_result(name, "msc", cert_id, status="gyldig"))
+                elif notfound:
                     results.append(make_result(name, "msc", cert_id,
-                                               error="Certifikat ikke fundet i API-svar"))
-                    continue
-                valid_until = (
-                    item.get("expiryDate") or item.get("expiry_date")
-                    or item.get("validTo") or item.get("valid_to")
-                    or item.get("endDate")
-                )
-                is_valid = item.get("isValid") if "isValid" in item else None
-                if is_valid is False:
-                    status = "udløbet"
+                                               error="Certifikat ikke fundet i MSC API"))
                 else:
-                    status = expiry_status(days_until_expiry(valid_until))
-                results.append(make_result(name, "msc", cert_id,
-                                           valid_until=valid_until, status=status))
-            return results
+                    # "Species not in scope" eller tomt svar → scraping for udløbsdato
+                    scraping_checks.append((name, cert_id))
 
         except requests.HTTPError as e:
-            error_msg = f"HTTP {e.response.status_code}: {e.response.text[:200]}"
-            return [make_result(n, "msc", c, error=error_msg) for n, c in checks]
+            # API fejlede → scraping for alle api_checks
+            scraping_checks.extend([(n, c) for n, c, _ in api_checks])
         except requests.RequestException as e:
-            return [make_result(n, "msc", c, error=f"Forbindelsesfejl: {e}") for n, c in checks]
+            scraping_checks.extend([(n, c) for n, c, _ in api_checks])
 
-    # ── Fallback: cert.msc.org scraping ──────────────────────────────────────
-    return _check_msc_cert_dir(checks)
+    if scraping_checks:
+        results += _check_msc_cert_dir(scraping_checks)
+
+    return results
 
 # ---------------------------------------------------------------------------
 # ASC – officielt REST API (data.asc-aqua.org)
