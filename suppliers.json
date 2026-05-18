@@ -28,23 +28,51 @@
   "msc": [
     {
       "name": "Bantry Bay",
-      "certificate_ids": ["MSC-C-57012"],
-      "species_codes": []
+      "certificate_ids": [
+        "MSC-C-57012"
+      ],
+      "species_codes": [
+        "MUS"
+      ]
     },
     {
       "name": "Chrisfish",
-      "certificate_ids": ["MSC-C-52525"],
-      "species_codes": []
+      "certificate_ids": [
+        "MSC-C-52525"
+      ],
+      "species_codes": [
+        "COD",
+        "HAD",
+        "HER",
+        "HKE",
+        "MAC",
+        "MUS",
+        "NEP",
+        "POK",
+        "PRA",
+        "SOL"
+      ]
     },
     {
       "name": "Dalian Gourmet Industry CO., LTD",
-      "certificate_ids": ["MSC-C-54359"],
-      "species_codes": []
+      "certificate_ids": [
+        "MSC-C-54359"
+      ],
+      "species_codes": [
+        "COD"
+      ]
     },
     {
       "name": "Dalian Honghe Foods",
-      "certificate_ids": ["MSC-C-65574"],
-      "species_codes": []
+      "certificate_ids": [
+        "MSC-C-65574"
+      ],
+      "species_codes": [
+        "COD",
+        "GHL",
+        "HAD",
+        "POK"
+      ]
     },
     {
       "name": "DQ Foods",
@@ -56,62 +84,184 @@
         "MSC-C-54247",
         "MSC-C-54621"
       ],
-      "species_codes": ["COD"]
+      "species_codes": [
+        "COD"
+      ]
     },
     {
       "name": "Eastern Fisheries",
-      "certificate_ids": ["MSC-C-52855"],
-      "species_codes": []
+      "certificate_ids": [
+        "MSC-C-52855"
+      ],
+      "species_codes": [
+        "COD",
+        "HAD"
+      ]
     },
     {
       "name": "Fjord Supplier",
-      "certificate_ids": ["MSC-C-56699"],
-      "species_codes": []
+      "certificate_ids": [
+        "MSC-C-56699"
+      ],
+      "species_codes": [
+        "COD",
+        "HAD",
+        "POK",
+        "SOC",
+        "YFT"
+      ]
     },
     {
       "name": "Hai Trieu Company Limited",
-      "certificate_ids": ["MSC-C-59334"],
-      "species_codes": []
+      "certificate_ids": [
+        "MSC-C-59334"
+      ],
+      "species_codes": [
+        "ALB",
+        "BET",
+        "SKJ",
+        "YFT"
+      ]
     },
     {
       "name": "Het Urker Zalmhuys",
-      "certificate_ids": ["MSC-C-54194"],
-      "species_codes": []
+      "certificate_ids": [
+        "MSC-C-54194"
+      ],
+      "species_codes": [
+        "ALB",
+        "COD",
+        "GHL",
+        "HAD",
+        "HKE",
+        "NEP",
+        "POK",
+        "PRA",
+        "SOC",
+        "SOL",
+        "YFT"
+      ]
     },
     {
       "name": "Jeka Fish Cimbric",
-      "certificate_ids": ["MSC-C-50993"],
-      "species_codes": []
+      "certificate_ids": [
+        "MSC-C-50993"
+      ],
+      "species_codes": [
+        "COD",
+        "HAD",
+        "HKE",
+        "LIN",
+        "MUS",
+        "POK",
+        "PRA"
+      ]
     },
     {
       "name": "Kangamiut Seafood",
-      "certificate_ids": ["MSC-C-51564"],
-      "species_codes": []
+      "certificate_ids": [
+        "MSC-C-51564"
+      ],
+      "species_codes": [
+        "ALB",
+        "COD",
+        "GHL",
+        "HAD",
+        "MUS",
+        "NEP",
+        "POK",
+        "PRA",
+        "SOC",
+        "YFT"
+      ]
     },
     {
       "name": "Kramers Seafood",
-      "certificate_ids": ["MSC-C-51417"],
-      "species_codes": []
+      "certificate_ids": [
+        "MSC-C-51417"
+      ],
+      "species_codes": [
+        "COC",
+        "COD",
+        "COH",
+        "FLE",
+        "GHL",
+        "HAD",
+        "HER",
+        "HKE",
+        "LEM",
+        "MAC",
+        "MUS",
+        "POK",
+        "PRA",
+        "SKJ",
+        "SOC",
+        "SOL",
+        "YFT"
+      ]
     },
     {
       "name": "Maresco",
-      "certificate_ids": ["MSC-C-53833"],
-      "species_codes": []
+      "certificate_ids": [
+        "MSC-C-53833"
+      ],
+      "species_codes": [
+        "COD",
+        "GHL",
+        "HER",
+        "HKE",
+        "LEM",
+        "LIN",
+        "MAC",
+        "MUS",
+        "NEP",
+        "POK",
+        "PRA",
+        "SOL",
+        "TUR"
+      ]
     },
     {
       "name": "North Seafood",
-      "certificate_ids": ["MSC-C-50775"],
-      "species_codes": []
+      "certificate_ids": [
+        "MSC-C-50775"
+      ],
+      "species_codes": [
+        "COD",
+        "COH",
+        "HKE",
+        "POK",
+        "SOC",
+        "SOL",
+        "YFT"
+      ]
     },
     {
       "name": "Rifish International",
-      "certificate_ids": ["MSC-C-50748", "MSC-C-51642"],
-      "species_codes": []
+      "certificate_ids": [
+        "MSC-C-50748",
+        "MSC-C-51642"
+      ],
+      "species_codes": [
+        "COD",
+        "HAD",
+        "POK",
+        "SOC"
+      ]
     },
     {
       "name": "Van der Lee Seafish BV",
-      "certificate_ids": ["MSC-C-50836"],
-      "species_codes": []
+      "certificate_ids": [
+        "MSC-C-50836"
+      ],
+      "species_codes": [
+        "COD",
+        "COH",
+        "MUS",
+        "POK",
+        "SOC",
+        "SOL"
+      ]
     }
   ],
   "asc": [
