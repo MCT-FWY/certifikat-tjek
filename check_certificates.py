@@ -406,9 +406,9 @@ def check_eco_all(eco_suppliers: list[dict]) -> list[dict]:
 # ---------------------------------------------------------------------------
 
 NOTIFICATION_THRESHOLD_DAYS = 14
-_SMTP_SERVER       = "smtp.office365.com"
+_SMTP_SERVER       = "smtp.gmail.com"
 _SMTP_PORT         = 587
-_NOTIFICATION_FROM = "mt@foodwithyou.com"
+_NOTIFICATION_FROM = "fwypakkeri@gmail.com"
 _NOTIFICATION_TO   = ["quality@foodwithyou.com", "info@foodwithyou.com"]
 _TYPE_LABELS       = {"msc": "MSC", "asc": "ASC", "eco": "Øko"}
 _DASHBOARD_URL     = "https://mct-fwy.github.io/certifikat-tjek/"
