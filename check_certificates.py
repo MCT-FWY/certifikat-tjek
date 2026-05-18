@@ -253,7 +253,6 @@ def _check_msc_cert_dir(checks: list[tuple]) -> list[dict]:
 
             result = make_result(name, "msc", cert_id,
                                  valid_until=valid_until, status=status)
-            result["msc_detail_pk"] = pk
             if grid_name and grid_name.strip() != name:
                 result["msc_cert_holder"] = grid_name.strip()
             results.append(result)
@@ -513,12 +512,6 @@ def _cert_url(result: dict) -> str:
     cert_type = result.get("type", "")
     cert_id   = result.get("certificate_id", "")
     if cert_type == "msc":
-        pk = result.get("msc_detail_pk")
-        if pk:
-            return (
-                f"https://cert.msc.org/SupplierDirectory/VController.aspx"
-                f"?Path=dfb82023-cc58-4550-9918-b1bd00a2f95c&pk={pk}&PCIdx=0&dtstrg=0"
-            )
         return f"https://cert.msc.org/supplierdirectory/Default.aspx?certno={_url_quote(cert_id)}"
     if cert_type == "asc":
         return f"https://asc-aqua.org/find-a-supplier/{_url_quote(cert_id)}/"
