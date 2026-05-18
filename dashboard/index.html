@@ -202,6 +202,35 @@
     .days-danger { background: #fef2f2; color: #b91c1c; }
     .days-gray   { background: #f1f5f9; color: #64748b; }
 
+    /* ── Advarselskort ── */
+    .warnings-section {
+      margin: 20px 32px 0;
+      background: #fffbeb; border: 1px solid #fde68a;
+      border-radius: 10px; padding: 16px 20px;
+    }
+    .warnings-section:empty { display: none; }
+    .warnings-header {
+      display: flex; align-items: center; gap: 8px;
+      font-size: 0.78rem; font-weight: 800; letter-spacing: .08em;
+      text-transform: uppercase; color: #92400e; margin-bottom: 12px;
+    }
+    .warning-card {
+      display: flex; align-items: flex-start; gap: 10px;
+      background: #fff; border: 1px solid #fcd34d; border-left: 4px solid #f59e0b;
+      border-radius: 7px; padding: 10px 14px; margin-bottom: 8px; font-size: 0.82rem;
+    }
+    .warning-card:last-child { margin-bottom: 0; }
+    .warning-icon { font-size: 1rem; flex-shrink: 0; line-height: 1.4; }
+    .warning-body { flex: 1; line-height: 1.5; }
+    .warning-type {
+      font-size: 0.68rem; font-weight: 700; letter-spacing: .06em;
+      text-transform: uppercase; color: #b45309;
+      background: #fef3c7; padding: 1px 7px; border-radius: 100px;
+      margin-right: 7px;
+    }
+    .warning-cert { font-family: ui-monospace, Consolas, monospace; font-size: 0.76rem; color: #334155; }
+    .c-amber { color: #d97706; }
+
     .card-info-icon {
       display: inline-flex; align-items: center; justify-content: center;
       width: 15px; height: 15px; border-radius: 50%;
@@ -430,7 +459,12 @@
     <div class="summary-item">
       <span class="summary-count c-gray"   id="s-ukendt">0</span><span>Ukendt</span>
     </div>
+    <div class="summary-item" id="s-warnings-item" style="display:none">
+      <span class="summary-count c-amber"  id="s-advarsler">0</span><span>Advarsler</span>
+    </div>
   </div>
+
+  <div class="warnings-section" id="warnings-section"></div>
 
   <main id="main">
     <div id="no-data">
@@ -627,6 +661,29 @@ function buildSection(title, results) {
     </div>`;
 }
 
+function renderWarnings(warnings) {
+  const el = document.getElementById("warnings-section");
+  if (!warnings.length) { el.innerHTML = ""; return; }
+
+  const TYPE_LABEL_W = { duplicate: "Duplikat", format: "Format" };
+  const cards = warnings.map(w => {
+    const icon  = w.warning_type === "duplicate" ? "⚠️" : "🔴";
+    const label = TYPE_LABEL_W[w.warning_type] || w.warning_type;
+    const cert  = w.certificate_id
+      ? `<span class="warning-cert">${w.certificate_id}</span> &mdash; ` : "";
+    return `<div class="warning-card">
+      <span class="warning-icon">${icon}</span>
+      <div class="warning-body">
+        <span class="warning-type">${label}</span>${cert}${w.message}
+      </div>
+    </div>`;
+  }).join("");
+
+  el.innerHTML = `
+    <div class="warnings-header">&#9888;&#65039; Advarsler i suppliers.json (${warnings.length})</div>
+    ${cards}`;
+}
+
 function renderDashboard() {
   const priority = { udloebet: 0, udloeber_snart: 1, gyldig: 2, ukendt: 3 };
   const sorted = [...allResults].sort((a, b) =>
@@ -684,6 +741,16 @@ async function load() {
     document.getElementById("s-snart").textContent    = s.udloeber_snart || 0;
     document.getElementById("s-udloebet").textContent = s.udloebet       || 0;
     document.getElementById("s-ukendt").textContent   = s.ukendt         || 0;
+
+    const warnings = data.warnings || [];
+    const wItem = document.getElementById("s-warnings-item");
+    if (warnings.length) {
+      document.getElementById("s-advarsler").textContent = warnings.length;
+      wItem.style.display = "";
+    } else {
+      wItem.style.display = "none";
+    }
+    renderWarnings(warnings);
 
     allResults = data.results || [];
     renderDashboard();

@@ -36,6 +36,71 @@ ASC_API_KEY  = os.getenv("ASC_API_KEY", "")
 # Antal dage før udløb der markeres som "udløber snart"
 EXPIRY_WARNING_DAYS = 30
 
+# Validering – tilladte certifikatformater
+_FORMAT_PATTERNS = {
+    "msc": re.compile(r"^MSC-C-\d+$"),
+    "asc": re.compile(r"^ASC-C-\d+$"),
+    "eco": re.compile(r"^[A-Z]{2}-[A-ZÄÖÜ]{2,6}-\d+$"),
+}
+
+# ---------------------------------------------------------------------------
+# Validering af suppliers.json
+# ---------------------------------------------------------------------------
+
+def validate_suppliers(suppliers: dict) -> list[dict]:
+    """Returnerer liste af advarsler om dubletter og forkerte certifikatformater."""
+    warnings: list[dict] = []
+    seen: dict[str, list[str]] = {}   # cert_id → [leverandørnavn, ...]
+
+    for cert_type in ("msc", "asc"):
+        pattern = _FORMAT_PATTERNS[cert_type]
+        for s in suppliers.get(cert_type, []):
+            for cert_id in s.get("certificate_ids", []):
+                seen.setdefault(cert_id, []).append(s["name"])
+                if not pattern.match(cert_id):
+                    warnings.append({
+                        "warning_type": "format",
+                        "cert_type": cert_type,
+                        "certificate_id": cert_id,
+                        "names": [s["name"]],
+                        "message": (
+                            f"Ugyldigt format '{cert_id}' hos {s['name']} – "
+                            f"forventet {cert_type.upper()}-C-XXXXX (kun tal efter bindestreg)"
+                        ),
+                    })
+
+    pattern = _FORMAT_PATTERNS["eco"]
+    for s in suppliers.get("eco", []):
+        cert_id = s.get("certificate_id", "")
+        seen.setdefault(cert_id, []).append(s["name"])
+        if not pattern.match(cert_id):
+            warnings.append({
+                "warning_type": "format",
+                "cert_type": "eco",
+                "certificate_id": cert_id,
+                "names": [s["name"]],
+                "message": (
+                    f"Ugyldigt format '{cert_id}' hos {s['name']} – "
+                    f"forventet f.eks. IE-ORG-03 eller DE-ÖKO-039"
+                ),
+            })
+
+    for cert_id, names in seen.items():
+        if len(names) > 1:
+            warnings.append({
+                "warning_type": "duplicate",
+                "cert_type": None,
+                "certificate_id": cert_id,
+                "names": names,
+                "message": (
+                    f"Duplikat certifikatnummer '{cert_id}' optræder hos: "
+                    + " og ".join(f"'{n}'" for n in names)
+                ),
+            })
+
+    return warnings
+
+
 # ---------------------------------------------------------------------------
 # Stier
 # ---------------------------------------------------------------------------
@@ -641,6 +706,15 @@ def run_checks() -> dict:
     n_msc = sum(len(s["certificate_ids"]) for s in msc_list)
     n_asc = sum(len(s["certificate_ids"]) for s in asc_list)
 
+    # Valider suppliers.json før tjek
+    warnings = validate_suppliers(suppliers)
+    if warnings:
+        print(f"\nAdvarsler ({len(warnings)}):")
+        for w in warnings:
+            print(f"  {'DUPLIKAT' if w['warning_type'] == 'duplicate' else 'FORMAT  '} {w['message']}")
+    else:
+        print("\nValidering: ingen advarsler.")
+
     print(f"\nØko ({len(eco_list)} leverandører)")
     eco_results = check_eco_all(eco_list)
     for r in eco_results:
@@ -666,7 +740,9 @@ def run_checks() -> dict:
             "udloeber_snart": sum(1 for r in all_results if r["status"] == "udløber_snart"),
             "udloebet":       sum(1 for r in all_results if r["status"] == "udløbet"),
             "ukendt":         sum(1 for r in all_results if r["status"] == "ukendt"),
+            "advarsler":      len(warnings),
         },
+        "warnings": warnings,
         "results": all_results,
     }
 
