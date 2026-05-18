@@ -1,5 +1,5 @@
 {
-  "checked_at": "2026-05-18T21:05:24+00:00",
+  "checked_at": "2026-05-18T21:22:46+00:00",
   "summary": {
     "total": 36,
     "gyldig": 35,
@@ -28,7 +28,7 @@
       "status": "gyldig",
       "valid_until": "2026-12-31",
       "days_until_expiry": 227,
-      "checked_at": "2026-05-18T21:03:05+00:00",
+      "checked_at": "2026-05-18T21:21:08+00:00",
       "error": null,
       "traces_reference": "IE-ORG-03.372-0005601.2025.001",
       "traces_operator": "Bantry Bay Premium Seafoods"
@@ -40,7 +40,7 @@
       "status": "gyldig",
       "valid_until": "2026-11-27",
       "days_until_expiry": 193,
-      "checked_at": "2026-05-18T21:03:06+00:00",
+      "checked_at": "2026-05-18T21:21:09+00:00",
       "error": null,
       "traces_reference": "PL-EKO-01.616-0000070.2025.002",
       "traces_operator": "BG PRODUCTION Sp. z o.o."
@@ -52,7 +52,7 @@
       "status": "gyldig",
       "valid_until": "2027-01-01",
       "days_until_expiry": 228,
-      "checked_at": "2026-05-18T21:03:08+00:00",
+      "checked_at": "2026-05-18T21:21:10+00:00",
       "error": null,
       "traces_reference": "NL-BIO-01.528-0006807.2026.001",
       "traces_operator": "Heiploeg International B.V."
@@ -64,7 +64,7 @@
       "status": "gyldig",
       "valid_until": "2027-02-28",
       "days_until_expiry": 286,
-      "checked_at": "2026-05-18T21:03:10+00:00",
+      "checked_at": "2026-05-18T21:21:10+00:00",
       "error": null,
       "traces_reference": "DE-ÖKO-039.276-0055825.2025.002",
       "traces_operator": "Vega Salmon GmbH"
@@ -74,219 +74,240 @@
       "type": "msc",
       "certificate_id": "MSC-C-57012",
       "status": "gyldig",
-      "valid_until": null,
-      "days_until_expiry": null,
-      "checked_at": "2026-05-18T21:05:17+00:00",
-      "error": null
+      "valid_until": "2028-06-30",
+      "days_until_expiry": 774,
+      "checked_at": "2026-05-18T21:22:39+00:00",
+      "error": null,
+      "msc_cert_holder": "Bantry Bay Premium Seafoods"
     },
     {
       "name": "Chrisfish",
       "type": "msc",
       "certificate_id": "MSC-C-52525",
       "status": "gyldig",
-      "valid_until": null,
-      "days_until_expiry": null,
-      "checked_at": "2026-05-18T21:05:17+00:00",
-      "error": null
+      "valid_until": "2027-04-15",
+      "days_until_expiry": 332,
+      "checked_at": "2026-05-18T21:22:39+00:00",
+      "error": null,
+      "msc_cert_holder": "Chrisfish Danmark A/S"
     },
     {
       "name": "Dalian Gourmet Industry CO., LTD",
       "type": "msc",
       "certificate_id": "MSC-C-54359",
       "status": "gyldig",
-      "valid_until": null,
-      "days_until_expiry": null,
-      "checked_at": "2026-05-18T21:05:17+00:00",
-      "error": null
+      "valid_until": "2027-02-21",
+      "days_until_expiry": 279,
+      "checked_at": "2026-05-18T21:22:39+00:00",
+      "error": null,
+      "msc_cert_holder": "Dalian GourMet Industry Co., Ltd."
     },
     {
       "name": "Dalian Honghe Foods",
       "type": "msc",
       "certificate_id": "MSC-C-65574",
       "status": "gyldig",
-      "valid_until": null,
-      "days_until_expiry": null,
-      "checked_at": "2026-05-18T21:05:17+00:00",
-      "error": null
+      "valid_until": "2027-08-22",
+      "days_until_expiry": 461,
+      "checked_at": "2026-05-18T21:22:40+00:00",
+      "error": null,
+      "msc_cert_holder": "Dalian Honghe Foods Co.,  Ltd."
     },
     {
       "name": "DQ Foods",
       "type": "msc",
       "certificate_id": "MSC-C-56921",
       "status": "gyldig",
-      "valid_until": null,
-      "days_until_expiry": null,
-      "checked_at": "2026-05-18T21:05:17+00:00",
-      "error": null
+      "valid_until": "2027-07-31",
+      "days_until_expiry": 439,
+      "checked_at": "2026-05-18T21:22:40+00:00",
+      "error": null,
+      "msc_cert_holder": "HTI Dalian Foods Co., Ltd. (Trade Name: 恒泰正信（大连）食品有限公司)"
     },
     {
       "name": "DQ Foods",
       "type": "msc",
       "certificate_id": "MSC-C-52677",
       "status": "gyldig",
-      "valid_until": null,
-      "days_until_expiry": null,
-      "checked_at": "2026-05-18T21:05:17+00:00",
-      "error": null
+      "valid_until": "2027-08-07",
+      "days_until_expiry": 446,
+      "checked_at": "2026-05-18T21:22:40+00:00",
+      "error": null,
+      "msc_cert_holder": "Dalian Tailian Foods Co., Ltd. (Trade Name: 大连泰联食品有限公司)"
     },
     {
       "name": "DQ Foods",
       "type": "msc",
       "certificate_id": "MSC-C-51457",
       "status": "gyldig",
-      "valid_until": null,
-      "days_until_expiry": null,
-      "checked_at": "2026-05-18T21:05:17+00:00",
-      "error": null
+      "valid_until": "2028-01-24",
+      "days_until_expiry": 616,
+      "checked_at": "2026-05-18T21:22:41+00:00",
+      "error": null,
+      "msc_cert_holder": "Dalian Huashan Aquatic Product and Foods Co., Ltd (Trade Name: 大连华善食品水产有限公司)"
     },
     {
-      "name": "DQ Foods",
+      "name": "Rifish International",
       "type": "msc",
       "certificate_id": "MSC-C-51642",
       "status": "gyldig",
-      "valid_until": null,
-      "days_until_expiry": null,
-      "checked_at": "2026-05-18T21:05:17+00:00",
-      "error": null
+      "valid_until": "2028-08-10",
+      "days_until_expiry": 815,
+      "checked_at": "2026-05-18T21:22:45+00:00",
+      "error": null,
+      "msc_cert_holder": "Dalian Rich Enterprise Group Co., Ltd. (Trade Name: 大连瑞驰企业集团有限公司)"
     },
     {
       "name": "DQ Foods",
       "type": "msc",
       "certificate_id": "MSC-C-54247",
       "status": "gyldig",
-      "valid_until": null,
-      "days_until_expiry": null,
-      "checked_at": "2026-05-18T21:05:17+00:00",
-      "error": null
+      "valid_until": "2026-10-20",
+      "days_until_expiry": 155,
+      "checked_at": "2026-05-18T21:22:41+00:00",
+      "error": null,
+      "msc_cert_holder": "Dalian Chenghong Seafoods Co., Ltd (Trade Name: 大连诚宏海产食品有限公司 )"
     },
     {
       "name": "DQ Foods",
       "type": "msc",
       "certificate_id": "MSC-C-54621",
       "status": "gyldig",
-      "valid_until": null,
-      "days_until_expiry": null,
-      "checked_at": "2026-05-18T21:05:17+00:00",
-      "error": null
+      "valid_until": "2027-06-16",
+      "days_until_expiry": 394,
+      "checked_at": "2026-05-18T21:22:42+00:00",
+      "error": null,
+      "msc_cert_holder": "Dalian Yihe Food Co., Ltd."
     },
     {
       "name": "Eastern Fisheries",
       "type": "msc",
       "certificate_id": "MSC-C-52855",
       "status": "gyldig",
-      "valid_until": null,
-      "days_until_expiry": null,
-      "checked_at": "2026-05-18T21:05:17+00:00",
-      "error": null
+      "valid_until": "2027-12-12",
+      "days_until_expiry": 573,
+      "checked_at": "2026-05-18T21:22:42+00:00",
+      "error": null,
+      "msc_cert_holder": "Eastern Fisheries Inc"
     },
     {
       "name": "Fjord Supplier",
       "type": "msc",
       "certificate_id": "MSC-C-56699",
       "status": "gyldig",
-      "valid_until": null,
-      "days_until_expiry": null,
-      "checked_at": "2026-05-18T21:05:17+00:00",
-      "error": null
+      "valid_until": "2027-06-10",
+      "days_until_expiry": 388,
+      "checked_at": "2026-05-18T21:22:43+00:00",
+      "error": null,
+      "msc_cert_holder": "BG Production SP. Z O.O."
     },
     {
       "name": "Hai Trieu Company Limited",
       "type": "msc",
       "certificate_id": "MSC-C-59334",
       "status": "gyldig",
-      "valid_until": null,
-      "days_until_expiry": null,
-      "checked_at": "2026-05-18T21:05:17+00:00",
-      "error": null
+      "valid_until": "2027-02-21",
+      "days_until_expiry": 279,
+      "checked_at": "2026-05-18T21:22:43+00:00",
+      "error": null,
+      "msc_cert_holder": "HAI TRIEU COMPANY LIMITED"
     },
     {
       "name": "Het Urker Zalmhuys",
       "type": "msc",
       "certificate_id": "MSC-C-54194",
       "status": "gyldig",
-      "valid_until": null,
-      "days_until_expiry": null,
-      "checked_at": "2026-05-18T21:05:17+00:00",
-      "error": null
+      "valid_until": "2026-11-09",
+      "days_until_expiry": 175,
+      "checked_at": "2026-05-18T21:22:43+00:00",
+      "error": null,
+      "msc_cert_holder": "Het Urker Zalmhuys B.V."
     },
     {
       "name": "Jeka Fish Cimbric",
       "type": "msc",
       "certificate_id": "MSC-C-50993",
       "status": "gyldig",
-      "valid_until": null,
-      "days_until_expiry": null,
-      "checked_at": "2026-05-18T21:05:17+00:00",
-      "error": null
+      "valid_until": "2029-05-22",
+      "days_until_expiry": 1100,
+      "checked_at": "2026-05-18T21:22:43+00:00",
+      "error": null,
+      "msc_cert_holder": "JEKA Fish A/S - Cimbric A/S"
     },
     {
       "name": "Kangamiut Seafood",
       "type": "msc",
       "certificate_id": "MSC-C-51564",
       "status": "gyldig",
-      "valid_until": null,
-      "days_until_expiry": null,
-      "checked_at": "2026-05-18T21:05:17+00:00",
-      "error": null
+      "valid_until": "2028-05-30",
+      "days_until_expiry": 743,
+      "checked_at": "2026-05-18T21:22:44+00:00",
+      "error": null,
+      "msc_cert_holder": "Kangamiut Seafood A/S"
     },
     {
       "name": "Kramers Seafood",
       "type": "msc",
       "certificate_id": "MSC-C-51417",
       "status": "gyldig",
-      "valid_until": null,
-      "days_until_expiry": null,
-      "checked_at": "2026-05-18T21:05:17+00:00",
-      "error": null
+      "valid_until": "2027-03-11",
+      "days_until_expiry": 297,
+      "checked_at": "2026-05-18T21:22:44+00:00",
+      "error": null,
+      "msc_cert_holder": "Kramers’ Seafood (Trade Name: Brands: Isola/ Fishmasters )"
     },
     {
       "name": "Maresco",
       "type": "msc",
       "certificate_id": "MSC-C-53833",
       "status": "gyldig",
-      "valid_until": null,
-      "days_until_expiry": null,
-      "checked_at": "2026-05-18T21:05:17+00:00",
-      "error": null
+      "valid_until": "2029-03-03",
+      "days_until_expiry": 1020,
+      "checked_at": "2026-05-18T21:22:44+00:00",
+      "error": null,
+      "msc_cert_holder": "Maresco A/S"
     },
     {
       "name": "North Seafood",
       "type": "msc",
       "certificate_id": "MSC-C-50775",
       "status": "gyldig",
-      "valid_until": null,
-      "days_until_expiry": null,
-      "checked_at": "2026-05-18T21:05:17+00:00",
-      "error": null
+      "valid_until": "2026-12-14",
+      "days_until_expiry": 210,
+      "checked_at": "2026-05-18T21:22:45+00:00",
+      "error": null,
+      "msc_cert_holder": "Northseafood Holland B.V."
     },
     {
       "name": "Rifish International",
       "type": "msc",
       "certificate_id": "MSC-C-50748",
       "status": "gyldig",
-      "valid_until": null,
-      "days_until_expiry": null,
-      "checked_at": "2026-05-18T21:05:17+00:00",
-      "error": null
+      "valid_until": "2029-04-09",
+      "days_until_expiry": 1057,
+      "checked_at": "2026-05-18T21:22:45+00:00",
+      "error": null,
+      "msc_cert_holder": "Dalian Guofu Aquatic Products and Food Co., Ltd.  (Trade Name: 大连国富水产食品有限公司)"
     },
     {
       "name": "Rifish International",
       "type": "msc",
       "certificate_id": "MSC-C-51642",
       "status": "gyldig",
-      "valid_until": null,
-      "days_until_expiry": null,
-      "checked_at": "2026-05-18T21:05:17+00:00",
-      "error": null
+      "valid_until": "2028-08-10",
+      "days_until_expiry": 815,
+      "checked_at": "2026-05-18T21:22:45+00:00",
+      "error": null,
+      "msc_cert_holder": "Dalian Rich Enterprise Group Co., Ltd. (Trade Name: 大连瑞驰企业集团有限公司)"
     },
     {
       "name": "Van der Lee Seafish BV",
       "type": "msc",
       "certificate_id": "MSC-C-50836",
       "status": "gyldig",
-      "valid_until": null,
-      "days_until_expiry": null,
-      "checked_at": "2026-05-18T21:05:17+00:00",
+      "valid_until": "2026-11-06",
+      "days_until_expiry": 172,
+      "checked_at": "2026-05-18T21:22:46+00:00",
       "error": null
     },
     {

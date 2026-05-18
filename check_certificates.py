@@ -695,6 +695,49 @@ def send_test_email(scenario: str = "warning") -> None:
 # Hovedfunktion
 # ---------------------------------------------------------------------------
 
+_HOLDER_FIELDS = ("msc_cert_holder", "asc_cert_holder", "traces_operator", "traces_reference")
+
+
+def _load_previous_results() -> dict[tuple, dict]:
+    """Indlæser tidligere resultater fra results/latest.json som opslag (type, cert_id) → post."""
+    if not RESULTS_FILE.exists():
+        return {}
+    try:
+        with open(RESULTS_FILE, encoding="utf-8") as f:
+            data = json.load(f)
+        return {
+            (r["type"], r["certificate_id"]): r
+            for r in data.get("results", [])
+            if r.get("valid_until")  # gem kun poster med kendte udløbsdatoer
+        }
+    except (json.JSONDecodeError, KeyError, OSError):
+        return {}
+
+
+def _apply_previous_fallback(results: list[dict], prev: dict[tuple, dict]) -> None:
+    """
+    Udfylder manglende valid_until/holder-felter fra forrige kørsel for poster
+    der ikke har fejl og ikke fik en udløbsdato fra det aktuelle tjek.
+    Opdaterer listen in-place.
+    """
+    if not prev:
+        return
+    for r in results:
+        if r.get("valid_until") or r.get("error"):
+            continue
+        key = (r["type"], r["certificate_id"])
+        p = prev.get(key)
+        if not p:
+            continue
+        r["valid_until"]       = p["valid_until"]
+        r["days_until_expiry"] = days_until_expiry(p["valid_until"])
+        r["status"]            = expiry_status(r["days_until_expiry"])
+        for field in _HOLDER_FIELDS:
+            if p.get(field):
+                r[field] = p[field]
+        print(f"  [fallback] {r['certificate_id']}: genbrug udløbsdato {p['valid_until']} fra forrige kørsel")
+
+
 def run_checks() -> dict:
     suppliers = load_suppliers()
 
@@ -704,6 +747,9 @@ def run_checks() -> dict:
 
     n_msc = sum(len(s["certificate_ids"]) for s in msc_list)
     n_asc = sum(len(s["certificate_ids"]) for s in asc_list)
+
+    # Gem tidligere resultater til fallback (bruges hvis scraping fejler)
+    prev_results = _load_previous_results()
 
     # Valider suppliers.json før tjek
     warnings = validate_suppliers(suppliers)
@@ -730,6 +776,9 @@ def run_checks() -> dict:
         _print_result(r)
 
     all_results = eco_results + msc_results + asc_results
+
+    # Fallback: genbruger udløbsdato/holder fra forrige kørsel for poster uden data
+    _apply_previous_fallback(all_results, prev_results)
 
     output = {
         "checked_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
