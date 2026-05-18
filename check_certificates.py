@@ -213,13 +213,15 @@ def check_msc_all(msc_suppliers: list[dict]) -> list[dict]:
     if not MSC_API_KEY:
         return _check_msc_cert_dir([(n, c) for n, c, _ in checks])
 
-    # Split: API for certs med kendte art-koder, scraping for resten
-    api_checks     = [(n, c, sc) for n, c, sc in checks if sc]
-    scraping_checks = [(n, c)   for n, c, sc in checks if not sc]
-    results: list[dict] = []
+    api_checks      = [(n, c, sc) for n, c, sc in checks if sc]
+    scraping_checks = [(n, c)     for n, c, sc in checks if not sc]
+
+    # Certifikater API bekræfter gyldige – skal suppleres med scraping for udløbsdato
+    api_valid:    list[tuple[str, str]] = []
+    # Certifikater API markerer som ikke-fundet
+    api_notfound: list[tuple[str, str]] = []
 
     if api_checks:
-        # Batch: én request med alle cert+art kombinationer
         payload = [
             {"certificateCode": cert_id, "speciesCode": species}
             for _, cert_id, species_codes in api_checks
@@ -236,10 +238,8 @@ def check_msc_all(msc_suppliers: list[dict]) -> list[dict]:
                 timeout=30,
             )
             resp.raise_for_status()
-            api_data = resp.json()
-            items = api_data if isinstance(api_data, list) else [api_data]
+            items = resp.json() if isinstance(resp.json(), list) else [resp.json()]
 
-            # Gruppér API-svar per certifikatnummer
             by_cert: dict[str, list[dict]] = {}
             for item in items:
                 code = item.get("certificateCode", "")
@@ -248,27 +248,46 @@ def check_msc_all(msc_suppliers: list[dict]) -> list[dict]:
 
             for name, cert_id, _ in api_checks:
                 cert_items = by_cert.get(cert_id, [])
-                valid_hit   = next((i for i in cert_items if i.get("result") == "Valid"), None)
-                notfound    = next((i for i in cert_items if i.get("result") == "Not found"), None)
+                valid_hit  = next((i for i in cert_items if i.get("result") == "Valid"), None)
+                notfound   = next((i for i in cert_items if i.get("result") == "Not found"), None)
 
                 if valid_hit:
-                    # API bekræfter gyldigt – ingen udløbsdato fra API
-                    results.append(make_result(name, "msc", cert_id, status="gyldig"))
+                    api_valid.append((name, cert_id))
                 elif notfound:
-                    results.append(make_result(name, "msc", cert_id,
-                                               error="Certifikat ikke fundet i MSC API"))
+                    api_notfound.append((name, cert_id))
                 else:
-                    # "Species not in scope" eller tomt svar → scraping for udløbsdato
                     scraping_checks.append((name, cert_id))
 
-        except requests.HTTPError as e:
-            # API fejlede → scraping for alle api_checks
-            scraping_checks.extend([(n, c) for n, c, _ in api_checks])
-        except requests.RequestException as e:
+        except (requests.HTTPError, requests.RequestException):
             scraping_checks.extend([(n, c) for n, c, _ in api_checks])
 
-    if scraping_checks:
-        results += _check_msc_cert_dir(scraping_checks)
+    # Scraping for: certifikater uden art-koder + "species not in scope" fejl
+    scraping_results: dict[str, dict] = {}
+    if scraping_checks or api_valid:
+        # Kør scraping for alle der mangler udløbsdato (no-species + api_valid supplement)
+        all_scraping = scraping_checks + api_valid
+        for r in _check_msc_cert_dir(all_scraping):
+            scraping_results[r["certificate_id"]] = r
+
+    results: list[dict] = []
+
+    # API-gyldige: brug scraped udløbsdato hvis tilgængelig, ellers behold API-status
+    for name, cert_id in api_valid:
+        scraped = scraping_results.get(cert_id)
+        if scraped and not scraped.get("error"):
+            results.append(scraped)
+        else:
+            results.append(make_result(name, "msc", cert_id, status="gyldig"))
+
+    # API-ikke-fundet
+    for name, cert_id in api_notfound:
+        results.append(make_result(name, "msc", cert_id,
+                                   error="Certifikat ikke fundet i MSC API"))
+
+    # Rene scraping-resultater (ingen art-koder / API fejlede)
+    for name, cert_id in scraping_checks:
+        if cert_id in scraping_results:
+            results.append(scraping_results[cert_id])
 
     return results
 
