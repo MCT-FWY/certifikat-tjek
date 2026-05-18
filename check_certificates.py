@@ -513,7 +513,7 @@ def _cert_url(result: dict) -> str:
     cert_type = result.get("type", "")
     cert_id   = result.get("certificate_id", "")
     if cert_type == "msc":
-        return f"https://fisheries.msc.org/en/fisheries/search-a-fishery/?q={_url_quote(cert_id)}"
+        return f"https://cert.msc.org/supplierdirectory/Default.aspx?certno={_url_quote(cert_id)}"
     if cert_type == "asc":
         return f"https://asc-aqua.org/find-a-supplier/{_url_quote(cert_id)}/"
     ref = result.get("traces_reference") or cert_id

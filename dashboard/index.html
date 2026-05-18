@@ -571,7 +571,7 @@ let allResults = [];
 
 function certUrl(r) {
   if (r.type === "msc")
-    return `https://fisheries.msc.org/en/fisheries/search-a-fishery/?q=${encodeURIComponent(r.certificate_id)}`;
+    return `https://cert.msc.org/supplierdirectory/Default.aspx?certno=${encodeURIComponent(r.certificate_id)}`;
   if (r.type === "asc")
     return `https://asc-aqua.org/find-a-supplier/${encodeURIComponent(r.certificate_id)}/`;
   // eco – TRACES NT søgning på certifikatreference (eller certifikat-ID som fallback)
@@ -638,7 +638,6 @@ function buildCard(r) {
         <div class="card-meta-row">
           <span style="font-weight:600;color:#334155">${TYPE_LABEL[r.type] || r.type.toUpperCase()}</span>
           <span class="cert-id">${r.certificate_id}</span>
-          ${r.type === "msc" ? `<i class="card-info-icon" data-tip="MSC direkte link aktiveres når API er godkendt">i</i>` : ""}
         </div>
         ${operatorRow}${refRow}
         ${dateStr ? `<div class="card-meta-row">Udløber: <strong>${dateStr}</strong></div>` : ""}
