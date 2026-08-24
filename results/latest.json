@@ -1,11 +1,11 @@
 {
-  "checked_at": "2026-08-24T07:01:14+00:00",
+  "checked_at": "2026-08-24T07:51:41+00:00",
   "summary": {
     "total": 34,
-    "gyldig": 13,
+    "gyldig": 34,
     "udloeber_snart": 0,
     "udloebet": 0,
-    "ukendt": 21,
+    "ukendt": 0,
     "advarsler": 0
   },
   "warnings": [],
@@ -17,7 +17,7 @@
       "status": "gyldig",
       "valid_until": "2026-12-31",
       "days_until_expiry": 129,
-      "checked_at": "2026-08-24T07:00:32+00:00",
+      "checked_at": "2026-08-24T07:51:31+00:00",
       "error": null,
       "traces_reference": "IE-ORG-03.372-0005601.2025.001",
       "traces_operator": "Bantry Bay Premium Seafoods"
@@ -29,7 +29,7 @@
       "status": "gyldig",
       "valid_until": "2026-11-27",
       "days_until_expiry": 95,
-      "checked_at": "2026-08-24T07:00:32+00:00",
+      "checked_at": "2026-08-24T07:51:32+00:00",
       "error": null,
       "traces_reference": "PL-EKO-01.616-0000070.2025.002",
       "traces_operator": "BG PRODUCTION Sp. z o.o."
@@ -41,7 +41,7 @@
       "status": "gyldig",
       "valid_until": "2028-01-01",
       "days_until_expiry": 495,
-      "checked_at": "2026-08-24T07:00:33+00:00",
+      "checked_at": "2026-08-24T07:51:32+00:00",
       "error": null,
       "traces_reference": "NL-BIO-01.528-0006807.2026.002",
       "traces_operator": "Heiploeg International B.V."
@@ -53,7 +53,7 @@
       "status": "gyldig",
       "valid_until": "2027-02-28",
       "days_until_expiry": 188,
-      "checked_at": "2026-08-24T07:00:34+00:00",
+      "checked_at": "2026-08-24T07:51:33+00:00",
       "error": null,
       "traces_reference": "DE-ÖKO-039.276-0055825.2025.002",
       "traces_operator": "Vega Salmon GmbH"
@@ -62,211 +62,211 @@
       "name": "Bantry Bay",
       "type": "msc",
       "certificate_id": "MSC-C-57012",
-      "status": "ukendt",
+      "status": "gyldig",
       "valid_until": null,
       "days_until_expiry": null,
-      "checked_at": "2026-08-24T07:01:08+00:00",
-      "error": "Fejl ved hentning af MSC-certifikatliste: Expecting value: line 1 column 1 (char 0)"
+      "checked_at": "2026-08-24T07:51:36+00:00",
+      "error": null
     },
     {
       "name": "Chrisfish",
       "type": "msc",
       "certificate_id": "MSC-C-52525",
-      "status": "ukendt",
+      "status": "gyldig",
       "valid_until": null,
       "days_until_expiry": null,
-      "checked_at": "2026-08-24T07:01:08+00:00",
-      "error": "Fejl ved hentning af MSC-certifikatliste: Expecting value: line 1 column 1 (char 0)"
+      "checked_at": "2026-08-24T07:51:36+00:00",
+      "error": null
     },
     {
       "name": "Dalian Gourmet Industry CO., LTD",
       "type": "msc",
       "certificate_id": "MSC-C-54359",
-      "status": "ukendt",
+      "status": "gyldig",
       "valid_until": null,
       "days_until_expiry": null,
-      "checked_at": "2026-08-24T07:01:08+00:00",
-      "error": "Fejl ved hentning af MSC-certifikatliste: Expecting value: line 1 column 1 (char 0)"
+      "checked_at": "2026-08-24T07:51:36+00:00",
+      "error": null
     },
     {
       "name": "Dalian Honghe Foods",
       "type": "msc",
       "certificate_id": "MSC-C-65574",
-      "status": "ukendt",
+      "status": "gyldig",
       "valid_until": null,
       "days_until_expiry": null,
-      "checked_at": "2026-08-24T07:01:08+00:00",
-      "error": "Fejl ved hentning af MSC-certifikatliste: Expecting value: line 1 column 1 (char 0)"
+      "checked_at": "2026-08-24T07:51:36+00:00",
+      "error": null
     },
     {
       "name": "DQ Foods",
       "type": "msc",
       "certificate_id": "MSC-C-56921",
-      "status": "ukendt",
+      "status": "gyldig",
       "valid_until": null,
       "days_until_expiry": null,
-      "checked_at": "2026-08-24T07:01:08+00:00",
-      "error": "Fejl ved hentning af MSC-certifikatliste: Expecting value: line 1 column 1 (char 0)"
+      "checked_at": "2026-08-24T07:51:36+00:00",
+      "error": null
     },
     {
       "name": "DQ Foods",
       "type": "msc",
       "certificate_id": "MSC-C-52677",
-      "status": "ukendt",
+      "status": "gyldig",
       "valid_until": null,
       "days_until_expiry": null,
-      "checked_at": "2026-08-24T07:01:08+00:00",
-      "error": "Fejl ved hentning af MSC-certifikatliste: Expecting value: line 1 column 1 (char 0)"
+      "checked_at": "2026-08-24T07:51:36+00:00",
+      "error": null
     },
     {
       "name": "DQ Foods",
       "type": "msc",
       "certificate_id": "MSC-C-51457",
-      "status": "ukendt",
+      "status": "gyldig",
       "valid_until": null,
       "days_until_expiry": null,
-      "checked_at": "2026-08-24T07:01:08+00:00",
-      "error": "Fejl ved hentning af MSC-certifikatliste: Expecting value: line 1 column 1 (char 0)"
+      "checked_at": "2026-08-24T07:51:36+00:00",
+      "error": null
     },
     {
       "name": "DQ Foods",
       "type": "msc",
       "certificate_id": "MSC-C-51642",
-      "status": "ukendt",
+      "status": "gyldig",
       "valid_until": null,
       "days_until_expiry": null,
-      "checked_at": "2026-08-24T07:01:08+00:00",
-      "error": "Fejl ved hentning af MSC-certifikatliste: Expecting value: line 1 column 1 (char 0)"
+      "checked_at": "2026-08-24T07:51:36+00:00",
+      "error": null
     },
     {
       "name": "DQ Foods",
       "type": "msc",
       "certificate_id": "MSC-C-54247",
-      "status": "ukendt",
+      "status": "gyldig",
       "valid_until": null,
       "days_until_expiry": null,
-      "checked_at": "2026-08-24T07:01:08+00:00",
-      "error": "Fejl ved hentning af MSC-certifikatliste: Expecting value: line 1 column 1 (char 0)"
+      "checked_at": "2026-08-24T07:51:36+00:00",
+      "error": null
     },
     {
       "name": "DQ Foods",
       "type": "msc",
       "certificate_id": "MSC-C-54621",
-      "status": "ukendt",
+      "status": "gyldig",
       "valid_until": null,
       "days_until_expiry": null,
-      "checked_at": "2026-08-24T07:01:08+00:00",
-      "error": "Fejl ved hentning af MSC-certifikatliste: Expecting value: line 1 column 1 (char 0)"
+      "checked_at": "2026-08-24T07:51:36+00:00",
+      "error": null
     },
     {
       "name": "Eastern Fisheries",
       "type": "msc",
       "certificate_id": "MSC-C-52855",
-      "status": "ukendt",
+      "status": "gyldig",
       "valid_until": null,
       "days_until_expiry": null,
-      "checked_at": "2026-08-24T07:01:08+00:00",
-      "error": "Fejl ved hentning af MSC-certifikatliste: Expecting value: line 1 column 1 (char 0)"
+      "checked_at": "2026-08-24T07:51:36+00:00",
+      "error": null
     },
     {
       "name": "Fjord Supplier",
       "type": "msc",
       "certificate_id": "MSC-C-56699",
-      "status": "ukendt",
+      "status": "gyldig",
       "valid_until": null,
       "days_until_expiry": null,
-      "checked_at": "2026-08-24T07:01:08+00:00",
-      "error": "Fejl ved hentning af MSC-certifikatliste: Expecting value: line 1 column 1 (char 0)"
+      "checked_at": "2026-08-24T07:51:36+00:00",
+      "error": null
     },
     {
       "name": "Hai Trieu Company Limited",
       "type": "msc",
       "certificate_id": "MSC-C-59334",
-      "status": "ukendt",
+      "status": "gyldig",
       "valid_until": null,
       "days_until_expiry": null,
-      "checked_at": "2026-08-24T07:01:08+00:00",
-      "error": "Fejl ved hentning af MSC-certifikatliste: Expecting value: line 1 column 1 (char 0)"
+      "checked_at": "2026-08-24T07:51:36+00:00",
+      "error": null
     },
     {
       "name": "Het Urker Zalmhuys",
       "type": "msc",
       "certificate_id": "MSC-C-54194",
-      "status": "ukendt",
+      "status": "gyldig",
       "valid_until": null,
       "days_until_expiry": null,
-      "checked_at": "2026-08-24T07:01:08+00:00",
-      "error": "Fejl ved hentning af MSC-certifikatliste: Expecting value: line 1 column 1 (char 0)"
+      "checked_at": "2026-08-24T07:51:36+00:00",
+      "error": null
     },
     {
       "name": "Jeka Fish Cimbric",
       "type": "msc",
       "certificate_id": "MSC-C-50993",
-      "status": "ukendt",
+      "status": "gyldig",
       "valid_until": null,
       "days_until_expiry": null,
-      "checked_at": "2026-08-24T07:01:08+00:00",
-      "error": "Fejl ved hentning af MSC-certifikatliste: Expecting value: line 1 column 1 (char 0)"
+      "checked_at": "2026-08-24T07:51:36+00:00",
+      "error": null
     },
     {
       "name": "Kangamiut Seafood",
       "type": "msc",
       "certificate_id": "MSC-C-51564",
-      "status": "ukendt",
+      "status": "gyldig",
       "valid_until": null,
       "days_until_expiry": null,
-      "checked_at": "2026-08-24T07:01:08+00:00",
-      "error": "Fejl ved hentning af MSC-certifikatliste: Expecting value: line 1 column 1 (char 0)"
+      "checked_at": "2026-08-24T07:51:36+00:00",
+      "error": null
     },
     {
       "name": "Kramers Seafood",
       "type": "msc",
       "certificate_id": "MSC-C-51417",
-      "status": "ukendt",
+      "status": "gyldig",
       "valid_until": null,
       "days_until_expiry": null,
-      "checked_at": "2026-08-24T07:01:08+00:00",
-      "error": "Fejl ved hentning af MSC-certifikatliste: Expecting value: line 1 column 1 (char 0)"
+      "checked_at": "2026-08-24T07:51:36+00:00",
+      "error": null
     },
     {
       "name": "Maresco",
       "type": "msc",
       "certificate_id": "MSC-C-53833",
-      "status": "ukendt",
+      "status": "gyldig",
       "valid_until": null,
       "days_until_expiry": null,
-      "checked_at": "2026-08-24T07:01:08+00:00",
-      "error": "Fejl ved hentning af MSC-certifikatliste: Expecting value: line 1 column 1 (char 0)"
+      "checked_at": "2026-08-24T07:51:36+00:00",
+      "error": null
     },
     {
       "name": "North Seafood",
       "type": "msc",
       "certificate_id": "MSC-C-50775",
-      "status": "ukendt",
+      "status": "gyldig",
       "valid_until": null,
       "days_until_expiry": null,
-      "checked_at": "2026-08-24T07:01:08+00:00",
-      "error": "Fejl ved hentning af MSC-certifikatliste: Expecting value: line 1 column 1 (char 0)"
+      "checked_at": "2026-08-24T07:51:36+00:00",
+      "error": null
     },
     {
       "name": "Rifish International",
       "type": "msc",
       "certificate_id": "MSC-C-50748",
-      "status": "ukendt",
+      "status": "gyldig",
       "valid_until": null,
       "days_until_expiry": null,
-      "checked_at": "2026-08-24T07:01:08+00:00",
-      "error": "Fejl ved hentning af MSC-certifikatliste: Expecting value: line 1 column 1 (char 0)"
+      "checked_at": "2026-08-24T07:51:36+00:00",
+      "error": null
     },
     {
       "name": "Van der Lee Seafish BV",
       "type": "msc",
       "certificate_id": "MSC-C-50836",
-      "status": "ukendt",
+      "status": "gyldig",
       "valid_until": null,
       "days_until_expiry": null,
-      "checked_at": "2026-08-24T07:01:08+00:00",
-      "error": "Fejl ved hentning af MSC-certifikatliste: Expecting value: line 1 column 1 (char 0)"
+      "checked_at": "2026-08-24T07:51:36+00:00",
+      "error": null
     },
     {
       "name": "BG",
@@ -275,7 +275,7 @@
       "status": "gyldig",
       "valid_until": "2027-06-10",
       "days_until_expiry": 290,
-      "checked_at": "2026-08-24T07:01:10+00:00",
+      "checked_at": "2026-08-24T07:51:37+00:00",
       "error": null,
       "asc_cert_holder": "BG Production SP. Z O.O.",
       "asc_cert_status": "Certified"
@@ -287,7 +287,7 @@
       "status": "gyldig",
       "valid_until": "2029-07-02",
       "days_until_expiry": 1043,
-      "checked_at": "2026-08-24T07:01:10+00:00",
+      "checked_at": "2026-08-24T07:51:37+00:00",
       "error": null,
       "asc_cert_holder": "Danforel AS",
       "asc_cert_status": "Certified"
@@ -299,7 +299,7 @@
       "status": "gyldig",
       "valid_until": "2028-12-25",
       "days_until_expiry": 854,
-      "checked_at": "2026-08-24T07:01:11+00:00",
+      "checked_at": "2026-08-24T07:51:38+00:00",
       "error": null,
       "asc_cert_holder": "GUMUSDOGA Su Ürünleri Üretim Ihracat ve Ithalat A.Ş.-Selimiye Şubesi",
       "asc_cert_status": "Certified"
@@ -311,7 +311,7 @@
       "status": "gyldig",
       "valid_until": "2029-07-05",
       "days_until_expiry": 1046,
-      "checked_at": "2026-08-24T07:01:11+00:00",
+      "checked_at": "2026-08-24T07:51:38+00:00",
       "error": null,
       "asc_cert_holder": "Hanseatic Produkcja Sp. z o.o.",
       "asc_cert_status": "Certified"
@@ -323,7 +323,7 @@
       "status": "gyldig",
       "valid_until": "2028-08-24",
       "days_until_expiry": 731,
-      "checked_at": "2026-08-24T07:01:12+00:00",
+      "checked_at": "2026-08-24T07:51:39+00:00",
       "error": null,
       "asc_cert_holder": "Heiploeg International B.V.",
       "asc_cert_status": "Certified"
@@ -335,7 +335,7 @@
       "status": "gyldig",
       "valid_until": "2028-03-17",
       "days_until_expiry": 571,
-      "checked_at": "2026-08-24T07:01:12+00:00",
+      "checked_at": "2026-08-24T07:51:39+00:00",
       "error": null,
       "asc_cert_holder": "GRAND Sp. z o.o.",
       "asc_cert_status": "Certified"
@@ -347,7 +347,7 @@
       "status": "gyldig",
       "valid_until": "2027-04-09",
       "days_until_expiry": 228,
-      "checked_at": "2026-08-24T07:01:13+00:00",
+      "checked_at": "2026-08-24T07:51:40+00:00",
       "error": null,
       "asc_cert_holder": "Selina Balık İşleme Tesisi İthalat İhracat ve Ticaret  A.Ş.",
       "asc_cert_status": "Certified"
@@ -359,7 +359,7 @@
       "status": "gyldig",
       "valid_until": "2029-01-31",
       "days_until_expiry": 891,
-      "checked_at": "2026-08-24T07:01:13+00:00",
+      "checked_at": "2026-08-24T07:51:40+00:00",
       "error": null,
       "asc_cert_holder": "Vega Salmon GmbH & Vega Salmon A/S",
       "asc_cert_status": "Certified"
@@ -371,7 +371,7 @@
       "status": "gyldig",
       "valid_until": "2026-12-09",
       "days_until_expiry": 107,
-      "checked_at": "2026-08-24T07:01:14+00:00",
+      "checked_at": "2026-08-24T07:51:41+00:00",
       "error": null,
       "asc_cert_holder": "MINH PHU SEAFOOD CORPORATION",
       "asc_cert_status": "Certified"
