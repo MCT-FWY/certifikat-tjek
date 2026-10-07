@@ -604,7 +604,7 @@ function daysChip(r) {
 
 function buildCard(r) {
   const sc         = safeClass(r.status);
-  const badgeLabel = STATUS_LABEL[r.status] || r.status;
+  const badgeLabel = STATUS_LABEL[sc] || r.status;
   const dateStr    = formatDate(r.valid_until);
   const errorHtml  = r.error ? `<div class="card-error">&#9888; ${r.error}</div>` : "";
   const dbName     = r.traces_operator || r.asc_cert_holder || r.msc_cert_holder;
@@ -621,6 +621,10 @@ function buildCard(r) {
 
   const notCheckedRow = r._new
     ? `<div class="card-meta-row" style="font-size:0.74rem;color:#94a3b8;font-style:italic">Tjekkes ved næste daglige kørsel</div>`
+    : "";
+
+  const staleRow = r.stale_since
+    ? `<div class="card-meta-row" style="font-size:0.74rem;color:#b45309;font-style:italic">Udløbsdato fra tidligere tjek (${formatDate(r.stale_since)})</div>`
     : "";
 
   return `
@@ -642,7 +646,7 @@ function buildCard(r) {
         ${operatorRow}${refRow}
         ${dateStr ? `<div class="card-meta-row">Udløber: <strong>${dateStr}</strong></div>` : ""}
         ${chipHtml ? `<div class="card-meta-row">${chipHtml}</div>` : ""}
-        ${notCheckedRow}
+        ${staleRow}${notCheckedRow}
       </div>
       ${errorHtml}
     </div>`;
@@ -664,7 +668,7 @@ function renderWarnings(warnings) {
   const el = document.getElementById("warnings-section");
   if (!warnings.length) { el.innerHTML = ""; return; }
 
-  const TYPE_LABEL_W = { duplicate: "Duplikat", format: "Format" };
+  const TYPE_LABEL_W = { duplicate: "Duplikat", format: "Format", data: "Datakilde" };
   const cards = warnings.map(w => {
     const icon  = w.warning_type === "duplicate" ? "⚠️" : "🔴";
     const label = TYPE_LABEL_W[w.warning_type] || w.warning_type;
@@ -678,8 +682,9 @@ function renderWarnings(warnings) {
     </div>`;
   }).join("");
 
+  const onlySuppliers = warnings.every(w => w.warning_type !== "data");
   el.innerHTML = `
-    <div class="warnings-header">&#9888;&#65039; Advarsler i suppliers.json (${warnings.length})</div>
+    <div class="warnings-header">&#9888;&#65039; Advarsler${onlySuppliers ? " i suppliers.json" : ""} (${warnings.length})</div>
     ${cards}`;
 }
 
