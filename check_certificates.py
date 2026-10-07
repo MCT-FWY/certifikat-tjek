@@ -733,12 +733,52 @@ def _apply_previous_fallback(results: list[dict], prev: dict[tuple, dict]) -> No
             continue
         r["valid_until"]       = p["valid_until"]
         r["days_until_expiry"] = days_until_expiry(p["valid_until"])
+        r["stale_since"]       = p.get("stale_since") or p.get("checked_at")
         if not r.get("error"):
             r["status"] = expiry_status(r["days_until_expiry"])
         for field in _HOLDER_FIELDS:
             if p.get(field):
                 r[field] = p[field]
         print(f"  [fallback] {r['certificate_id']}: genbrug udløbsdato {p['valid_until']} fra forrige kørsel")
+
+
+def data_warnings(results: list[dict]) -> list[dict]:
+    """
+    Én advarsel pr. certifikattype hvor tjekket 'lykkedes' uden en frisk udløbsdato –
+    f.eks. når MSC API'et svarer gyldig, men cert.msc.org-scrapingen fejler.
+    Uden advarslen står kortene grønne, selvom datoerne mangler eller er forældede.
+    """
+    warnings: list[dict] = []
+    for cert_type, label in _TYPE_LABELS.items():
+        hit = [
+            r for r in results
+            if r["type"] == cert_type and not r.get("error") and r["status"] != "udløbet"
+            and (not r.get("valid_until") or r.get("stale_since"))
+        ]
+        if not hit:
+            continue
+
+        missing = [r for r in hit if not r.get("valid_until")]
+        stale   = [r for r in hit if r.get("stale_since")]
+        parts = []
+        if missing:
+            parts.append(f"{len(missing)} certifikat(er) uden udløbsdato")
+        if stale:
+            oldest = datetime.fromisoformat(min(r["stale_since"] for r in stale))
+            parts.append(f"{len(stale)} certifikat(er) med udløbsdato genbrugt fra tidligere tjek "
+                         f"(sidst hentet {oldest.strftime('%d.%m.%Y')})")
+
+        warnings.append({
+            "warning_type": "data",
+            "cert_type": cert_type,
+            "certificate_id": None,
+            "names": sorted({r["name"] for r in hit}),
+            "message": (
+                f"{label}-tjekket gav ikke friske udløbsdatoer: " + " og ".join(parts)
+                + ". Datakilden svarer muligvis ikke som forventet – status kan være forkert."
+            ),
+        })
+    return warnings
 
 
 def run_checks() -> dict:
@@ -782,6 +822,11 @@ def run_checks() -> dict:
 
     # Fallback: genbruger udløbsdato/holder fra forrige kørsel for poster uden data
     _apply_previous_fallback(all_results, prev_results)
+
+    # Advar hvis et tjek ikke gav friske udløbsdatoer (ellers ser kortene grønne ud)
+    for w in data_warnings(all_results):
+        print(f"\n  DATA     {w['message']}")
+        warnings.append(w)
 
     output = {
         "checked_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
