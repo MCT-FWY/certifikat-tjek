@@ -161,6 +161,7 @@ def make_result(name: str, cert_type: str, certificate_id: str,
 # ---------------------------------------------------------------------------
 
 # cert.msc.org supplier directory – bruges når MSC_API_KEY ikke er sat
+_MSC_START_URL   = "https://cert.msc.org/supplierdirectory/Default.aspx"    # sætter session-cookies
 _MSC_DIR_URL     = "https://cert.msc.org/supplierdirectory/VController.aspx"
 _MSC_LIST_PATH   = "02d03d11-054d-44f5-9076-b1bd00a2ebdf"   # public søgeside
 _MSC_DETAIL_PATH = "dfb82023-cc58-4550-9918-b1bd00a2f95c"   # certifikatdetailside
@@ -186,16 +187,12 @@ def _check_msc_cert_dir(checks: list[tuple]) -> list[dict]:
     Trin 2: Henter certifikatdetailsiden per certifikat for udløbsdato.
     """
     session = requests.Session()
-    iggrid_url = (
-        f"{_MSC_DIR_URL}?Path={_MSC_LIST_PATH}&xf=1&iggrid=grdSupplier"
-    )
+    iggrid_url = f"{_MSC_DIR_URL}?Path={_MSC_LIST_PATH}&iggrid=grdSupplier"
 
-    # Etablér session
+    # Etablér session – Default.aspx omdirigerer via Login.aspx og sætter cookies.
+    # Et direkte kald til VController.aspx uden session ender på FatalError.aspx.
     try:
-        session.get(
-            f"{_MSC_DIR_URL}?Path={_MSC_LIST_PATH}&xf=1",
-            headers=_MSC_HEADERS, timeout=30,
-        )
+        session.get(_MSC_START_URL, headers=_MSC_HEADERS, timeout=30)
     except requests.RequestException as e:
         return [make_result(n, "msc", c, error=f"Kunne ikke åbne cert.msc.org: {e}")
                 for n, c in checks]
@@ -210,6 +207,9 @@ def _check_msc_cert_dir(checks: list[tuple]) -> list[dict]:
             timeout=120,
         )
         grid_resp.raise_for_status()
+        if "json" not in grid_resp.headers.get("Content-Type", ""):
+            raise requests.RequestException(
+                "svar var ikke JSON – cert.msc.org har muligvis ændret sig")
         records = grid_resp.json().get("Records", [])
     except requests.RequestException as e:
         return [make_result(n, "msc", c, error=f"Fejl ved hentning af MSC-certifikatliste: {e}")
@@ -717,13 +717,15 @@ def _load_previous_results() -> dict[tuple, dict]:
 def _apply_previous_fallback(results: list[dict], prev: dict[tuple, dict]) -> None:
     """
     Udfylder manglende valid_until/holder-felter fra forrige kørsel for poster
-    der ikke har fejl og ikke fik en udløbsdato fra det aktuelle tjek.
+    der ikke fik en udløbsdato fra det aktuelle tjek. Poster med fejl beholder
+    status 'ukendt', men får sidst kendte dato med, så den ikke går tabt til
+    næste kørsel. Udløbne/tilbagetrukne certifikater røres ikke.
     Opdaterer listen in-place.
     """
     if not prev:
         return
     for r in results:
-        if r.get("valid_until") or r.get("error"):
+        if r.get("valid_until") or r["status"] == "udløbet":
             continue
         key = (r["type"], r["certificate_id"])
         p = prev.get(key)
@@ -731,7 +733,8 @@ def _apply_previous_fallback(results: list[dict], prev: dict[tuple, dict]) -> No
             continue
         r["valid_until"]       = p["valid_until"]
         r["days_until_expiry"] = days_until_expiry(p["valid_until"])
-        r["status"]            = expiry_status(r["days_until_expiry"])
+        if not r.get("error"):
+            r["status"] = expiry_status(r["days_until_expiry"])
         for field in _HOLDER_FIELDS:
             if p.get(field):
                 r[field] = p[field]
