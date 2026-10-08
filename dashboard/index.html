@@ -691,9 +691,8 @@ function renderWarnings(warnings) {
     </div>`;
   }).join("");
 
-  const onlySuppliers = warnings.every(w => w.warning_type !== "data");
   el.innerHTML = `
-    <div class="warnings-header">&#9888;&#65039; Advarsler${onlySuppliers ? " i suppliers.json" : ""} (${warnings.length})</div>
+    <div class="warnings-header">&#9888;&#65039; Advarsler (${warnings.length})</div>
     ${cards}`;
 }
 
@@ -929,7 +928,7 @@ document.getElementById("modal-save").addEventListener("click", async () => {
 ═══════════════════════════════════════════ */
 async function confirmDelete(name, type, certId) {
   const typeLabel = TYPE_LABEL[type] || type.toUpperCase();
-  if (!window.confirm(`Fjern ${name} – ${certId} (${typeLabel}) fra suppliers.json?\n\nLeverandøren slettes ved næste commit og tjekkes ikke længere.`))
+  if (!window.confirm(`Fjern ${name} – ${certId} (${typeLabel}) fra leverandørlisten?\n\nLeverandøren tjekkes ikke længere.`))
     return;
 
   let token = sessionStorage.getItem("gh_token");
