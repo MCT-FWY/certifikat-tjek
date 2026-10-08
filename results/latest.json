@@ -1,24 +1,14 @@
 {
-  "checked_at": "2026-10-08T08:11:25+00:00",
+  "checked_at": "2026-10-08T08:16:20+00:00",
   "summary": {
     "total": 42,
     "gyldig": 41,
     "udloeber_snart": 1,
     "udloebet": 0,
     "ukendt": 0,
-    "advarsler": 5
+    "advarsler": 4
   },
   "warnings": [
-    {
-      "warning_type": "duplicate",
-      "cert_type": null,
-      "certificate_id": "ASC-C-01847",
-      "names": [
-        "Selina",
-        "249 Het Urker Zalmhuys BV"
-      ],
-      "message": "Duplikat certifikatnummer 'ASC-C-01847' optræder hos: 'Selina' og '249 Het Urker Zalmhuys BV'"
-    },
     {
       "warning_type": "duplicate",
       "cert_type": null,
@@ -42,36 +32,22 @@
     {
       "warning_type": "duplicate",
       "cert_type": null,
+      "certificate_id": "ASC-C-01847",
+      "names": [
+        "249 Het Urker Zalmhuys BV",
+        "267 Selina Balik Isleme Tesisi Itkalat Ihracat Ve Ticaret A.S."
+      ],
+      "message": "Duplikat certifikatnummer 'ASC-C-01847' optræder hos: '249 Het Urker Zalmhuys BV' og '267 Selina Balik Isleme Tesisi Itkalat Ihracat Ve Ticaret A.S.'"
+    },
+    {
+      "warning_type": "duplicate",
+      "cert_type": null,
       "certificate_id": "ASC-C-01642",
       "names": [
         "628-1 MARFRESH ApS",
         "628 MARESCO A/S"
       ],
       "message": "Duplikat certifikatnummer 'ASC-C-01642' optræder hos: '628-1 MARFRESH ApS' og '628 MARESCO A/S'"
-    },
-    {
-      "warning_type": "data",
-      "cert_type": "msc",
-      "certificate_id": null,
-      "names": [
-        "Bantry Bay",
-        "Chrisfish",
-        "DQ Foods",
-        "Dalian Gourmet Industry CO., LTD",
-        "Dalian Honghe Foods",
-        "Eastern Fisheries",
-        "Fjord Supplier",
-        "Hai Trieu Company Limited",
-        "Het Urker Zalmhuys",
-        "Jeka Fish Cimbric",
-        "Kangamiut Seafood",
-        "Kramers Seafood",
-        "Maresco",
-        "North Seafood",
-        "Rifish International",
-        "Van der Lee Seafish BV"
-      ],
-      "message": "MSC-tjekket gav ikke friske udløbsdatoer: 21 certifikat(er) med udløbsdato genbrugt fra tidligere tjek (sidst hentet 07.10.2026). Datakilden svarer muligvis ikke som forventet – status kan være forkert."
     }
   ],
   "results": [
@@ -82,7 +58,7 @@
       "status": "gyldig",
       "valid_until": "2026-12-31",
       "days_until_expiry": 84,
-      "checked_at": "2026-10-08T08:11:07+00:00",
+      "checked_at": "2026-10-08T08:15:44+00:00",
       "error": null,
       "traces_reference": "IE-ORG-03.372-0005601.2025.001",
       "traces_operator": "Bantry Bay Premium Seafoods"
@@ -94,7 +70,7 @@
       "status": "gyldig",
       "valid_until": "2027-12-27",
       "days_until_expiry": 445,
-      "checked_at": "2026-10-08T08:11:07+00:00",
+      "checked_at": "2026-10-08T08:15:45+00:00",
       "error": null,
       "traces_reference": "PL-EKO-01.616-0000070.2026.001",
       "traces_operator": "BG PRODUCTION Sp. z o.o."
@@ -106,7 +82,7 @@
       "status": "gyldig",
       "valid_until": "2028-01-01",
       "days_until_expiry": 450,
-      "checked_at": "2026-10-08T08:11:08+00:00",
+      "checked_at": "2026-10-08T08:15:46+00:00",
       "error": null,
       "traces_reference": "NL-BIO-01.528-0006807.2026.002",
       "traces_operator": "Heiploeg International B.V."
@@ -118,7 +94,7 @@
       "status": "gyldig",
       "valid_until": "2028-02-28",
       "days_until_expiry": 508,
-      "checked_at": "2026-10-08T08:11:09+00:00",
+      "checked_at": "2026-10-08T08:15:46+00:00",
       "error": null,
       "traces_reference": "DE-ÖKO-039.276-0055825.2026.001",
       "traces_operator": "Vega Salmon GmbH"
@@ -130,9 +106,8 @@
       "status": "gyldig",
       "valid_until": "2028-06-30",
       "days_until_expiry": 631,
-      "checked_at": "2026-10-08T08:11:14+00:00",
+      "checked_at": "2026-10-08T08:16:03+00:00",
       "error": null,
-      "stale_since": "2026-10-07T11:11:02+00:00",
       "msc_cert_holder": "Bantry Bay Premium Seafoods"
     },
     {
@@ -142,9 +117,8 @@
       "status": "gyldig",
       "valid_until": "2027-04-15",
       "days_until_expiry": 189,
-      "checked_at": "2026-10-08T08:11:14+00:00",
+      "checked_at": "2026-10-08T08:16:04+00:00",
       "error": null,
-      "stale_since": "2026-10-07T11:11:03+00:00",
       "msc_cert_holder": "Chrisfish Danmark A/S"
     },
     {
@@ -154,9 +128,8 @@
       "status": "gyldig",
       "valid_until": "2027-02-21",
       "days_until_expiry": 136,
-      "checked_at": "2026-10-08T08:11:14+00:00",
+      "checked_at": "2026-10-08T08:16:04+00:00",
       "error": null,
-      "stale_since": "2026-10-07T11:11:03+00:00",
       "msc_cert_holder": "Dalian GourMet Industry Co., Ltd."
     },
     {
@@ -166,9 +139,8 @@
       "status": "gyldig",
       "valid_until": "2027-08-22",
       "days_until_expiry": 318,
-      "checked_at": "2026-10-08T08:11:14+00:00",
+      "checked_at": "2026-10-08T08:16:04+00:00",
       "error": null,
-      "stale_since": "2026-10-07T11:11:03+00:00",
       "msc_cert_holder": "Dalian Honghe Foods Co.,  Ltd."
     },
     {
@@ -178,9 +150,8 @@
       "status": "gyldig",
       "valid_until": "2027-07-31",
       "days_until_expiry": 296,
-      "checked_at": "2026-10-08T08:11:14+00:00",
+      "checked_at": "2026-10-08T08:16:04+00:00",
       "error": null,
-      "stale_since": "2026-10-07T11:11:03+00:00",
       "msc_cert_holder": "HTI Dalian Foods Co., Ltd. (Trade Name: 恒泰正信（大连）食品有限公司)"
     },
     {
@@ -190,9 +161,8 @@
       "status": "gyldig",
       "valid_until": "2027-08-07",
       "days_until_expiry": 303,
-      "checked_at": "2026-10-08T08:11:14+00:00",
+      "checked_at": "2026-10-08T08:16:05+00:00",
       "error": null,
-      "stale_since": "2026-10-07T11:11:04+00:00",
       "msc_cert_holder": "Dalian Tailian Foods Co., Ltd. (Trade Name: 大连泰联食品有限公司)"
     },
     {
@@ -202,9 +172,8 @@
       "status": "gyldig",
       "valid_until": "2028-01-24",
       "days_until_expiry": 473,
-      "checked_at": "2026-10-08T08:11:14+00:00",
+      "checked_at": "2026-10-08T08:16:05+00:00",
       "error": null,
-      "stale_since": "2026-10-07T11:11:04+00:00",
       "msc_cert_holder": "Dalian Huashan Aquatic Product and Foods Co., Ltd (Trade Name: 大连华善食品水产有限公司)"
     },
     {
@@ -214,9 +183,8 @@
       "status": "gyldig",
       "valid_until": "2028-08-10",
       "days_until_expiry": 672,
-      "checked_at": "2026-10-08T08:11:14+00:00",
+      "checked_at": "2026-10-08T08:16:06+00:00",
       "error": null,
-      "stale_since": "2026-10-07T11:11:04+00:00",
       "msc_cert_holder": "Dalian Rich Foods Co., Ltd. (Trade Name: 大连瑞驰食品有限公司)"
     },
     {
@@ -226,9 +194,8 @@
       "status": "udløber_snart",
       "valid_until": "2026-10-20",
       "days_until_expiry": 12,
-      "checked_at": "2026-10-08T08:11:14+00:00",
+      "checked_at": "2026-10-08T08:16:06+00:00",
       "error": null,
-      "stale_since": "2026-10-07T11:11:04+00:00",
       "msc_cert_holder": "Dalian Chenghong Seafoods Co., Ltd (Trade Name: 大连诚宏海产食品有限公司 )"
     },
     {
@@ -238,9 +205,8 @@
       "status": "gyldig",
       "valid_until": "2027-06-16",
       "days_until_expiry": 251,
-      "checked_at": "2026-10-08T08:11:14+00:00",
+      "checked_at": "2026-10-08T08:16:06+00:00",
       "error": null,
-      "stale_since": "2026-10-07T11:11:05+00:00",
       "msc_cert_holder": "Dalian Yihe Food Co., Ltd."
     },
     {
@@ -250,9 +216,8 @@
       "status": "gyldig",
       "valid_until": "2027-12-12",
       "days_until_expiry": 430,
-      "checked_at": "2026-10-08T08:11:14+00:00",
+      "checked_at": "2026-10-08T08:16:06+00:00",
       "error": null,
-      "stale_since": "2026-10-07T11:11:05+00:00",
       "msc_cert_holder": "Eastern Fisheries Inc"
     },
     {
@@ -262,9 +227,8 @@
       "status": "gyldig",
       "valid_until": "2027-06-10",
       "days_until_expiry": 245,
-      "checked_at": "2026-10-08T08:11:14+00:00",
+      "checked_at": "2026-10-08T08:16:06+00:00",
       "error": null,
-      "stale_since": "2026-10-07T11:11:05+00:00",
       "msc_cert_holder": "BG Production SP. Z O.O."
     },
     {
@@ -274,9 +238,8 @@
       "status": "gyldig",
       "valid_until": "2027-02-21",
       "days_until_expiry": 136,
-      "checked_at": "2026-10-08T08:11:14+00:00",
+      "checked_at": "2026-10-08T08:16:07+00:00",
       "error": null,
-      "stale_since": "2026-10-07T11:11:05+00:00",
       "msc_cert_holder": "HAI TRIEU COMPANY LIMITED"
     },
     {
@@ -286,9 +249,8 @@
       "status": "gyldig",
       "valid_until": "2026-11-09",
       "days_until_expiry": 32,
-      "checked_at": "2026-10-08T08:11:14+00:00",
+      "checked_at": "2026-10-08T08:16:07+00:00",
       "error": null,
-      "stale_since": "2026-10-07T11:11:06+00:00",
       "msc_cert_holder": "Het Urker Zalmhuys B.V."
     },
     {
@@ -298,9 +260,8 @@
       "status": "gyldig",
       "valid_until": "2029-05-22",
       "days_until_expiry": 957,
-      "checked_at": "2026-10-08T08:11:14+00:00",
+      "checked_at": "2026-10-08T08:16:07+00:00",
       "error": null,
-      "stale_since": "2026-10-07T11:11:06+00:00",
       "msc_cert_holder": "JEKA Fish A/S - Cimbric A/S"
     },
     {
@@ -310,9 +271,8 @@
       "status": "gyldig",
       "valid_until": "2028-05-30",
       "days_until_expiry": 600,
-      "checked_at": "2026-10-08T08:11:14+00:00",
+      "checked_at": "2026-10-08T08:16:07+00:00",
       "error": null,
-      "stale_since": "2026-10-07T11:11:06+00:00",
       "msc_cert_holder": "Kangamiut Seafood A/S"
     },
     {
@@ -322,9 +282,8 @@
       "status": "gyldig",
       "valid_until": "2027-03-11",
       "days_until_expiry": 154,
-      "checked_at": "2026-10-08T08:11:14+00:00",
+      "checked_at": "2026-10-08T08:16:08+00:00",
       "error": null,
-      "stale_since": "2026-10-07T11:11:07+00:00",
       "msc_cert_holder": "Kramers’ Seafood (Trade Name: Brands: Isola/ Fishmasters )"
     },
     {
@@ -334,9 +293,8 @@
       "status": "gyldig",
       "valid_until": "2029-03-03",
       "days_until_expiry": 877,
-      "checked_at": "2026-10-08T08:11:14+00:00",
+      "checked_at": "2026-10-08T08:16:08+00:00",
       "error": null,
-      "stale_since": "2026-10-07T11:11:07+00:00",
       "msc_cert_holder": "Maresco A/S"
     },
     {
@@ -346,9 +304,8 @@
       "status": "gyldig",
       "valid_until": "2026-12-14",
       "days_until_expiry": 67,
-      "checked_at": "2026-10-08T08:11:14+00:00",
+      "checked_at": "2026-10-08T08:16:08+00:00",
       "error": null,
-      "stale_since": "2026-10-07T11:11:07+00:00",
       "msc_cert_holder": "Northseafood Holland B.V."
     },
     {
@@ -358,9 +315,8 @@
       "status": "gyldig",
       "valid_until": "2029-04-09",
       "days_until_expiry": 914,
-      "checked_at": "2026-10-08T08:11:14+00:00",
+      "checked_at": "2026-10-08T08:16:09+00:00",
       "error": null,
-      "stale_since": "2026-10-07T11:11:07+00:00",
       "msc_cert_holder": "Dalian Guofu Aquatic Products and Food Co., Ltd.  (Trade Name: 大连国富水产食品有限公司)"
     },
     {
@@ -370,9 +326,8 @@
       "status": "gyldig",
       "valid_until": "2029-11-06",
       "days_until_expiry": 1125,
-      "checked_at": "2026-10-08T08:11:14+00:00",
-      "error": null,
-      "stale_since": "2026-10-07T11:11:08+00:00"
+      "checked_at": "2026-10-08T08:16:09+00:00",
+      "error": null
     },
     {
       "name": "Danforel",
@@ -381,7 +336,7 @@
       "status": "gyldig",
       "valid_until": "2029-07-02",
       "days_until_expiry": 998,
-      "checked_at": "2026-10-08T08:11:16+00:00",
+      "checked_at": "2026-10-08T08:16:10+00:00",
       "error": null,
       "asc_cert_holder": "Danforel AS",
       "asc_cert_status": "Certified"
@@ -393,7 +348,7 @@
       "status": "gyldig",
       "valid_until": "2028-12-25",
       "days_until_expiry": 809,
-      "checked_at": "2026-10-08T08:11:16+00:00",
+      "checked_at": "2026-10-08T08:16:11+00:00",
       "error": null,
       "asc_cert_holder": "GUMUSDOGA Su Ürünleri Üretim Ihracat ve Ithalat A.Ş.-Selimiye Şubesi",
       "asc_cert_status": "Certified"
@@ -405,7 +360,7 @@
       "status": "gyldig",
       "valid_until": "2029-07-05",
       "days_until_expiry": 1001,
-      "checked_at": "2026-10-08T08:11:17+00:00",
+      "checked_at": "2026-10-08T08:16:11+00:00",
       "error": null,
       "asc_cert_holder": "Hanseatic Produkcja Sp. z o.o.",
       "asc_cert_status": "Certified"
@@ -417,7 +372,7 @@
       "status": "gyldig",
       "valid_until": "2028-08-24",
       "days_until_expiry": 686,
-      "checked_at": "2026-10-08T08:11:18+00:00",
+      "checked_at": "2026-10-08T08:16:12+00:00",
       "error": null,
       "asc_cert_holder": "Heiploeg International B.V.",
       "asc_cert_status": "Certified"
@@ -429,21 +384,9 @@
       "status": "gyldig",
       "valid_until": "2028-03-17",
       "days_until_expiry": 526,
-      "checked_at": "2026-10-08T08:11:18+00:00",
+      "checked_at": "2026-10-08T08:16:12+00:00",
       "error": null,
       "asc_cert_holder": "GRAND Sp. z o.o.",
-      "asc_cert_status": "Certified"
-    },
-    {
-      "name": "Selina",
-      "type": "asc",
-      "certificate_id": "ASC-C-01847",
-      "status": "gyldig",
-      "valid_until": "2027-04-09",
-      "days_until_expiry": 183,
-      "checked_at": "2026-10-08T08:11:19+00:00",
-      "error": null,
-      "asc_cert_holder": "Selina Balık İşleme Tesisi İthalat İhracat ve Ticaret  A.Ş.",
       "asc_cert_status": "Certified"
     },
     {
@@ -453,7 +396,7 @@
       "status": "gyldig",
       "valid_until": "2029-01-31",
       "days_until_expiry": 846,
-      "checked_at": "2026-10-08T08:11:19+00:00",
+      "checked_at": "2026-10-08T08:16:13+00:00",
       "error": null,
       "asc_cert_holder": "Vega Salmon GmbH & Vega Salmon A/S",
       "asc_cert_status": "Certified"
@@ -465,7 +408,7 @@
       "status": "gyldig",
       "valid_until": "2026-12-09",
       "days_until_expiry": 62,
-      "checked_at": "2026-10-08T08:11:20+00:00",
+      "checked_at": "2026-10-08T08:16:13+00:00",
       "error": null,
       "asc_cert_holder": "MINH PHU SEAFOOD CORPORATION",
       "asc_cert_status": "Certified"
@@ -477,7 +420,7 @@
       "status": "gyldig",
       "valid_until": "2026-11-27",
       "days_until_expiry": 50,
-      "checked_at": "2026-10-08T08:11:21+00:00",
+      "checked_at": "2026-10-08T08:16:14+00:00",
       "error": null,
       "asc_cert_holder": "MINH PHU HAU GIANG SEAFOOD CORPORATION",
       "asc_cert_status": "Certified"
@@ -489,7 +432,7 @@
       "status": "gyldig",
       "valid_until": "2028-03-04",
       "days_until_expiry": 513,
-      "checked_at": "2026-10-08T08:11:21+00:00",
+      "checked_at": "2026-10-08T08:16:14+00:00",
       "error": null,
       "asc_cert_holder": "Nordisk Fiske Kompagni A/S",
       "asc_cert_status": "Certified"
@@ -501,7 +444,7 @@
       "status": "gyldig",
       "valid_until": "2027-06-10",
       "days_until_expiry": 245,
-      "checked_at": "2026-10-08T08:11:22+00:00",
+      "checked_at": "2026-10-08T08:16:14+00:00",
       "error": null,
       "asc_cert_holder": "BG Production SP. Z O.O.",
       "asc_cert_status": "Certified"
@@ -513,7 +456,7 @@
       "status": "gyldig",
       "valid_until": "2027-04-09",
       "days_until_expiry": 183,
-      "checked_at": "2026-10-08T08:11:22+00:00",
+      "checked_at": "2026-10-08T08:16:15+00:00",
       "error": null,
       "asc_cert_holder": "Selina Balık İşleme Tesisi İthalat İhracat ve Ticaret  A.Ş.",
       "asc_cert_status": "Certified"
@@ -525,7 +468,7 @@
       "status": "gyldig",
       "valid_until": "2029-03-03",
       "days_until_expiry": 877,
-      "checked_at": "2026-10-08T08:11:23+00:00",
+      "checked_at": "2026-10-08T08:16:15+00:00",
       "error": null,
       "asc_cert_holder": "Maresco A/S",
       "asc_cert_status": "Certified"
@@ -537,7 +480,7 @@
       "status": "gyldig",
       "valid_until": "2029-03-03",
       "days_until_expiry": 877,
-      "checked_at": "2026-10-08T08:11:23+00:00",
+      "checked_at": "2026-10-08T08:16:16+00:00",
       "error": null,
       "asc_cert_holder": "Maresco A/S",
       "asc_cert_status": "Certified"
@@ -549,7 +492,7 @@
       "status": "gyldig",
       "valid_until": "2028-09-25",
       "days_until_expiry": 718,
-      "checked_at": "2026-10-08T08:11:24+00:00",
+      "checked_at": "2026-10-08T08:16:16+00:00",
       "error": null,
       "asc_cert_holder": "MarinePack Pte Ltd",
       "asc_cert_status": "Certified"
@@ -561,7 +504,7 @@
       "status": "gyldig",
       "valid_until": "2026-12-09",
       "days_until_expiry": 62,
-      "checked_at": "2026-10-08T08:11:25+00:00",
+      "checked_at": "2026-10-08T08:16:19+00:00",
       "error": null,
       "asc_cert_holder": "MINH PHU SEAFOOD CORPORATION",
       "asc_cert_status": "Certified"
@@ -573,9 +516,21 @@
       "status": "gyldig",
       "valid_until": "2026-11-27",
       "days_until_expiry": 50,
-      "checked_at": "2026-10-08T08:11:25+00:00",
+      "checked_at": "2026-10-08T08:16:19+00:00",
       "error": null,
       "asc_cert_holder": "MINH PHU HAU GIANG SEAFOOD CORPORATION",
+      "asc_cert_status": "Certified"
+    },
+    {
+      "name": "267 Selina Balik Isleme Tesisi Itkalat Ihracat Ve Ticaret A.S.",
+      "type": "asc",
+      "certificate_id": "ASC-C-01847",
+      "status": "gyldig",
+      "valid_until": "2027-04-09",
+      "days_until_expiry": 183,
+      "checked_at": "2026-10-08T08:16:20+00:00",
+      "error": null,
+      "asc_cert_holder": "Selina Balık İşleme Tesisi İthalat İhracat ve Ticaret  A.Ş.",
       "asc_cert_status": "Certified"
     }
   ]
