@@ -98,7 +98,15 @@ def validate_suppliers(suppliers: dict) -> list[dict]:
                 ),
             })
 
-    return warnings
+    # Advarsler godkendt i dashboardet (fx et bevidst delt certifikat) springes over –
+    # men kun for præcis de samme leverandører. Kommer der en ny til, advares der igen.
+    approved = {_warning_key(a) for a in suppliers.get("approved_warnings", [])}
+    return [w for w in warnings if _warning_key(w) not in approved]
+
+
+def _warning_key(w: dict) -> tuple:
+    """Identificerer en advarsel uafhængigt af rækkefølgen på leverandørnavnene."""
+    return (w.get("warning_type"), w.get("certificate_id"), tuple(sorted(w.get("names", []))))
 
 
 # ---------------------------------------------------------------------------
