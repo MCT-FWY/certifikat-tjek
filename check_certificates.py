@@ -261,7 +261,7 @@ def _check_msc_cert_dir(checks: list[tuple]) -> list[dict]:
 
             result = make_result(name, "msc", cert_id,
                                  valid_until=valid_until, status=status)
-            if grid_name and grid_name.strip() != name:
+            if grid_name and grid_name.strip():
                 result["msc_cert_holder"] = grid_name.strip()
             results.append(result)
 
@@ -408,7 +408,7 @@ def check_asc_all(asc_suppliers: list[dict]) -> list[dict]:
             doc         = docs[0]
             cert_status = doc.get("Certificate_status", "")
             expiry_date = doc.get("Expiry_date")
-            cert_holder = doc.get("Certificate_holder", name)
+            cert_holder = doc.get("Certificate_holder")
 
             if cert_status in _ASC_INVALID_STATUSES:
                 # Udløbsdato kan være i fremtiden selvom certifikatet er trukket tilbage
@@ -417,7 +417,7 @@ def check_asc_all(asc_suppliers: list[dict]) -> list[dict]:
             else:
                 status = expiry_status(days_until_expiry(expiry_date))
                 result = make_result(name, "asc", cert_id, valid_until=expiry_date, status=status)
-            if cert_holder and cert_holder != name:
+            if cert_holder:
                 result["asc_cert_holder"] = cert_holder
             result["asc_cert_status"] = cert_status
             results.append(result)

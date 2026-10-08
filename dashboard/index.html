@@ -673,7 +673,8 @@ function buildCard(r) {
   const dbName     = r.traces_operator || r.asc_cert_holder || r.msc_cert_holder;
   const chipHtml   = daysChip(r);
 
-  const operatorRow = dbName && dbName !== r.name
+  // Vises også når den er lig leverandørnavnet – ellers ligner det manglende data
+  const operatorRow = dbName
     ? `<div class="card-meta-row" style="color:#64748b;font-size:0.78rem">
          <span style="font-weight:600;color:#94a3b8;text-transform:uppercase;letter-spacing:.04em;font-size:0.68rem">Certifikatholder&nbsp;</span>${dbName}
        </div>` : "";
