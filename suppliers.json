@@ -341,6 +341,12 @@
       "certificate_ids": [
         "ASC-C-00513"
       ]
+    },
+    {
+      "name": "628 MARESCO A/S og 628-1 MARFRESH ApS",
+      "certificate_ids": [
+        "ASC-C-01642"
+      ]
     }
   ]
 }
