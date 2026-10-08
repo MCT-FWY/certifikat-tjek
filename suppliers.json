@@ -345,5 +345,16 @@
         "ASC-C-01642"
       ]
     }
+  ],
+  "approved_warnings": [
+    {
+      "warning_type": "duplicate",
+      "certificate_id": "ASC-C-01642",
+      "names": [
+        "628 MARESCO A/S",
+        "628-1 MARFRESH ApS"
+      ],
+      "approved_on": "2026-10-08"
+    }
   ]
 }
