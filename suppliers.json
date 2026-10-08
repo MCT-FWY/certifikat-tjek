@@ -379,6 +379,15 @@
         "628-1 MARFRESH ApS"
       ],
       "approved_on": "2026-10-08"
+    },
+    {
+      "warning_type": "duplicate",
+      "certificate_id": "MSC-C-52855",
+      "names": [
+        "423 Eastern Fisheries Holding B.V.",
+        "423-1 Eastern Fisheries"
+      ],
+      "approved_on": "2026-10-08"
     }
   ]
 }
