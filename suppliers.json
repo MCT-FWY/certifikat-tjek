@@ -246,6 +246,12 @@
       "certificate_ids": [
         "MSC-C-53833"
       ]
+    },
+    {
+      "name": "423-1 Eastern Fisheries",
+      "certificate_ids": [
+        "MSC-C-52855"
+      ]
     }
   ],
   "asc": [
