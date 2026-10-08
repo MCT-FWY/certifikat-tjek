@@ -338,6 +338,12 @@
       "certificate_ids": [
         "ASC-C-02693"
       ]
+    },
+    {
+      "name": "628 MARESCO A/S",
+      "certificate_ids": [
+        "ASC-C-01642"
+      ]
     }
   ]
 }
