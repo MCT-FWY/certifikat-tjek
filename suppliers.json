@@ -356,6 +356,12 @@
       "certificate_ids": [
         "ASC-C-01471"
       ]
+    },
+    {
+      "name": "248 SEAWEST AS",
+      "certificate_ids": [
+        "ASC-C-01844"
+      ]
     }
   ],
   "approved_warnings": [
