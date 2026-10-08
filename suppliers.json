@@ -265,12 +265,6 @@
   ],
   "asc": [
     {
-      "name": "BG",
-      "certificate_ids": [
-        "ASC-C-01898"
-      ]
-    },
-    {
       "name": "Danforel",
       "certificate_ids": [
         "ASC-C-00438"
