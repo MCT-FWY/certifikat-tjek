@@ -201,27 +201,6 @@
       ]
     },
     {
-      "name": "Maresco",
-      "certificate_ids": [
-        "MSC-C-53833"
-      ],
-      "species_codes": [
-        "COD",
-        "GHL",
-        "HER",
-        "HKE",
-        "LEM",
-        "LIN",
-        "MAC",
-        "MUS",
-        "NEP",
-        "POK",
-        "PRA",
-        "SOL",
-        "TUR"
-      ]
-    },
-    {
       "name": "North Seafood",
       "certificate_ids": [
         "MSC-C-50775"
