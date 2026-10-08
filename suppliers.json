@@ -362,6 +362,12 @@
       "certificate_ids": [
         "ASC-C-01844"
       ]
+    },
+    {
+      "name": "601 Milarex Sp. Z.o.o.",
+      "certificate_ids": [
+        "ASC-C-01076"
+      ]
     }
   ],
   "approved_warnings": [
