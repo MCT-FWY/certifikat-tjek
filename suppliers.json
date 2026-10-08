@@ -261,6 +261,12 @@
         "SOC",
         "SOL"
       ]
+    },
+    {
+      "name": "628 MARESCO A/S og 628-1 MARFRESH ApS",
+      "certificate_ids": [
+        "MSC-C-53833"
+      ]
     }
   ],
   "asc": [
