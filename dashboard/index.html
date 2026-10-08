@@ -181,6 +181,19 @@
     .card:hover .card-delete { opacity: 1; }
     .card-delete:hover { background: #fee2e2; color: #dc2626; }
 
+    /* Ret-knap – under slet-knappen */
+    .card-edit {
+      position: absolute; top: 32px; right: 8px;
+      width: 22px; height: 22px; border-radius: 50%;
+      border: none; background: transparent; color: #94a3b8;
+      font-size: 0.8rem; line-height: 1; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      opacity: 0; transition: opacity .15s, background .15s, color .15s;
+      z-index: 2;
+    }
+    .card:hover .card-edit { opacity: 1; }
+    .card-edit:hover { background: #e0f2fe; color: #0369a1; }
+
     .card-top {
       display: flex; justify-content: space-between;
       align-items: flex-start; gap: 8px; margin-bottom: 10px;
@@ -391,11 +404,12 @@
 <!-- ── Tilføj leverandør modal ── -->
 <div id="add-modal" class="modal-overlay" style="display:none">
   <div class="modal">
-    <h2>Tilføj leverandør</h2>
+    <h2 id="modal-title">Tilføj leverandør</h2>
 
     <div class="form-group">
       <label>Leverandørnavn</label>
       <input type="text" id="f-name" placeholder="f.eks. Ny Leverandør A/S" autocomplete="off">
+      <p id="f-name-hint" class="field-hint" style="display:none"></p>
     </div>
 
     <div class="form-row">
@@ -690,6 +704,7 @@ function buildCard(r) {
          data-type="${r.type}"
          data-cert="${r.certificate_id}">
       <button class="card-delete" title="Fjern leverandør">&#215;</button>
+      <button class="card-edit" title="Ret leverandør">&#9998;</button>
       <div class="card-top">
         <div class="card-name">${r.name}</div>
         <span class="badge badge-${sc}">${badgeLabel}</span>
@@ -798,9 +813,8 @@ async function approveWarning(w, btn) {
   }
 }
 
-// Godkendte advarsler gemmes i suppliers.json; de filtreres fra her, så de ikke
-// dukker op igen før næste daglige tjek har kørt
-async function loadApprovedKeys() {
+// Leverandørlisten uden token (til visning – ændringer går via ghGetSuppliers)
+async function fetchSuppliersPublic() {
   const urls = [
     "../suppliers.json",
     "https://raw.githubusercontent.com/MCT-FWY/certifikat-tjek/main/suppliers.json",
@@ -808,10 +822,17 @@ async function loadApprovedKeys() {
   for (const url of urls) {
     try {
       const resp = await fetch(url + "?_=" + Date.now());
-      if (resp.ok) return new Set(((await resp.json()).approved_warnings || []).map(warningKey));
+      if (resp.ok) return await resp.json();
     } catch { /* prøv næste URL */ }
   }
-  return new Set();
+  return null;
+}
+
+// Godkendte advarsler gemmes i suppliers.json; de filtreres fra her, så de ikke
+// dukker op igen før næste daglige tjek har kørt
+async function loadApprovedKeys() {
+  const suppliers = await fetchSuppliersPublic();
+  return new Set(((suppliers && suppliers.approved_warnings) || []).map(warningKey));
 }
 
 function renderDashboard() {
@@ -855,7 +876,7 @@ function copyText(text) {
 function attachCardClicks() {
   document.querySelectorAll(".card[data-url]").forEach(card => {
     card.addEventListener("click", e => {
-      if (e.target.closest(".card-delete")) return;
+      if (e.target.closest(".card-delete, .card-edit")) return;
       const badge = e.target.closest(".card-warning");
       if (badge) {
         const target = [...document.querySelectorAll("#warnings-section .warning-card")]
@@ -881,6 +902,13 @@ function attachCardClicks() {
       e.stopPropagation();
       const card = btn.closest(".card");
       confirmDelete(card.dataset.name, card.dataset.type, card.dataset.cert);
+    });
+  });
+  document.querySelectorAll(".card-edit").forEach(btn => {
+    btn.addEventListener("click", e => {
+      e.stopPropagation();
+      const card = btn.closest(".card");
+      openEditModal(card.dataset.name, card.dataset.type, card.dataset.cert);
     });
   });
 }
@@ -931,7 +959,13 @@ setInterval(load, 60 * 60 * 1000);
 /* ═══════════════════════════════════════════
    ADD SUPPLIER MODAL
 ═══════════════════════════════════════════ */
+let editTarget = null;   // { name, type, certId } når formularen bruges til at rette
+
 function openAddModal() {
+  editTarget = null;
+  document.getElementById("modal-title").textContent = "Tilføj leverandør";
+  document.getElementById("f-name-hint").style.display = "none";
+  document.getElementById("f-type").disabled = false;
   document.getElementById("f-name").value    = "";
   document.getElementById("f-type").value    = "msc";
   document.getElementById("f-certid").value  = "";
@@ -948,6 +982,71 @@ function openAddModal() {
 
 function closeAddModal() {
   document.getElementById("add-modal").style.display = "none";
+}
+
+async function openEditModal(name, type, certId) {
+  openAddModal();   // nulstil formularen
+  editTarget = { name, type, certId };
+  document.getElementById("modal-title").textContent = "Ret leverandør";
+  document.getElementById("f-name").value   = name;
+  document.getElementById("f-type").value   = type;
+  document.getElementById("f-type").disabled = true;   // ny type = fjern og tilføj i stedet
+  document.getElementById("f-certid").value = certId;
+  document.getElementById("modal-save").textContent = "Gem ændringer";
+  updateEcoFields();
+
+  // Land/søgeterm (øko) og antal certifikater står kun i leverandørlisten
+  const suppliers = await fetchSuppliersPublic();
+  if (!suppliers || editTarget?.certId !== certId) return;
+  if (type === "eco") {
+    const s = (suppliers.eco || []).find(s => s.certificate_id === certId && s.name === name);
+    if (s) {
+      document.getElementById("f-country").value = s.country || "";
+      document.getElementById("f-search").value  = s.search_query || "";
+    }
+  } else {
+    const s = (suppliers[type] || []).find(s => s.name === name);
+    const n = s ? s.certificate_ids.length : 1;
+    if (n > 1) {
+      const hint = document.getElementById("f-name-hint");
+      hint.textContent = `${name} har ${n} ${TYPE_LABEL[type]}-certifikater – ændres navnet, gælder det dem alle.`;
+      hint.style.display = "";
+    }
+  }
+}
+
+// Retter en leverandør i suppliers (in-place) og returnerer commit-beskeden.
+// For MSC/ASC hører navnet til leverandøren, så hele posten (alle dens certifikater)
+// omdøbes; findes det nye navn allerede, flettes de to poster sammen.
+function applyEdit(suppliers, t, v) {
+  const notFound = new Error("Leverandøren findes ikke længere i listen – genindlæs siden.");
+  if (t.type === "eco") {
+    const s = suppliers.eco.find(s => s.certificate_id === t.certId && s.name === t.name);
+    if (!s) throw notFound;
+    Object.assign(s, { name: v.name, certificate_id: v.certId, country: v.country, search_query: v.search });
+  } else {
+    const list = suppliers[t.type];
+    const s = list.find(s => s.name === t.name && s.certificate_ids.includes(t.certId));
+    if (!s) throw notFound;
+    s.certificate_ids = [...new Set(s.certificate_ids.map(id => id === t.certId ? v.certId : id))];
+    if (v.name !== t.name) {
+      const target = list.find(x => x !== s && x.name === v.name);
+      if (target) {
+        target.certificate_ids = [...new Set([...target.certificate_ids, ...s.certificate_ids])];
+        if (s.species_codes || target.species_codes)
+          target.species_codes = [...new Set([...(target.species_codes || []), ...(s.species_codes || [])])].sort();
+        list.splice(list.indexOf(s), 1);
+      } else {
+        s.name = v.name;
+      }
+    }
+  }
+  if (v.name !== t.name)   // godkendte advarsler følger med navneskiftet
+    for (const a of suppliers.approved_warnings || [])
+      a.names = a.names.map(n => n === t.name ? v.name : n).sort();
+
+  const from = `${t.name} (${t.certId})`, to = `${v.name} (${v.certId})`;
+  return `feat: ret leverandør ${from}` + (from !== to ? ` → ${to}` : "");
 }
 
 function updateEcoFields() {
@@ -1011,6 +1110,34 @@ document.getElementById("modal-save").addEventListener("click", async () => {
   try {
     const { suppliers, sha } = await ghGetSuppliers(token);
 
+    if (editTarget) {
+      const t = editTarget;
+      const message = applyEdit(suppliers, t, { name, certId, country, search });
+      await ghPutSuppliers(token, suppliers, sha, message);
+      sessionStorage.setItem("gh_token", token);
+
+      // Opdatér dashboardet med det samme
+      for (const r of allResults) {
+        if (r.type !== t.type || r.name !== t.name) continue;
+        if (t.type === "eco" && r.certificate_id !== t.certId) continue;
+        r.name = name;
+        if (r.certificate_id === t.certId && certId !== t.certId) {
+          // Nyt certifikatnummer – data for det gamle gælder ikke længere
+          Object.assign(r, { certificate_id: certId, status: "ukendt", valid_until: null,
+                             days_until_expiry: null, error: null, _new: true });
+          for (const k of ["msc_cert_holder", "asc_cert_holder", "traces_operator", "traces_reference", "stale_since"]) delete r[k];
+        }
+      }
+      for (const w of allWarnings) w.names = (w.names || []).map(n => n === t.name ? name : n);
+      renderDashboard();
+
+      setModalStatus("Ændringerne er gemt." +
+        (certId !== t.certId ? " Det nye certifikatnummer tjekkes ved næste kørsel." : ""));
+      btn.textContent = "Gemt ✓";
+      setTimeout(closeAddModal, 1800);
+      return;
+    }
+
     if (type === "eco") {
       suppliers.eco.push({ name, certificate_id: certId, country, search_query: search });
     } else {
@@ -1041,7 +1168,7 @@ document.getElementById("modal-save").addEventListener("click", async () => {
   } catch (err) {
     setModalStatus(err.message, true);
     btn.disabled = false;
-    btn.textContent = "Gem leverandør";
+    btn.textContent = editTarget ? "Gem ændringer" : "Gem leverandør";
   }
 });
 
