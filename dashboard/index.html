@@ -258,6 +258,16 @@
       padding: 6px 9px; border-radius: 5px; line-height: 1.4;
     }
 
+    /* ── Besked nederst (fx "certifikatnummer kopieret") ── */
+    #toast {
+      position: fixed; left: 50%; bottom: 24px; transform: translateX(-50%) translateY(20px);
+      background: #1e293b; color: #f1f5f9; font-size: 0.85rem;
+      padding: 10px 18px; border-radius: 8px; box-shadow: 0 6px 20px rgba(0,0,0,.2);
+      opacity: 0; pointer-events: none; transition: opacity .2s, transform .2s;
+      z-index: 1000; max-width: calc(100% - 32px);
+    }
+    #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
     /* ── Empty state ── */
     #no-data { text-align: center; padding: 80px 20px; color: #94a3b8; }
     #no-data h2 { font-size: 1.05rem; margin-bottom: 12px; color: #64748b; }
@@ -465,6 +475,7 @@
   </div>
 
   <div class="warnings-section" id="warnings-section"></div>
+  <div id="toast" role="status" aria-live="polite"></div>
 
   <main id="main">
     <div id="no-data">
@@ -629,6 +640,7 @@ function buildCard(r) {
 
   return `
     <div class="card ${sc}"
+         ${r.type === "msc" ? `title="Åbner MSC's søgeside – certifikatnummeret kopieres, så du kan indsætte det (Ctrl+V)"` : ""}
          data-url="${certUrl(r)}"
          data-name="${r.name.replace(/"/g,"&quot;")}"
          data-type="${r.type}"
@@ -704,10 +716,39 @@ function renderDashboard() {
   attachCardClicks();
 }
 
+let toastTimer;
+function showToast(msg) {
+  const el = document.getElementById("toast");
+  el.textContent = msg;
+  el.classList.add("show");
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.classList.remove("show"), 4000);
+}
+
+// MSC kan ikke deep-linkes (cert.msc.org kræver en session), så vi kopierer
+// certifikatnummeret til udklipsholderen, inden søgesiden åbnes.
+function copyText(text) {
+  if (navigator.clipboard && window.isSecureContext)
+    return navigator.clipboard.writeText(text);
+  const ta = document.createElement("textarea");
+  ta.value = text; ta.style.position = "fixed"; ta.style.opacity = "0";
+  document.body.appendChild(ta); ta.select();
+  const ok = document.execCommand("copy");
+  ta.remove();
+  return ok ? Promise.resolve() : Promise.reject(new Error("copy failed"));
+}
+
 function attachCardClicks() {
   document.querySelectorAll(".card[data-url]").forEach(card => {
     card.addEventListener("click", e => {
       if (e.target.closest(".card-delete")) return;
+      if (card.dataset.type === "msc") {
+        const certId = card.dataset.cert;
+        copyText(certId).then(
+          () => showToast(`${certId} kopieret – indsæt i MSC's søgefelt (Ctrl+V)`),
+          () => showToast(`Søg efter ${certId} på MSC's side`)
+        );
+      }
       window.open(card.dataset.url, "_blank", "noopener,noreferrer");
     });
   });
