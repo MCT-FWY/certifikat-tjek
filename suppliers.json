@@ -359,6 +359,12 @@
       "certificate_ids": [
         "ASC-C-00752"
       ]
+    },
+    {
+      "name": "605 GRAND SPÓŁKA Z OGRANICZONĄ ODPOWIEDZIALNOŚCIĄ",
+      "certificate_ids": [
+        "ASC-C-03009"
+      ]
     }
   ]
 }
