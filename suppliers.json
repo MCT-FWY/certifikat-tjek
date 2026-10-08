@@ -350,6 +350,12 @@
       "certificate_ids": [
         "ASC-C-01518"
       ]
+    },
+    {
+      "name": "347 LL Cold ApS (Pakkeri)",
+      "certificate_ids": [
+        "ASC-C-01471"
+      ]
     }
   ],
   "approved_warnings": [
