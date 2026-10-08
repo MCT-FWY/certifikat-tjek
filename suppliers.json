@@ -388,6 +388,15 @@
         "423-1 Eastern Fisheries"
       ],
       "approved_on": "2026-10-08"
+    },
+    {
+      "warning_type": "duplicate",
+      "certificate_id": "MSC-C-53833",
+      "names": [
+        "628 MARESCO A/S",
+        "628-1 MARFRESH ApS"
+      ],
+      "approved_on": "2026-10-08"
     }
   ]
 }
