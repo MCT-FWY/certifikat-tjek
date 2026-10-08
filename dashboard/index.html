@@ -157,6 +157,17 @@
     }
     .card.ukendt         { border-left-color: #cbd5e1; }
 
+    /* Kort med advarsel: mærke nederst til højre, "Åbn certifikat" flyttes til venstre */
+    .card.has-warning { padding-bottom: 36px; }
+    .card.has-warning:hover::after { right: auto; left: 18px; }
+    .card-warning {
+      position: absolute; bottom: 10px; right: 12px;
+      font-size: 0.68rem; font-weight: 700; letter-spacing: .02em;
+      color: #b45309; background: #fef3c7; border: 1px solid #fcd34d;
+      padding: 2px 9px; border-radius: 100px; cursor: pointer;
+    }
+    .card-warning:hover { background: #fde68a; }
+
     /* Delete button */
     .card-delete {
       position: absolute; top: 8px; right: 8px;
@@ -227,6 +238,16 @@
       margin-right: 7px;
     }
     .warning-cert { font-family: ui-monospace, Consolas, monospace; font-size: 0.76rem; color: #334155; }
+    .warning-approve {
+      flex-shrink: 0; align-self: center;
+      font-size: 0.74rem; font-weight: 700; color: #15803d;
+      background: #f0fdf4; border: 1px solid #86efac; border-radius: 6px;
+      padding: 4px 12px; cursor: pointer;
+    }
+    .warning-approve:hover { background: #dcfce7; }
+    .warning-approve:disabled { opacity: .6; cursor: default; }
+    .warning-card.flash { animation: warning-flash 1.6s ease-out; }
+    @keyframes warning-flash { 0%, 40% { background: #fde68a; } 100% { background: #fff; } }
     .c-amber { color: #d97706; }
 
     .card-info-icon {
@@ -576,6 +597,26 @@ const STATUS_LABEL = {
   udloebet: "Udløbet", ukendt: "Ukendt",
 };
 let allResults = [];
+let allWarnings = [];   // advarsler fra sidste tjek, minus dem der er godkendt
+
+const escAttr = s => String(s).replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/</g, "&lt;");
+
+// Samme nøgle som _warning_key() i check_certificates.py – navnenes rækkefølge er ligegyldig
+function warningKey(w) {
+  return [w.warning_type, w.certificate_id, [...(w.names || [])].sort().join("|")].join("::");
+}
+
+// Advarsler der vedrører et bestemt kort
+function warningsFor(r) {
+  return allWarnings.filter(w => {
+    if (w.warning_type === "data")   // samme betingelse som data_warnings() i check_certificates.py
+      return w.cert_type === r.type && !r.error && r.status !== "udløbet"
+          && (!r.valid_until || r.stale_since);
+    return w.certificate_id === r.certificate_id
+        && (!w.cert_type || w.cert_type === r.type)
+        && (w.names || []).includes(r.name);
+  });
+}
 
 function certUrl(r) {
   if (r.type === "msc")
@@ -635,8 +676,14 @@ function buildCard(r) {
     ? `<div class="card-meta-row" style="font-size:0.74rem;color:#b45309;font-style:italic">Udløbsdato fra tidligere tjek (${formatDate(r.stale_since)})</div>`
     : "";
 
+  const cardWarnings = warningsFor(r);
+  const warningBadge = cardWarnings.length
+    ? `<span class="card-warning" data-key="${escAttr(warningKey(cardWarnings[0]))}"
+             title="${escAttr(cardWarnings.map(w => w.message).join("\n") + "\n\nKlik for at se advarslen")}">&#9888; Advarsel</span>`
+    : "";
+
   return `
-    <div class="card ${sc}"
+    <div class="card ${sc}${cardWarnings.length ? " has-warning" : ""}"
          ${r.type === "msc" ? `title="Åbner MSC's søgeside – certifikatnummeret kopieres, så du kan indsætte det (Ctrl+V)"` : ""}
          data-url="${certUrl(r)}"
          data-name="${r.name.replace(/"/g,"&quot;")}"
@@ -657,7 +704,7 @@ function buildCard(r) {
         ${chipHtml ? `<div class="card-meta-row">${chipHtml}</div>` : ""}
         ${staleRow}${notCheckedRow}
       </div>
-      ${errorHtml}
+      ${errorHtml}${warningBadge}
     </div>`;
 }
 
@@ -673,7 +720,11 @@ function buildSection(title, results) {
     </div>`;
 }
 
-function renderWarnings(warnings) {
+function renderWarnings() {
+  const warnings = allWarnings;
+  document.getElementById("s-advarsler").textContent = warnings.length;
+  document.getElementById("s-warnings-item").style.display = warnings.length ? "" : "none";
+
   const el = document.getElementById("warnings-section");
   if (!warnings.length) { el.innerHTML = ""; return; }
 
@@ -683,17 +734,84 @@ function renderWarnings(warnings) {
     const label = TYPE_LABEL_W[w.warning_type] || w.warning_type;
     const cert  = w.certificate_id
       ? `<span class="warning-cert">${w.certificate_id}</span> &mdash; ` : "";
-    return `<div class="warning-card">
+    // Datakilde-advarsler forsvinder af sig selv, når kilden virker igen – de kan ikke godkendes
+    const approve = w.warning_type !== "data"
+      ? `<button class="warning-approve" title="Marker advarslen som i orden – den vises ikke længere">Godkend</button>` : "";
+    return `<div class="warning-card" data-key="${escAttr(warningKey(w))}">
       <span class="warning-icon">${icon}</span>
       <div class="warning-body">
         <span class="warning-type">${label}</span>${cert}${w.message}
       </div>
+      ${approve}
     </div>`;
   }).join("");
 
   el.innerHTML = `
     <div class="warnings-header">&#9888;&#65039; Advarsler (${warnings.length})</div>
     ${cards}`;
+
+  el.querySelectorAll(".warning-approve").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const key = btn.closest(".warning-card").dataset.key;
+      approveWarning(allWarnings.find(w => warningKey(w) === key), btn);
+    });
+  });
+}
+
+async function approveWarning(w, btn) {
+  if (!w) return;
+  const who = (w.names || []).join(" og ");
+  if (!window.confirm(
+      `Godkend advarslen for ${w.certificate_id}?\n\n${who}\n\n` +
+      `Advarslen vises ikke længere for disse leverandører. ` +
+      `Kommer der en ny leverandør med samme certifikatnummer, vises den igen.`))
+    return;
+
+  let token = sessionStorage.getItem("gh_token");
+  if (!token) {
+    token = window.prompt("Indtast GitHub-token for at godkende:");
+    if (!token) return;
+  }
+
+  btn.disabled = true;
+  try {
+    const { suppliers, sha } = await ghGetSuppliers(token);
+    const approved = suppliers.approved_warnings ??= [];
+    if (!approved.some(a => warningKey(a) === warningKey(w))) {
+      approved.push({
+        warning_type:   w.warning_type,
+        certificate_id: w.certificate_id,
+        names:          [...w.names].sort(),
+        approved_on:    new Date().toISOString().slice(0, 10),
+      });
+      await ghPutSuppliers(token, suppliers, sha,
+        `chore: godkend advarsel ${w.certificate_id} (${who})`);
+    }
+    sessionStorage.setItem("gh_token", token);
+
+    allWarnings = allWarnings.filter(x => warningKey(x) !== warningKey(w));
+    renderWarnings();
+    renderDashboard();
+  } catch (err) {
+    btn.disabled = false;
+    alert("Fejl: " + err.message);
+  }
+}
+
+// Godkendte advarsler gemmes i suppliers.json; de filtreres fra her, så de ikke
+// dukker op igen før næste daglige tjek har kørt
+async function loadApprovedKeys() {
+  const urls = [
+    "../suppliers.json",
+    "https://raw.githubusercontent.com/MCT-FWY/certifikat-tjek/main/suppliers.json",
+  ];
+  for (const url of urls) {
+    try {
+      const resp = await fetch(url + "?_=" + Date.now());
+      if (resp.ok) return new Set(((await resp.json()).approved_warnings || []).map(warningKey));
+    } catch { /* prøv næste URL */ }
+  }
+  return new Set();
 }
 
 function renderDashboard() {
@@ -738,6 +856,16 @@ function attachCardClicks() {
   document.querySelectorAll(".card[data-url]").forEach(card => {
     card.addEventListener("click", e => {
       if (e.target.closest(".card-delete")) return;
+      const badge = e.target.closest(".card-warning");
+      if (badge) {
+        const target = [...document.querySelectorAll("#warnings-section .warning-card")]
+          .find(el => el.dataset.key === badge.dataset.key);
+        if (target) {
+          target.scrollIntoView({ behavior: "smooth", block: "center" });
+          target.classList.remove("flash"); void target.offsetWidth; target.classList.add("flash");
+        }
+        return;
+      }
       if (card.dataset.type === "msc") {
         const certId = card.dataset.cert;
         copyText(certId).then(
@@ -783,15 +911,9 @@ async function load() {
     document.getElementById("s-udloebet").textContent = s.udloebet       || 0;
     document.getElementById("s-ukendt").textContent   = s.ukendt         || 0;
 
-    const warnings = data.warnings || [];
-    const wItem = document.getElementById("s-warnings-item");
-    if (warnings.length) {
-      document.getElementById("s-advarsler").textContent = warnings.length;
-      wItem.style.display = "";
-    } else {
-      wItem.style.display = "none";
-    }
-    renderWarnings(warnings);
+    const approvedKeys = await loadApprovedKeys();
+    allWarnings = (data.warnings || []).filter(w => !approvedKeys.has(warningKey(w)));
+    renderWarnings();
 
     allResults = data.results || [];
     renderDashboard();
