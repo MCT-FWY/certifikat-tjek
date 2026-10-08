@@ -344,6 +344,12 @@
       "certificate_ids": [
         "ASC-C-01642"
       ]
+    },
+    {
+      "name": "280 CHRISFISH DANMARK A/S",
+      "certificate_ids": [
+        "ASC-C-01518"
+      ]
     }
   ],
   "approved_warnings": [
