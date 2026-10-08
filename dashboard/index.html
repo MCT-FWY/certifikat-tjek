@@ -67,8 +67,6 @@
     }
     .btn-add  { background: #22c55e; color: #fff; }
     .btn-add:hover { background: #16a34a; }
-    .btn-dl   { background: #38bdf8; color: #0f172a; }
-    .btn-dl:hover { background: #7dd3fc; }
     .btn-run  { background: #6366f1; color: #fff; }
     .btn-run:hover { background: #4f46e5; }
     .btn-log  { background: #64748b; color: #fff; }
@@ -442,7 +440,6 @@
       <button class="btn-header btn-log" id="log-btn">&#128203; Tjek log</button>
       <button class="btn-header btn-run" id="run-btn">&#9654; Tjek alle nu</button>
       <button class="btn-header btn-add" id="add-btn">&#x2795; Tilf&oslash;j leverand&oslash;r</button>
-      <button class="btn-header btn-dl"  id="dl-all-btn">&#8659; Download alle certifikater</button>
     </div>
   </header>
 
@@ -926,10 +923,6 @@ async function confirmDelete(name, type, certId) {
     alert("Fejl: " + err.message);
   }
 }
-
-document.getElementById("dl-all-btn").addEventListener("click", () => {
-  alert("⏳ Kommer snart – vi afventer API-godkendelse fra MSC og ASC. Funktionen aktiveres automatisk når adgang er på plads.");
-});
 
 /* ═══════════════════════════════════════════
    TJEK LOG
