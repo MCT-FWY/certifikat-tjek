@@ -510,7 +510,7 @@ NOTIFICATION_THRESHOLD_DAYS = 14
 _SMTP_SERVER       = "smtp.gmail.com"
 _SMTP_PORT         = 587
 _NOTIFICATION_FROM = "fwypakkeri@gmail.com"
-_NOTIFICATION_TO   = ["quality@foodwithyou.com", "info@foodwithyou.com"]
+_NOTIFICATION_TO   = ["quality@foodwithyou.com", "info@foodwithyou.com", "hm@foodwithyou.com"]
 _TYPE_LABELS       = {"msc": "MSC", "asc": "ASC", "eco": "Øko"}
 _DASHBOARD_URL     = "https://mct-fwy.github.io/certifikat-tjek/"
 
