@@ -13,43 +13,6 @@
       color: #1a1a2e;
     }
 
-    /* ── Login overlay ── */
-    #login-overlay {
-      position: fixed; inset: 0; background: #0f1117;
-      display: flex; align-items: center; justify-content: center; z-index: 999;
-    }
-    #login-box {
-      background: #1a1a2e; border: 1px solid #2d3752; border-radius: 14px;
-      padding: 44px 40px 40px; width: 100%; max-width: 380px;
-      display: flex; flex-direction: column; gap: 14px;
-    }
-    .login-logo {
-      font-size: 1rem; font-weight: 800; letter-spacing: .12em;
-      color: #38bdf8; text-transform: uppercase; margin-bottom: 4px;
-    }
-    #login-box h2 { font-size: 1.3rem; font-weight: 700; color: #f1f5f9; }
-    #login-box p.subtitle { font-size: 0.85rem; color: #94a3b8; margin-top: -6px; }
-    #pw-input {
-      padding: 11px 14px; border-radius: 8px; border: 1px solid #334155;
-      background: #0f172a; color: #f1f5f9; font-size: 0.95rem;
-      outline: none; transition: border-color .15s;
-    }
-    #pw-input:focus { border-color: #38bdf8; }
-    #pw-btn {
-      padding: 11px 0; border-radius: 8px; border: none;
-      background: #38bdf8; color: #0f172a; font-size: 0.95rem;
-      font-weight: 700; cursor: pointer; transition: background .15s;
-    }
-    #pw-btn:hover { background: #7dd3fc; }
-    #pw-error {
-      display: none; font-size: 0.82rem; color: #f87171;
-      background: #450a0a; border: 1px solid #7f1d1d;
-      padding: 8px 12px; border-radius: 7px;
-    }
-
-    /* ── App wrapper ── */
-    #app { display: none; }
-
     /* ── Header ── */
     header {
       background: #1a1a2e; color: #fff; padding: 18px 32px;
@@ -82,10 +45,23 @@
     }
     .log-table td { padding: 9px 12px; border-bottom: 1px solid #f1f5f9; }
     .log-table tr:last-child td { border-bottom: none; }
+    .log-table tbody tr { cursor: pointer; }
+    .log-table tbody tr:hover td { background: #f8fafc; }
     .log-ok   { color: #15803d; font-weight: 600; }
     .log-fail { color: #b91c1c; font-weight: 600; }
     .log-run  { color: #b45309; font-weight: 600; }
     .log-dim  { color: #94a3b8; }
+    .log-note { font-size: 0.76rem; color: #64748b; }
+    .log-output {
+      margin-top: 12px; max-height: 50vh; overflow: auto;
+      background: #0f172a; color: #e2e8f0; border-radius: 7px; padding: 12px 14px;
+      font-family: ui-monospace, "Cascadia Code", Consolas, monospace;
+      font-size: 0.72rem; line-height: 1.5; white-space: pre-wrap;
+    }
+    .log-back {
+      font-size: 0.8rem; color: #64748b; background: none; border: none;
+      cursor: pointer; text-decoration: underline; padding: 0;
+    }
 
     /* ── Summary strip ── */
     .summary {
@@ -341,19 +317,6 @@
     .form-row { display: flex; gap: 12px; }
     .form-row .form-group { flex: 1; }
 
-    .form-divider { border: none; border-top: 1px solid #e2e8f0; margin: 18px 0; }
-
-    .token-ok {
-      display: flex; align-items: center; gap: 10px;
-      font-size: 0.82rem; color: #15803d; font-weight: 600;
-      background: #f0fdf4; border: 1px solid #bbf7d0;
-      border-radius: 7px; padding: 8px 12px; margin-bottom: 14px;
-    }
-    .token-ok button {
-      margin-left: auto; font-size: 0.75rem; color: #64748b;
-      background: none; border: none; cursor: pointer; text-decoration: underline;
-    }
-
     .modal-status {
       border-radius: 7px; padding: 9px 12px;
       font-size: 0.82rem; line-height: 1.4; margin-top: 14px;
@@ -381,25 +344,12 @@
       header, main { padding-left: 16px; padding-right: 16px; }
       .summary { padding-left: 16px; flex-wrap: wrap; }
       .summary-item { padding-right: 16px; margin-right: 16px; }
-      #login-box { padding: 32px 24px 28px; }
       .modal { padding: 24px 20px 20px; }
       .form-row { flex-direction: column; gap: 0; }
     }
   </style>
 </head>
 <body>
-
-<!-- ── Login overlay ── -->
-<div id="login-overlay">
-  <div id="login-box">
-    <div class="login-logo">FWY</div>
-    <h2>Certifikat Dashboard</h2>
-    <p class="subtitle">Indtast adgangskode for at fortsætte</p>
-    <input type="password" id="pw-input" placeholder="Adgangskode" autocomplete="current-password">
-    <button id="pw-btn">Log ind</button>
-    <p id="pw-error">Forkert adgangskode – prøv igen</p>
-  </div>
-</div>
 
 <!-- ── Tilføj leverandør modal ── -->
 <div id="add-modal" class="modal-overlay" style="display:none">
@@ -438,21 +388,6 @@
           <input type="text" id="f-search" placeholder="Firmanavn som det fremgår i TRACES" autocomplete="off">
         </div>
       </div>
-    </div>
-
-    <hr class="form-divider">
-
-    <div id="gh-token-ok" class="token-ok" style="display:none">
-      <span>&#10003;&nbsp;GitHub-token gemt</span>
-      <button type="button" id="gh-token-change">Skift token</button>
-    </div>
-    <div id="gh-token-input-wrap" class="form-group">
-      <label>GitHub-token <span class="field-note">kræves for at gemme</span></label>
-      <input type="password" id="f-token" placeholder="github_pat_..." autocomplete="off">
-      <p class="field-hint">
-        Fine-grained PAT med <strong>Contents: Read &amp; write</strong> adgang til
-        <em>certifikat-tjek</em>-repoet. Gemmes i sessionStorage.
-      </p>
     </div>
 
     <div id="modal-status" class="modal-status" style="display:none"></div>
@@ -511,11 +446,7 @@
 
   <main id="main">
     <div id="no-data">
-      <h2>Ingen data endnu</h2>
-      <p>K&oslash;r certifikat-scriptet for at hente status:</p>
-      <code>python check_certificates.py</code>
-      <p style="margin-top:16px">Åbn derefter dashboardet via:</p>
-      <code>python serve.py</code>
+      <h2>Indl&aelig;ser&hellip;</h2>
     </div>
   </main>
 
@@ -523,83 +454,19 @@
 
 <script>
 /* ═══════════════════════════════════════════
-   LOGIN
+   SERVER-API (server.py på mini-pc'en)
 ═══════════════════════════════════════════ */
-const _PW = "FWY-Certifikat/dash#26";
-
-function tryLogin() {
-  if (document.getElementById("pw-input").value === _PW) {
-    sessionStorage.setItem("cert_auth", "1");
-    showApp();
-  } else {
-    document.getElementById("pw-error").style.display = "block";
-    document.getElementById("pw-input").value = "";
-    document.getElementById("pw-input").focus();
-  }
-}
-function showApp() {
-  document.getElementById("login-overlay").style.display = "none";
-  document.getElementById("app").style.display = "block";
-  load();
-}
-document.getElementById("pw-btn").addEventListener("click", tryLogin);
-document.getElementById("pw-input").addEventListener("keydown", e => {
-  if (e.key === "Enter") tryLogin();
-  document.getElementById("pw-error").style.display = "none";
-});
-if (sessionStorage.getItem("cert_auth") === "1") showApp();
-
-/* ═══════════════════════════════════════════
-   GITHUB API HELPERS
-═══════════════════════════════════════════ */
-const GH_OWNER  = "MCT-FWY";
-const GH_REPO   = "certifikat-tjek";
-const GH_BRANCH = "main";
-const GH_API    = `https://api.github.com/repos/${GH_OWNER}/${GH_REPO}/contents/suppliers.json`;
-
-
-function ghHeaders(token) {
-  return {
-    "Authorization": `Bearer ${token}`,
-    "Accept": "application/vnd.github.v3+json",
-    "Content-Type": "application/json",
+// GET uden body, POST med body. Serveren svarer {fejl: "..."} når noget går galt.
+async function api(path, body) {
+  const opts = body === undefined ? {} : {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(body),
   };
-}
-
-function toB64(str) {
-  const bytes = new TextEncoder().encode(str);
-  let bin = "";
-  bytes.forEach(b => bin += String.fromCharCode(b));
-  return btoa(bin);
-}
-function fromB64(b64) {
-  const bin = atob(b64.replace(/\n/g, ""));
-  const bytes = new Uint8Array(bin.length);
-  for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
-  return new TextDecoder().decode(bytes);
-}
-
-async function ghGetSuppliers(token) {
-  const r = await fetch(GH_API, { headers: ghHeaders(token) });
-  if (r.status === 401) throw new Error("Ugyldigt GitHub-token – tjek rettigheder.");
-  if (!r.ok) throw new Error(`GitHub API fejl: ${r.status}`);
-  const data = await r.json();
-  return { suppliers: JSON.parse(fromB64(data.content)), sha: data.sha };
-}
-
-async function ghPutSuppliers(token, suppliers, sha, message) {
-  const r = await fetch(GH_API, {
-    method: "PUT",
-    headers: ghHeaders(token),
-    body: JSON.stringify({
-      message,
-      content: toB64(JSON.stringify(suppliers, null, 2)),
-      sha,
-      branch: GH_BRANCH,
-    }),
-  });
-  if (r.status === 401) throw new Error("Ugyldigt GitHub-token – tjek rettigheder.");
-  if (!r.ok) throw new Error(`Kunne ikke gemme: ${r.status}`);
+  const r = await fetch(path, opts);
+  const data = await r.json().catch(() => ({}));
+  if (!r.ok) throw new Error(data.fejl || `Serveren svarede ${r.status}`);
+  return data;
 }
 
 /* ═══════════════════════════════════════════
@@ -684,7 +551,7 @@ function buildCard(r) {
     : "";
 
   const notCheckedRow = r._new
-    ? `<div class="card-meta-row" style="font-size:0.74rem;color:#94a3b8;font-style:italic">Tjekkes ved næste daglige kørsel</div>`
+    ? `<div class="card-meta-row" style="font-size:0.74rem;color:#94a3b8;font-style:italic">Ikke tjekket endnu – tjekkes ved næste kørsel</div>`
     : "";
 
   const staleRow = r.stale_since
@@ -783,57 +650,17 @@ async function approveWarning(w, btn) {
       `Kommer der en ny leverandør med samme certifikatnummer, vises den igen.`))
     return;
 
-  let token = sessionStorage.getItem("gh_token");
-  if (!token) {
-    token = window.prompt("Indtast GitHub-token for at godkende:");
-    if (!token) return;
-  }
-
   btn.disabled = true;
   try {
-    const { suppliers, sha } = await ghGetSuppliers(token);
-    const approved = suppliers.approved_warnings ??= [];
-    if (!approved.some(a => warningKey(a) === warningKey(w))) {
-      approved.push({
-        warning_type:   w.warning_type,
-        certificate_id: w.certificate_id,
-        names:          [...w.names].sort(),
-        approved_on:    new Date().toISOString().slice(0, 10),
-      });
-      await ghPutSuppliers(token, suppliers, sha,
-        `chore: godkend advarsel ${w.certificate_id} (${who})`);
-    }
-    sessionStorage.setItem("gh_token", token);
-
-    allWarnings = allWarnings.filter(x => warningKey(x) !== warningKey(w));
-    renderWarnings();
-    renderDashboard();
+    const res = await api("/api/advarsel/godkend", {
+      warning_type: w.warning_type, certificate_id: w.certificate_id, names: w.names,
+    });
+    showToast(res.besked);
+    await load();
   } catch (err) {
     btn.disabled = false;
     alert("Fejl: " + err.message);
   }
-}
-
-// Leverandørlisten uden token (til visning – ændringer går via ghGetSuppliers)
-async function fetchSuppliersPublic() {
-  const urls = [
-    "../suppliers.json",
-    "https://raw.githubusercontent.com/MCT-FWY/certifikat-tjek/main/suppliers.json",
-  ];
-  for (const url of urls) {
-    try {
-      const resp = await fetch(url + "?_=" + Date.now());
-      if (resp.ok) return await resp.json();
-    } catch { /* prøv næste URL */ }
-  }
-  return null;
-}
-
-// Godkendte advarsler gemmes i suppliers.json; de filtreres fra her, så de ikke
-// dukker op igen før næste daglige tjek har kørt
-async function loadApprovedKeys() {
-  const suppliers = await fetchSuppliersPublic();
-  return new Set(((suppliers && suppliers.approved_warnings) || []).map(warningKey));
 }
 
 function renderDashboard() {
@@ -914,24 +741,15 @@ function attachCardClicks() {
   });
 }
 
+// Serveren tilpasser resultaterne til den nuværende leverandørliste og fjerner
+// godkendte advarsler, så ændringer ses med det samme – også før næste tjek
 async function load() {
-  const urls = [
-    "../results/latest.json",
-    "https://raw.githubusercontent.com/MCT-FWY/certifikat-tjek/main/results/latest.json",
-  ];
   try {
-    let data = null;
-    for (const url of urls) {
-      try {
-        const resp = await fetch(url + "?_=" + Date.now());
-        if (resp.ok) { data = await resp.json(); break; }
-      } catch { /* prøv næste URL */ }
-    }
-    if (!data) throw new Error("Ingen URL virkede");
+    const data = await api("/api/resultater");
 
-
-    document.getElementById("last-checked").textContent =
-      "Sidst tjekket: " + new Date(data.checked_at).toLocaleString("da-DK");
+    document.getElementById("last-checked").textContent = data.checked_at
+      ? "Sidst tjekket: " + new Date(data.checked_at).toLocaleString("da-DK")
+      : "Ikke tjekket endnu";
 
     const s = data.summary || {};
     document.getElementById("summary").style.display = "flex";
@@ -940,17 +758,16 @@ async function load() {
     document.getElementById("s-udloebet").textContent = s.udloebet       || 0;
     document.getElementById("s-ukendt").textContent   = s.ukendt         || 0;
 
-    const approvedKeys = await loadApprovedKeys();
-    allWarnings = (data.warnings || []).filter(w => !approvedKeys.has(warningKey(w)));
+    allWarnings = data.warnings || [];
     renderWarnings();
 
     allResults = data.results || [];
     renderDashboard();
   } catch (err) {
-    document.getElementById("no-data").innerHTML =
-      `<h2>Ingen data endnu</h2>
+    document.getElementById("main").innerHTML =
+      `<div id="no-data"><h2>Kunne ikke hente data</h2>
        <p style="color:#dc2626;font-size:0.85rem;margin-top:12px">Fejl: ${err.message}</p>
-       <p style="font-size:0.82rem;margin-top:8px;color:#64748b">Åbn browserens konsol (F12) for detaljer.</p>`;
+       <p style="font-size:0.82rem;margin-top:8px;color:#64748b">Kører server.py på mini-pc'en?</p></div>`;
     console.error("load() fejl:", err);
   }
 }
@@ -973,7 +790,6 @@ function openAddModal() {
   document.getElementById("f-country").value = "";
   document.getElementById("f-search").value  = "";
   updateEcoFields();
-  syncTokenDisplay();
   setModalStatus(null);
   document.getElementById("modal-save").disabled = false;
   document.getElementById("modal-save").textContent = "Gem leverandør";
@@ -997,7 +813,7 @@ async function openEditModal(name, type, certId) {
   updateEcoFields();
 
   // Land/søgeterm (øko) og antal certifikater står kun i leverandørlisten
-  const suppliers = await fetchSuppliersPublic();
+  const suppliers = await api("/api/leverandoerer").catch(() => null);
   if (!suppliers || editTarget?.certId !== certId) return;
   if (type === "eco") {
     const s = (suppliers.eco || []).find(s => s.certificate_id === certId && s.name === name);
@@ -1016,52 +832,11 @@ async function openEditModal(name, type, certId) {
   }
 }
 
-// Retter en leverandør i suppliers (in-place) og returnerer commit-beskeden.
-// For MSC/ASC hører navnet til leverandøren, så hele posten (alle dens certifikater)
-// omdøbes; findes det nye navn allerede, flettes de to poster sammen.
-function applyEdit(suppliers, t, v) {
-  const notFound = new Error("Leverandøren findes ikke længere i listen – genindlæs siden.");
-  if (t.type === "eco") {
-    const s = suppliers.eco.find(s => s.certificate_id === t.certId && s.name === t.name);
-    if (!s) throw notFound;
-    Object.assign(s, { name: v.name, certificate_id: v.certId, country: v.country, search_query: v.search });
-  } else {
-    const list = suppliers[t.type];
-    const s = list.find(s => s.name === t.name && s.certificate_ids.includes(t.certId));
-    if (!s) throw notFound;
-    s.certificate_ids = [...new Set(s.certificate_ids.map(id => id === t.certId ? v.certId : id))];
-    if (v.name !== t.name) {
-      const target = list.find(x => x !== s && x.name === v.name);
-      if (target) {
-        target.certificate_ids = [...new Set([...target.certificate_ids, ...s.certificate_ids])];
-        if (s.species_codes || target.species_codes)
-          target.species_codes = [...new Set([...(target.species_codes || []), ...(s.species_codes || [])])].sort();
-        list.splice(list.indexOf(s), 1);
-      } else {
-        s.name = v.name;
-      }
-    }
-  }
-  if (v.name !== t.name)   // godkendte advarsler følger med navneskiftet
-    for (const a of suppliers.approved_warnings || [])
-      a.names = a.names.map(n => n === t.name ? v.name : n).sort();
-
-  const from = `${t.name} (${t.certId})`, to = `${v.name} (${v.certId})`;
-  return `feat: ret leverandør ${from}` + (from !== to ? ` → ${to}` : "");
-}
-
 function updateEcoFields() {
   const isEco = document.getElementById("f-type").value === "eco";
   document.getElementById("eco-fields").style.display = isEco ? "" : "none";
   const certInput = document.getElementById("f-certid");
   certInput.placeholder = isEco ? "IE-ORG-03 / DE-ÖKO-039" : (document.getElementById("f-type").value === "msc" ? "MSC-C-XXXXX" : "ASC-C-XXXXX");
-}
-
-function syncTokenDisplay() {
-  const token = sessionStorage.getItem("gh_token") || "";
-  document.getElementById("gh-token-ok").style.display           = token ? "flex" : "none";
-  document.getElementById("gh-token-input-wrap").style.display   = token ? "none" : "";
-  if (!token) document.getElementById("f-token").value = "";
 }
 
 function setModalStatus(msg, isError) {
@@ -1078,30 +853,16 @@ document.getElementById("add-modal").addEventListener("click", e => {
   if (e.target === document.getElementById("add-modal")) closeAddModal();
 });
 document.getElementById("f-type").addEventListener("change", updateEcoFields);
-document.getElementById("gh-token-change").addEventListener("click", () => {
-  sessionStorage.removeItem("gh_token");
-  syncTokenDisplay();
-});
 
+// Serveren tjekker felterne (navn, nummerformat, landekode) og svarer med en fejltekst
 document.getElementById("modal-save").addEventListener("click", async () => {
-  const name   = document.getElementById("f-name").value.trim();
-  const type   = document.getElementById("f-type").value;
-  const certId = document.getElementById("f-certid").value.trim();
-  const country = document.getElementById("f-country").value.trim().toUpperCase();
-  const search = document.getElementById("f-search").value.trim() || name;
-
-  if (!name)   { setModalStatus("Indtast leverandørnavn.", true); return; }
-  if (!certId) { setModalStatus("Indtast certifikatnummer.", true); return; }
-  if (type === "asc" && !certId.toUpperCase().startsWith("ASC-")) {
-    setModalStatus("ASC-certifikatnummer skal starte med ASC- (f.eks. ASC-C-00438).", true); return;
-  }
-  if (type === "msc" && !certId.toUpperCase().startsWith("MSC-")) {
-    setModalStatus("MSC-certifikatnummer skal starte med MSC- (f.eks. MSC-C-52525).", true); return;
-  }
-  if (type === "eco" && !country) { setModalStatus("Indtast landekode for ØKO-certifikat.", true); return; }
-
-  let token = sessionStorage.getItem("gh_token") || document.getElementById("f-token").value.trim();
-  if (!token) { setModalStatus("Indtast et GitHub-token for at gemme.", true); return; }
+  const fields = {
+    type:           document.getElementById("f-type").value,
+    name:           document.getElementById("f-name").value,
+    certificate_id: document.getElementById("f-certid").value,
+    country:        document.getElementById("f-country").value,
+    search_query:   document.getElementById("f-search").value,
+  };
 
   const btn = document.getElementById("modal-save");
   btn.disabled = true;
@@ -1109,63 +870,15 @@ document.getElementById("modal-save").addEventListener("click", async () => {
   setModalStatus(null);
 
   try {
-    const { suppliers, sha } = await ghGetSuppliers(token);
-
-    if (editTarget) {
-      const t = editTarget;
-      const message = applyEdit(suppliers, t, { name, certId, country, search });
-      await ghPutSuppliers(token, suppliers, sha, message);
-      sessionStorage.setItem("gh_token", token);
-
-      // Opdatér dashboardet med det samme
-      for (const r of allResults) {
-        if (r.type !== t.type || r.name !== t.name) continue;
-        if (t.type === "eco" && r.certificate_id !== t.certId) continue;
-        r.name = name;
-        if (r.certificate_id === t.certId && certId !== t.certId) {
-          // Nyt certifikatnummer – data for det gamle gælder ikke længere
-          Object.assign(r, { certificate_id: certId, status: "ukendt", valid_until: null,
-                             days_until_expiry: null, error: null, _new: true });
-          for (const k of ["msc_cert_holder", "asc_cert_holder", "traces_operator", "traces_reference", "stale_since"]) delete r[k];
-        }
-      }
-      for (const w of allWarnings) w.names = (w.names || []).map(n => n === t.name ? name : n);
-      renderDashboard();
-
-      setModalStatus("Ændringerne er gemt." +
-        (certId !== t.certId ? " Det nye certifikatnummer tjekkes ved næste kørsel." : ""));
-      btn.textContent = "Gemt ✓";
-      setTimeout(closeAddModal, 1800);
-      return;
-    }
-
-    if (type === "eco") {
-      suppliers.eco.push({ name, certificate_id: certId, country, search_query: search });
-    } else {
-      const list = suppliers[type];
-      const existing = list.find(s => s.name === name);
-      if (existing) {
-        if (!existing.certificate_ids.includes(certId)) existing.certificate_ids.push(certId);
-      } else {
-        list.push({ name, certificate_ids: [certId] });
-      }
-    }
-
-    await ghPutSuppliers(token, suppliers, sha,
-      `feat: tilføj leverandør ${name} (${certId})`);
-
-    sessionStorage.setItem("gh_token", token);
-
-    // Tilføj til dashboard med det samme
-    allResults.push({ name, type, certificate_id: certId, status: "ukendt",
-      valid_until: null, days_until_expiry: null, checked_at: null, error: null, _new: true });
-    renderDashboard();
-    document.getElementById("summary").style.display = "flex";
-
-    setModalStatus(`${name} (${certId}) er tilføjet og vil blive tjekket ved næste kørsel.`);
+    const t = editTarget;
+    const res = t
+      ? await api("/api/leverandoer/ret", {
+          fra: { type: t.type, name: t.name, certificate_id: t.certId }, til: fields })
+      : await api("/api/leverandoer", fields);
+    await load();
+    setModalStatus(res.besked + (t ? "" : " Den tjekkes ved næste kørsel."));
     btn.textContent = "Gemt ✓";
     setTimeout(closeAddModal, 1800);
-
   } catch (err) {
     setModalStatus(err.message, true);
     btn.disabled = false;
@@ -1181,90 +894,80 @@ async function confirmDelete(name, type, certId) {
   if (!window.confirm(`Fjern ${name} – ${certId} (${typeLabel}) fra leverandørlisten?\n\nLeverandøren tjekkes ikke længere.`))
     return;
 
-  let token = sessionStorage.getItem("gh_token");
-  if (!token) {
-    token = window.prompt("Indtast GitHub-token for at slette:");
-    if (!token) return;
-  }
-
   try {
-    const { suppliers, sha } = await ghGetSuppliers(token);
-
-    if (type === "eco") {
-      suppliers.eco = suppliers.eco.filter(s => s.certificate_id !== certId);
-    } else {
-      const list = suppliers[type];
-      const idx = list.findIndex(s => s.name === name);
-      if (idx !== -1) {
-        list[idx].certificate_ids = list[idx].certificate_ids.filter(id => id !== certId);
-        if (list[idx].certificate_ids.length === 0) list.splice(idx, 1);
-      }
-    }
-
-    await ghPutSuppliers(token, suppliers, sha,
-      `feat: fjern leverandør ${name} (${certId})`);
-
-    sessionStorage.setItem("gh_token", token);
-
-    allResults = allResults.filter(r => !(r.name === name && r.certificate_id === certId));
-    renderDashboard();
-
+    const res = await api("/api/leverandoer/slet", { type, name, certificate_id: certId });
+    showToast(res.besked);
+    await load();
   } catch (err) {
     alert("Fejl: " + err.message);
   }
 }
 
 /* ═══════════════════════════════════════════
-   TJEK LOG
+   TJEK LOG (kørsler på mini-pc'en)
 ═══════════════════════════════════════════ */
-const GH_RUNS_API = `https://api.github.com/repos/${GH_OWNER}/${GH_REPO}/actions/workflows/daily-check.yml/runs?per_page=20`;
+const escHtml = s => String(s ?? "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 
-document.getElementById("log-btn").addEventListener("click", async () => {
-  document.getElementById("log-modal").style.display = "flex";
+function duration(r) {
+  if (!r.slut) return "";
+  const secs = Math.round((new Date(r.slut) - new Date(r.startet)) / 1000);
+  return secs < 60 ? `${secs} s` : `${Math.floor(secs / 60)} min ${secs % 60} s`;
+}
+
+async function showLog() {
   const content = document.getElementById("log-content");
   content.innerHTML = "Indlæser&hellip;";
-
   try {
-    const resp = await fetch(GH_RUNS_API, {
-      headers: { "Accept": "application/vnd.github.v3+json" }
-    });
-    if (!resp.ok) throw new Error(`GitHub API svarede ${resp.status}`);
-    const runs = (await resp.json()).workflow_runs || [];
-
+    const runs = (await api("/api/log")).koersler;
     if (!runs.length) {
-      content.innerHTML = "<p style='color:#64748b'>Ingen kørsler fundet.</p>";
+      content.innerHTML = "<p style='color:#64748b'>Ingen kørsler endnu.</p>";
       return;
     }
-
     const rows = runs.map(r => {
-      const dt   = new Date(r.run_started_at).toLocaleString("da-DK");
-      const conc = r.conclusion;
-      const stat = r.status;
       const statusHtml =
-        conc === "success"  ? `<span class="log-ok">&#10003; Gennemført</span>` :
-        conc === "failure"  ? `<span class="log-fail">&#10007; Fejlet</span>`   :
-        stat === "in_progress" ? `<span class="log-run">&#8635; Kører&hellip;</span>` :
-        `<span class="log-dim">${conc || stat}</span>`;
-      const trigger =
-        r.event === "schedule"          ? "Automatisk" :
-        r.event === "workflow_dispatch" ? "Manuel"     : r.event;
-      return `<tr>
-        <td>${dt}</td>
-        <td>${statusHtml}</td>
-        <td class="log-dim">${trigger}</td>
+        r.status === "ok"     ? `<span class="log-ok">&#10003; Gennemført</span>` :
+        r.status === "koerer" ? `<span class="log-run">&#8635; Kører&hellip;</span>` :
+        r.status === "fejl"   ? `<span class="log-fail">&#10007; Fejlet</span>` :
+                                `<span class="log-fail">&#10007; Afbrudt</span>`;
+      return `<tr data-id="${escAttr(r.id)}" title="Klik for at se, hvad tjekket skrev">
+        <td>${new Date(r.startet).toLocaleString("da-DK")}</td>
+        <td>${statusHtml}${r.besked ? `<div class="log-note">${escHtml(r.besked)}</div>` : ""}</td>
+        <td class="log-dim">${r.udloest_af === "automatisk" ? "Automatisk" : "Manuel"}</td>
+        <td class="log-dim">${duration(r)}</td>
       </tr>`;
     }).join("");
-
     content.innerHTML = `
       <table class="log-table">
         <thead><tr>
-          <th>Tidspunkt</th><th>Status</th><th>Udl&oslash;st af</th>
+          <th>Tidspunkt</th><th>Status</th><th>Udl&oslash;st af</th><th>Varighed</th>
         </tr></thead>
         <tbody>${rows}</tbody>
       </table>`;
+    content.querySelectorAll("tbody tr").forEach(tr =>
+      tr.addEventListener("click", () => showLogOutput(runs.find(r => r.id === tr.dataset.id))));
   } catch (err) {
-    content.innerHTML = `<p style="color:#dc2626;font-size:0.85rem">Kunne ikke hente log: ${err.message}</p>`;
+    content.innerHTML = `<p style="color:#dc2626;font-size:0.85rem">Kunne ikke hente log: ${escHtml(err.message)}</p>`;
   }
+}
+
+async function showLogOutput(run) {
+  const content = document.getElementById("log-content");
+  content.innerHTML = "Indlæser&hellip;";
+  try {
+    const { tekst } = await api("/api/log/tekst?id=" + encodeURIComponent(run.id));
+    content.innerHTML = `
+      <button type="button" class="log-back">&larr; Alle kørsler</button>
+      <div style="margin-top:10px;font-size:0.85rem">${new Date(run.startet).toLocaleString("da-DK")}</div>
+      <pre class="log-output">${escHtml(tekst || (run.status === "koerer" ? "Tjekket kører stadig…" : "Ingen output gemt."))}</pre>`;
+    content.querySelector(".log-back").addEventListener("click", showLog);
+  } catch (err) {
+    content.innerHTML = `<p style="color:#dc2626;font-size:0.85rem">Kunne ikke hente output: ${escHtml(err.message)}</p>`;
+  }
+}
+
+document.getElementById("log-btn").addEventListener("click", () => {
+  document.getElementById("log-modal").style.display = "flex";
+  showLog();
 });
 
 document.getElementById("log-close").addEventListener("click", () => {
@@ -1278,51 +981,57 @@ document.getElementById("log-modal").addEventListener("click", e => {
 /* ═══════════════════════════════════════════
    MANUEL CERTIFIKAT-TJEK
 ═══════════════════════════════════════════ */
-document.getElementById("run-btn").addEventListener("click", async () => {
-  let token = sessionStorage.getItem("gh_token");
-  if (!token) {
-    token = window.prompt("Indtast GitHub-token (PAT med Actions: write) for at starte tjek:");
-    if (!token) return;
-  }
+// Tjekket kører i baggrunden på serveren. Knappen viser, at det kører – også når det
+// er det automatiske morgentjek eller en kollega, der har startet det.
+const RUN_LABEL = "▶ Tjek alle nu";
+let runWasActive = false;
+let runTimer;
 
+function showRunning(run) {
+  const btn = document.getElementById("run-btn");
+  btn.disabled = !!run;
+  btn.style.background = run ? "#d97706" : "";
+  btn.textContent = run
+    ? `Kører… ${Math.floor(run.sekunder / 60)}:${String(run.sekunder % 60).padStart(2, "0")}`
+    : RUN_LABEL;
+}
+
+async function watchRun() {
+  let delay = 60 * 1000;            // kig efter et nyt tjek hvert minut, hvert 2. sekund mens det kører
+  try {
+    const st = await api("/api/tjek");
+    showRunning(st.koerer);
+    if (st.koerer) {
+      runWasActive = true;
+      delay = 2000;
+    } else if (runWasActive) {
+      runWasActive = false;
+      await load();
+      showToast(st.sidste?.status === "ok"
+        ? "Tjekket er færdigt – dashboardet er opdateret"
+        : "Tjekket fejlede – se Tjek log");
+    }
+  } catch (err) {
+    console.error("watchRun() fejl:", err);
+  }
+  clearTimeout(runTimer);
+  runTimer = setTimeout(watchRun, delay);
+}
+
+document.getElementById("run-btn").addEventListener("click", async () => {
   const btn = document.getElementById("run-btn");
   btn.disabled = true;
   btn.textContent = "Starter…";
-
   try {
-    const r = await fetch(
-      `https://api.github.com/repos/${GH_OWNER}/${GH_REPO}/actions/workflows/daily-check.yml/dispatches`,
-      {
-        method: "POST",
-        headers: ghHeaders(token),
-        body: JSON.stringify({ ref: GH_BRANCH }),
-      }
-    );
-
-    if (r.status === 401) throw new Error("Ugyldigt token – tjek at det har Actions: write rettighed.");
-    if (r.status === 404) throw new Error("Workflow ikke fundet – er filen committet til main?");
-    if (!r.ok) throw new Error(`GitHub API fejl: ${r.status}`);
-
-    sessionStorage.setItem("gh_token", token);
-    btn.style.background = "#d97706";
-
-    let secs = 150;
-    btn.textContent = `Kører… ca. 2-3 min (${secs}s)`;
-    const countdown = setInterval(() => {
-      secs--;
-      btn.textContent = `Kører… ca. 2-3 min (${secs}s)`;
-      if (secs <= 0) {
-        clearInterval(countdown);
-        location.reload();
-      }
-    }, 1000);
-
+    await api("/api/tjek", {});
   } catch (err) {
-    alert("Fejl: " + err.message);
-    btn.disabled = false;
-    btn.textContent = "▶ Tjek alle nu";
+    alert("Fejl: " + err.message);   // fx at et tjek allerede kører – så viser watchRun det
   }
+  watchRun();
 });
+
+load();
+watchRun();
 </script>
 </body>
 </html>

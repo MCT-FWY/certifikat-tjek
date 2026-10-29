@@ -1,0 +1,2 @@
+# Batch-filer skal have Windows-linjeskift
+*.bat text eol=crlf

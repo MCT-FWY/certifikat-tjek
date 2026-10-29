@@ -21,6 +21,18 @@ import requests
 # Konfiguration
 # ---------------------------------------------------------------------------
 
+def _load_secrets_file() -> None:
+    """På mini-pc'en ligger nøglerne i hemmeligheder.json (kommer ikke i git).
+    Miljøvariabler – fx GitHub-hemmelighederne – går forud for filen."""
+    path = Path(__file__).parent / "hemmeligheder.json"
+    if path.exists():
+        for key, value in json.loads(path.read_text(encoding="utf-8")).items():
+            if value:
+                os.environ.setdefault(key, str(value))
+
+
+_load_secrets_file()
+
 # Øko – EU TRACES NT public API (ingen autentificering kræves)
 ECO_API_URL = "https://webgate.ec.europa.eu/tracesnt/directory/publication/organic-operator/for/query"
 
@@ -512,7 +524,8 @@ _SMTP_PORT         = 587
 _NOTIFICATION_FROM = "fwypakkeri@gmail.com"
 _NOTIFICATION_TO   = ["quality@foodwithyou.com", "info@foodwithyou.com", "hm@foodwithyou.com"]
 _TYPE_LABELS       = {"msc": "MSC", "asc": "ASC", "eco": "Øko"}
-_DASHBOARD_URL     = "https://mct-fwy.github.io/certifikat-tjek/"
+# server.py sætter DASHBOARD_URL til mini-pc'ens adresse; på GitHub bruges Pages
+_DASHBOARD_URL     = os.getenv("DASHBOARD_URL") or "https://mct-fwy.github.io/certifikat-tjek/"
 
 
 def _cert_url(result: dict) -> str:

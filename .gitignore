@@ -3,3 +3,9 @@ __pycache__/
 .env
 .venv/
 venv/
+
+# Kun på mini-pc'en – må aldrig i git
+hemmeligheder.json
+config.json
+logs/
+*.tmp
