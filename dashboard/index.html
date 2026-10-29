@@ -1,458 +1,198 @@
 <!DOCTYPE html>
 <html lang="da">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Food with You Certifikat Dashboard</title>
-  <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Certifikat-tjek · FWY</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='16' fill='%23C2551E'/%3E%3Ctext x='16' y='20.5' font-family='Arial' font-weight='800' font-size='12' fill='white' text-anchor='middle'%3Efwy%3C/text%3E%3C/svg%3E">
+<link rel="stylesheet" href="fwy.css">
+<style>
+  /* Kun det, der er særligt for certifikat-tjek – resten kommer fra fwy.css */
 
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-      background: #f0f2f5;
-      color: #1a1a2e;
-    }
+  .topbar .btn.running { opacity: 1; border-color: var(--warning); color: var(--warning); }
+  .tiles { grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); }   /* fem nøgletal på én linje */
+  .tile.warn .value { color: var(--warning-ink); }
 
-    /* ── Header ── */
-    header {
-      background: #1a1a2e; color: #fff; padding: 18px 32px;
-      display: flex; align-items: center; justify-content: space-between;
-      gap: 16px; flex-wrap: wrap;
-    }
-    header h1 { font-size: 1.25rem; font-weight: 700; letter-spacing: -.01em; }
-    #last-checked { font-size: 0.82rem; opacity: .65; white-space: nowrap; }
-    .header-actions { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+  /* ── Advarsler ── */
+  .warn-list { display: grid; gap: 8px; }
+  .warn-item { display: flex; align-items: flex-start; gap: 10px; margin: 0; }
+  .warn-item .body { flex: 1; min-width: 0; line-height: 1.5; }
+  .warn-item .tag { margin-right: 6px; }
+  .warn-item .btn { flex: none; align-self: center; }
+  .warn-item.flash { animation: warn-flash 1.6s ease-out; }
+  @keyframes warn-flash { 0%, 40% { background: var(--warning-wash); } 100% { background: var(--surface-2); } }
 
-    .btn-header {
-      border: none; border-radius: 7px; padding: 8px 14px;
-      font-size: 0.82rem; font-weight: 700; cursor: pointer;
-      white-space: nowrap; transition: background .15s, opacity .15s;
-    }
-    .btn-add  { background: #22c55e; color: #fff; }
-    .btn-add:hover { background: #16a34a; }
-    .btn-run  { background: #6366f1; color: #fff; }
-    .btn-run:hover { background: #4f46e5; }
-    .btn-log  { background: #64748b; color: #fff; }
-    .btn-log:hover { background: #475569; }
-    .btn-header:disabled { opacity: .5; cursor: default; }
+  /* ── Sektioner med certifikatkort ── */
+  .section { margin-bottom: 28px; }
+  .section .section-title { display: flex; align-items: center; gap: 8px; }
+  .certs { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 290px), 1fr)); gap: 12px; }
 
-    /* ── Tjek log ── */
-    .log-table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
-    .log-table th {
-      padding: 8px 12px; text-align: left; background: #f8fafc;
-      font-size: 0.72rem; font-weight: 700; text-transform: uppercase;
-      letter-spacing: .06em; color: #64748b; border-bottom: 2px solid #e2e8f0;
-    }
-    .log-table td { padding: 9px 12px; border-bottom: 1px solid #f1f5f9; }
-    .log-table tr:last-child td { border-bottom: none; }
-    .log-table tbody tr { cursor: pointer; }
-    .log-table tbody tr:hover td { background: #f8fafc; }
-    .log-ok   { color: #15803d; font-weight: 600; }
-    .log-fail { color: #b91c1c; font-weight: 600; }
-    .log-run  { color: #b45309; font-weight: 600; }
-    .log-dim  { color: #94a3b8; }
-    .log-note { font-size: 0.76rem; color: #64748b; }
-    .log-output {
-      margin-top: 12px; max-height: 50vh; overflow: auto;
-      background: #0f172a; color: #e2e8f0; border-radius: 7px; padding: 12px 14px;
-      font-family: ui-monospace, "Cascadia Code", Consolas, monospace;
-      font-size: 0.72rem; line-height: 1.5; white-space: pre-wrap;
-    }
-    .log-back {
-      font-size: 0.8rem; color: #64748b; background: none; border: none;
-      cursor: pointer; text-decoration: underline; padding: 0;
-    }
+  .cert {
+    position: relative; cursor: pointer;
+    background: var(--surface); border: 1px solid var(--border); border-left: 4px solid var(--axis);
+    border-radius: var(--radius); padding: 14px 16px; box-shadow: var(--shadow-1);
+    transition: box-shadow .15s, transform .15s;
+  }
+  .cert:hover { box-shadow: var(--shadow-2); transform: translateY(-1px); }
+  .cert:hover::after {
+    content: "Åbn certifikat \2197"; position: absolute; bottom: 10px; right: 12px;
+    font-size: .7rem; font-weight: 600; color: var(--muted); pointer-events: none;
+  }
+  .cert.gyldig         { border-left-color: var(--ok); }
+  .cert.udloeber_snart { border-left-color: var(--warning); }
+  .cert.udloebet       { border-color: var(--critical); background: var(--critical-wash); }
+  .cert.udloebet .tag-critical { background: var(--surface); }
 
-    /* ── Summary strip ── */
-    .summary {
-      background: #fff; border-bottom: 1px solid #e2e8f0;
-      padding: 0 32px; display: flex; gap: 0;
-    }
-    .summary-item {
-      display: flex; align-items: center; gap: 9px;
-      padding: 14px 24px 14px 0; font-size: 0.88rem; color: #475569;
-      border-right: 1px solid #e2e8f0; margin-right: 24px;
-    }
-    .summary-item:last-child { border-right: none; }
-    .summary-count { font-size: 1.35rem; font-weight: 700; line-height: 1; }
-    .c-green  { color: #16a34a; }
-    .c-orange { color: #d97706; }
-    .c-red    { color: #dc2626; }
-    .c-gray   { color: #94a3b8; }
+  /* Kort med advarsel: mærke nederst til højre, "Åbn certifikat" flyttes til venstre */
+  .cert.has-warning { padding-bottom: 38px; }
+  .cert.has-warning:hover::after { right: auto; left: 16px; }
+  .cert-warning { position: absolute; bottom: 10px; right: 12px; cursor: pointer; }
 
-    /* ── Main content ── */
-    main { padding: 28px 32px 48px; }
+  /* Slet og ret – vises, når musen er over kortet */
+  .cert-actions {
+    position: absolute; top: 8px; right: 6px; display: flex; flex-direction: column; gap: 2px;
+    opacity: 0; transition: opacity .15s;
+  }
+  .cert:hover .cert-actions, .cert:focus-within .cert-actions { opacity: 1; }
+  .icon-btn {
+    width: 24px; height: 24px; border-radius: 50%; border: none; background: transparent;
+    color: var(--muted); cursor: pointer; display: grid; place-items: center; font-size: .95rem; line-height: 1;
+  }
+  .icon-btn:hover { background: var(--surface-2); color: var(--ink); }
+  .icon-btn.danger:hover { background: var(--critical-wash); color: var(--critical); }
 
-    /* ── Sections ── */
-    .section { margin-bottom: 36px; }
-    .section-header { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
-    .section-title {
-      font-size: 0.72rem; font-weight: 800; letter-spacing: .1em;
-      text-transform: uppercase; color: #64748b;
-    }
-    .section-badge {
-      font-size: 0.72rem; background: #e2e8f0; color: #475569;
-      padding: 2px 8px; border-radius: 100px; font-weight: 600;
-    }
+  .cert-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; margin-bottom: 8px; padding-right: 26px; }
+  .cert-name { font-weight: 600; line-height: 1.3; }
+  .cert-meta { display: flex; flex-direction: column; gap: 5px; font-size: .82rem; color: var(--ink-2); }
+  .cert-row { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+  .cert-type { font-weight: 650; color: var(--ink); }
+  .cert-holder { line-height: 1.4; }
+  .cert-label { font-size: .68rem; font-weight: 650; text-transform: uppercase; letter-spacing: .04em; color: var(--muted); margin-right: 4px; }
+  .cert-note { font-size: .76rem; font-style: italic; color: var(--muted); }
+  .cert-note.stale { color: var(--warning-ink); }
+  .cert-error {
+    margin-top: 9px; font-size: .78rem; line-height: 1.4; color: var(--critical);
+    background: var(--critical-wash); padding: 6px 9px; border-radius: var(--radius-sm);
+  }
 
-    /* ── Cards ── */
-    .cards {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
-      gap: 12px;
-    }
-    .card {
-      background: #fff; border-radius: 10px; padding: 16px 18px;
-      border-left: 4px solid #cbd5e1;
-      box-shadow: 0 1px 3px rgba(0,0,0,.05);
-      transition: box-shadow .15s, transform .15s;
-      cursor: pointer; position: relative;
-    }
-    .card:hover {
-      box-shadow: 0 4px 16px rgba(0,0,0,.1);
-      transform: translateY(-1px);
-    }
-    .card:hover::after {
-      content: "Åbn certifikat \2197";
-      position: absolute; bottom: 10px; right: 12px;
-      font-size: 0.68rem; color: #94a3b8;
-      font-weight: 600; letter-spacing: .02em; pointer-events: none;
-    }
-    .card.gyldig         { border-left-color: #22c55e; }
-    .card.udloeber_snart { border-left-color: #f59e0b; }
-    .card.udloebet {
-      border-left-color: #dc2626;
-      border-top: 1px solid #fca5a5;
-      border-right: 1px solid #fca5a5;
-      border-bottom: 1px solid #fca5a5;
-      background: #fff5f5;
-      box-shadow: 0 0 0 1px #fca5a5, 0 2px 8px rgba(220,38,38,.12);
-    }
-    .card.udloebet:hover {
-      box-shadow: 0 0 0 1px #ef4444, 0 6px 20px rgba(220,38,38,.2);
-    }
-    .card.ukendt         { border-left-color: #cbd5e1; }
+  /* ── Formular i dialogen ── */
+  .modal .field { margin-bottom: 14px; }
+  .field label .muted { font-weight: 400; }
+  .form-row { display: flex; gap: 12px; }
+  .form-row .field { flex: 1; min-width: 0; }
+  .form-row .field.grow { flex: 2; }
+  #modal-status { margin: 4px 0 0; }
 
-    /* Kort med advarsel: mærke nederst til højre, "Åbn certifikat" flyttes til venstre */
-    .card.has-warning { padding-bottom: 36px; }
-    .card.has-warning:hover::after { right: auto; left: 18px; }
-    .card-warning {
-      position: absolute; bottom: 10px; right: 12px;
-      font-size: 0.68rem; font-weight: 700; letter-spacing: .02em;
-      color: #b45309; background: #fef3c7; border: 1px solid #fcd34d;
-      padding: 2px 9px; border-radius: 100px; cursor: pointer;
-    }
-    .card-warning:hover { background: #fde68a; }
+  /* ── Tjek log ── */
+  .modal.wide { max-width: 680px; }
+  .log-output {
+    margin: 10px 0 0; max-height: 50vh; overflow: auto; white-space: pre-wrap;
+    background: var(--topbar); color: #e6e6e3; border-radius: 8px; padding: 12px 14px;
+    font: .76rem/1.55 var(--font-mono);
+  }
 
-    /* Delete button */
-    .card-delete {
-      position: absolute; top: 8px; right: 8px;
-      width: 22px; height: 22px; border-radius: 50%;
-      border: none; background: transparent; color: #cbd5e1;
-      font-size: 1rem; line-height: 1; cursor: pointer;
-      display: flex; align-items: center; justify-content: center;
-      opacity: 0; transition: opacity .15s, background .15s, color .15s;
-      z-index: 2;
-    }
-    .card:hover .card-delete { opacity: 1; }
-    .card-delete:hover { background: #fee2e2; color: #dc2626; }
-
-    /* Ret-knap – under slet-knappen */
-    .card-edit {
-      position: absolute; top: 32px; right: 8px;
-      width: 22px; height: 22px; border-radius: 50%;
-      border: none; background: transparent; color: #94a3b8;
-      font-size: 0.8rem; line-height: 1; cursor: pointer;
-      display: flex; align-items: center; justify-content: center;
-      opacity: 0; transition: opacity .15s, background .15s, color .15s;
-      z-index: 2;
-    }
-    .card:hover .card-edit { opacity: 1; }
-    .card-edit:hover { background: #e0f2fe; color: #0369a1; }
-
-    .card-top {
-      display: flex; justify-content: space-between;
-      align-items: flex-start; gap: 8px; margin-bottom: 10px;
-      padding-right: 20px;
-    }
-    .card-name { font-weight: 600; font-size: 0.93rem; line-height: 1.3; }
-
-    .badge {
-      flex-shrink: 0; font-size: 0.68rem; font-weight: 700;
-      padding: 3px 9px; border-radius: 100px;
-      letter-spacing: .02em; text-transform: uppercase; white-space: nowrap;
-    }
-    .badge-gyldig         { background: #dcfce7; color: #15803d; }
-    .badge-udloeber_snart { background: #fef3c7; color: #b45309; }
-    .badge-udloebet       { background: #fee2e2; color: #b91c1c; }
-    .badge-ukendt         { background: #f1f5f9; color: #64748b; }
-
-    .card-meta { display: flex; flex-direction: column; gap: 5px; font-size: 0.8rem; color: #64748b; }
-    .card-meta-row { display: flex; align-items: center; gap: 6px; }
-    .cert-id {
-      font-family: ui-monospace, "Cascadia Code", Consolas, monospace;
-      font-size: 0.76rem; background: #f1f5f9; color: #334155;
-      padding: 1px 7px; border-radius: 4px;
-    }
-    .days-chip { font-size: 0.72rem; font-weight: 600; padding: 2px 7px; border-radius: 4px; }
-    .days-ok     { background: #f0fdf4; color: #15803d; }
-    .days-warn   { background: #fffbeb; color: #b45309; }
-    .days-danger { background: #fef2f2; color: #b91c1c; }
-    .days-gray   { background: #f1f5f9; color: #64748b; }
-
-    /* ── Advarselskort ── */
-    .warnings-section {
-      margin: 20px 32px 0;
-      background: #fffbeb; border: 1px solid #fde68a;
-      border-radius: 10px; padding: 16px 20px;
-    }
-    .warnings-section:empty { display: none; }
-    .warnings-header {
-      display: flex; align-items: center; gap: 8px;
-      font-size: 0.78rem; font-weight: 800; letter-spacing: .08em;
-      text-transform: uppercase; color: #92400e; margin-bottom: 12px;
-    }
-    .warning-card {
-      display: flex; align-items: flex-start; gap: 10px;
-      background: #fff; border: 1px solid #fcd34d; border-left: 4px solid #f59e0b;
-      border-radius: 7px; padding: 10px 14px; margin-bottom: 8px; font-size: 0.82rem;
-    }
-    .warning-card:last-child { margin-bottom: 0; }
-    .warning-icon { font-size: 1rem; flex-shrink: 0; line-height: 1.4; }
-    .warning-body { flex: 1; line-height: 1.5; }
-    .warning-type {
-      font-size: 0.68rem; font-weight: 700; letter-spacing: .06em;
-      text-transform: uppercase; color: #b45309;
-      background: #fef3c7; padding: 1px 7px; border-radius: 100px;
-      margin-right: 7px;
-    }
-    .warning-cert { font-family: ui-monospace, Consolas, monospace; font-size: 0.76rem; color: #334155; }
-    .warning-approve {
-      flex-shrink: 0; align-self: center;
-      font-size: 0.74rem; font-weight: 700; color: #15803d;
-      background: #f0fdf4; border: 1px solid #86efac; border-radius: 6px;
-      padding: 4px 12px; cursor: pointer;
-    }
-    .warning-approve:hover { background: #dcfce7; }
-    .warning-approve:disabled { opacity: .6; cursor: default; }
-    .warning-card.flash { animation: warning-flash 1.6s ease-out; }
-    @keyframes warning-flash { 0%, 40% { background: #fde68a; } 100% { background: #fff; } }
-    .c-amber { color: #d97706; }
-
-    .card-info-icon {
-      display: inline-flex; align-items: center; justify-content: center;
-      width: 15px; height: 15px; border-radius: 50%;
-      background: #e0f2fe; color: #0369a1;
-      font-size: 0.6rem; font-weight: 800; font-style: normal;
-      cursor: default; flex-shrink: 0; margin-left: 4px;
-      position: relative;
-    }
-    .card-info-icon::after {
-      content: attr(data-tip);
-      position: absolute; bottom: calc(100% + 6px); left: 50%;
-      transform: translateX(-50%);
-      background: #1e293b; color: #f1f5f9;
-      font-size: 0.7rem; font-weight: 400;
-      padding: 5px 9px; border-radius: 6px;
-      white-space: nowrap; pointer-events: none;
-      opacity: 0; transition: opacity .15s;
-      z-index: 10;
-    }
-    .card-info-icon:hover::after { opacity: 1; }
-
-    .card-error {
-      margin-top: 9px; font-size: 0.74rem; color: #b91c1c;
-      background: #fff5f5; border: 1px solid #fecaca;
-      padding: 6px 9px; border-radius: 5px; line-height: 1.4;
-    }
-
-    /* ── Besked nederst (fx "certifikatnummer kopieret") ── */
-    #toast {
-      position: fixed; left: 50%; bottom: 24px; transform: translateX(-50%) translateY(20px);
-      background: #1e293b; color: #f1f5f9; font-size: 0.85rem;
-      padding: 10px 18px; border-radius: 8px; box-shadow: 0 6px 20px rgba(0,0,0,.2);
-      opacity: 0; pointer-events: none; transition: opacity .2s, transform .2s;
-      z-index: 1000; max-width: calc(100% - 32px);
-    }
-    #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
-
-    /* ── Empty state ── */
-    #no-data { text-align: center; padding: 80px 20px; color: #94a3b8; }
-    #no-data h2 { font-size: 1.05rem; margin-bottom: 12px; color: #64748b; }
-    #no-data code {
-      font-size: 0.85rem; background: #f1f5f9;
-      padding: 5px 12px; border-radius: 5px; display: inline-block; margin-top: 6px;
-    }
-    #no-data p { font-size: 0.88rem; margin-top: 8px; }
-
-    /* ── Add supplier modal ── */
-    .modal-overlay {
-      position: fixed; inset: 0; background: rgba(0,0,0,.45);
-      display: flex; align-items: center; justify-content: center;
-      z-index: 200; backdrop-filter: blur(3px);
-    }
-    .modal {
-      background: #fff; border-radius: 14px; padding: 32px 32px 28px;
-      width: 100%; max-width: 480px;
-      box-shadow: 0 24px 64px rgba(0,0,0,.2);
-      max-height: 90vh; overflow-y: auto;
-    }
-    .modal h2 { font-size: 1.1rem; font-weight: 700; margin-bottom: 22px; }
-
-    .form-group { margin-bottom: 14px; }
-    .form-group label {
-      display: block; font-size: 0.78rem; font-weight: 600;
-      color: #475569; margin-bottom: 5px;
-    }
-    .field-note { font-weight: 400; color: #94a3b8; }
-    .form-group input, .form-group select {
-      width: 100%; padding: 9px 12px; border: 1px solid #cbd5e1;
-      border-radius: 7px; font-size: 0.9rem; outline: none;
-      font-family: inherit; transition: border-color .15s;
-      background: #fff; color: #1a1a2e;
-    }
-    .form-group input:focus, .form-group select:focus { border-color: #38bdf8; }
-    .field-hint { font-size: 0.72rem; color: #94a3b8; margin-top: 5px; line-height: 1.4; }
-
-    .form-row { display: flex; gap: 12px; }
-    .form-row .form-group { flex: 1; }
-
-    .modal-status {
-      border-radius: 7px; padding: 9px 12px;
-      font-size: 0.82rem; line-height: 1.4; margin-top: 14px;
-    }
-    .modal-status.ok  { background: #f0fdf4; color: #15803d; border: 1px solid #bbf7d0; }
-    .modal-status.err { background: #fff5f5; color: #b91c1c; border: 1px solid #fecaca; }
-
-    .modal-actions { display: flex; gap: 10px; margin-top: 20px; }
-    .btn-modal-cancel {
-      flex: 1; padding: 10px; border: 1px solid #cbd5e1; border-radius: 7px;
-      background: #fff; cursor: pointer; font-size: 0.9rem; font-family: inherit;
-    }
-    .btn-modal-cancel:hover { background: #f8fafc; }
-    .btn-modal-save {
-      flex: 2; padding: 10px; border: none; border-radius: 7px;
-      background: #1a1a2e; color: #fff; cursor: pointer;
-      font-size: 0.9rem; font-weight: 700; font-family: inherit;
-      transition: background .15s, opacity .15s;
-    }
-    .btn-modal-save:hover { background: #2d3752; }
-    .btn-modal-save:disabled { opacity: .5; cursor: default; }
-
-    /* ── Responsive ── */
-    @media (max-width: 640px) {
-      header, main { padding-left: 16px; padding-right: 16px; }
-      .summary { padding-left: 16px; flex-wrap: wrap; }
-      .summary-item { padding-right: 16px; margin-right: 16px; }
-      .modal { padding: 24px 20px 20px; }
-      .form-row { flex-direction: column; gap: 0; }
-    }
-  </style>
+  @media (max-width: 700px) {
+    .brand .sub { display: none; }
+    .form-row { flex-direction: column; gap: 0; }
+    .cert-actions { opacity: 1; }
+  }
+</style>
 </head>
 <body>
 
-<!-- ── Tilføj leverandør modal ── -->
-<div id="add-modal" class="modal-overlay" style="display:none">
-  <div class="modal">
+<header class="topbar">
+  <div class="brand">
+    <a class="fwy-mark" href="/" data-fwy-forside title="Alle FWY-værktøjer">fwy</a>
+    <a class="crumb" href="/" data-fwy-forside>FWY værktøjer</a>
+    <span class="crumb-sep">/</span>
+    <h1>Certifikat-tjek</h1>
+    <span class="sub">MSC · ASC · Øko</span>
+  </div>
+  <div class="topmeta">
+    <span id="last-checked">Indlæser&hellip;</span>
+    <button type="button" class="btn" id="log-btn">Tjek log</button>
+    <button type="button" class="btn" id="run-btn">&#9654; Tjek alle nu</button>
+    <button type="button" class="btn btn-primary" id="add-btn">+ Tilføj leverandør</button>
+  </div>
+</header>
+
+<main>
+  <section class="tiles" id="summary" hidden>
+    <div class="tile ok"><div class="label">Gyldige</div><div class="value" id="s-gyldig">0</div></div>
+    <div class="tile" id="t-snart"><div class="label">Udløber snart</div><div class="value" id="s-snart">0</div><div class="sub">inden for 30 dage</div></div>
+    <div class="tile" id="t-udloebet"><div class="label">Udløbet</div><div class="value" id="s-udloebet">0</div></div>
+    <div class="tile"><div class="label">Ukendt</div><div class="value" id="s-ukendt">0</div><div class="sub">kunne ikke tjekkes</div></div>
+    <button type="button" class="tile alert" id="t-advarsler" hidden><div class="label">Advarsler</div><div class="value" id="s-advarsler">0</div><div class="sub">se nedenfor</div></button>
+  </section>
+
+  <section class="card" id="warnings-section" hidden></section>
+
+  <div id="certs"><div class="loading">Indlæser&hellip;</div></div>
+</main>
+
+<div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
+
+<!-- ── Tilføj / ret leverandør ── -->
+<div id="add-modal" class="modal-backdrop" hidden>
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
     <h2 id="modal-title">Tilføj leverandør</h2>
 
-    <div class="form-group">
-      <label>Leverandørnavn</label>
+    <div class="field">
+      <label for="f-name">Leverandørnavn</label>
       <input type="text" id="f-name" placeholder="f.eks. Ny Leverandør A/S" autocomplete="off">
-      <p id="f-name-hint" class="field-hint" style="display:none"></p>
+      <div id="f-name-hint" class="help" hidden></div>
     </div>
 
     <div class="form-row">
-      <div class="form-group">
-        <label>Certifikattype</label>
+      <div class="field">
+        <label for="f-type">Certifikattype</label>
         <select id="f-type">
           <option value="msc">MSC</option>
           <option value="asc">ASC</option>
           <option value="eco">ØKO</option>
         </select>
       </div>
-      <div class="form-group" style="flex:2">
-        <label>Certifikatnummer</label>
+      <div class="field grow">
+        <label for="f-certid">Certifikatnummer</label>
         <input type="text" id="f-certid" placeholder="MSC-C-XXXXX" autocomplete="off">
       </div>
     </div>
 
-    <div id="eco-fields" style="display:none">
-      <div class="form-row">
-        <div class="form-group">
-          <label>Land <span class="field-note">ISO-kode</span></label>
-          <input type="text" id="f-country" placeholder="DK" maxlength="4" autocomplete="off">
-        </div>
-        <div class="form-group" style="flex:3">
-          <label>Søgeterm i TRACES <span class="field-note">auto-udfyldes</span></label>
-          <input type="text" id="f-search" placeholder="Firmanavn som det fremgår i TRACES" autocomplete="off">
-        </div>
+    <div id="eco-fields" class="form-row" hidden>
+      <div class="field">
+        <label for="f-country">Land <span class="muted">ISO-kode</span></label>
+        <input type="text" id="f-country" placeholder="DK" maxlength="4" autocomplete="off">
+      </div>
+      <div class="field grow">
+        <label for="f-search">Søgeterm i TRACES <span class="muted">auto-udfyldes</span></label>
+        <input type="text" id="f-search" placeholder="Firmanavn som det fremgår i TRACES" autocomplete="off">
       </div>
     </div>
 
-    <div id="modal-status" class="modal-status" style="display:none"></div>
+    <div id="modal-status" class="note" hidden></div>
 
     <div class="modal-actions">
-      <button type="button" class="btn-modal-cancel" id="modal-cancel">Annuller</button>
-      <button type="button" class="btn-modal-save"   id="modal-save">Gem leverandør</button>
+      <button type="button" class="btn" id="modal-cancel">Annuller</button>
+      <button type="button" class="btn btn-primary" id="modal-save">Gem leverandør</button>
     </div>
   </div>
 </div>
 
-<!-- ── Tjek log modal ── -->
-<div id="log-modal" class="modal-overlay" style="display:none">
-  <div class="modal" style="max-width:580px">
-    <h2>Tjek log</h2>
-    <div id="log-content" style="margin-top:16px">Indlæser&hellip;</div>
+<!-- ── Tjek log ── -->
+<div id="log-modal" class="modal-backdrop" hidden>
+  <div class="modal wide" role="dialog" aria-modal="true" aria-labelledby="log-title">
+    <h2 id="log-title">Tjek log</h2>
+    <div id="log-content">Indlæser&hellip;</div>
     <div class="modal-actions">
-      <button type="button" class="btn-modal-cancel" id="log-close">Luk</button>
+      <button type="button" class="btn" id="log-close">Luk</button>
     </div>
   </div>
-</div>
-
-<!-- ── Dashboard ── -->
-<div id="app">
-
-  <header>
-    <h1>Food with You Certifikat Dashboard</h1>
-    <div class="header-actions">
-      <span id="last-checked">Indlæser&hellip;</span>
-      <button class="btn-header btn-log" id="log-btn">&#128203; Tjek log</button>
-      <button class="btn-header btn-run" id="run-btn">&#9654; Tjek alle nu</button>
-      <button class="btn-header btn-add" id="add-btn">&#x2795; Tilf&oslash;j leverand&oslash;r</button>
-    </div>
-  </header>
-
-  <div class="summary" id="summary" style="display:none">
-    <div class="summary-item">
-      <span class="summary-count c-green"  id="s-gyldig">0</span><span>Gyldige</span>
-    </div>
-    <div class="summary-item">
-      <span class="summary-count c-orange" id="s-snart">0</span><span>Udl&oslash;ber snart</span>
-    </div>
-    <div class="summary-item">
-      <span class="summary-count c-red"    id="s-udloebet">0</span><span>Udl&oslash;bet</span>
-    </div>
-    <div class="summary-item">
-      <span class="summary-count c-gray"   id="s-ukendt">0</span><span>Ukendt</span>
-    </div>
-    <div class="summary-item" id="s-warnings-item" style="display:none">
-      <span class="summary-count c-amber"  id="s-advarsler">0</span><span>Advarsler</span>
-    </div>
-  </div>
-
-  <div class="warnings-section" id="warnings-section"></div>
-  <div id="toast" role="status" aria-live="polite"></div>
-
-  <main id="main">
-    <div id="no-data">
-      <h2>Indl&aelig;ser&hellip;</h2>
-    </div>
-  </main>
-
 </div>
 
 <script>
+// Forsiden kører på port 80 på samme pc som værktøjet
+document.querySelectorAll("[data-fwy-forside]").forEach(a => a.href = `${location.protocol}//${location.hostname}/`);
+
 /* ═══════════════════════════════════════════
    SERVER-API (server.py på mini-pc'en)
 ═══════════════════════════════════════════ */
@@ -477,10 +217,12 @@ const STATUS_LABEL = {
   gyldig: "Gyldig", udloeber_snart: "Udløber snart",
   udloebet: "Udløbet", ukendt: "Ukendt",
 };
+const STATUS_TAG = { gyldig: "tag-ok", udloeber_snart: "tag-warning", udloebet: "tag-critical", ukendt: "" };
 let allResults = [];
 let allWarnings = [];   // advarsler fra sidste tjek, minus dem der er godkendt
 
-const escAttr = s => String(s).replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/</g, "&lt;");
+const escHtml = s => String(s ?? "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+const escAttr = s => escHtml(s).replace(/"/g, "&quot;");
 
 // Samme nøgle som _warning_key() i check_certificates.py – navnenes rækkefølge er ligegyldig
 function warningKey(w) {
@@ -526,116 +268,104 @@ function formatDate(iso) {
 function daysChip(r) {
   const d = r.days_until_expiry;
   if (d === null || d === undefined) return "";
-  if (d < 0)   return `<span class="days-chip days-danger">Udløbet for ${Math.abs(d)} dage siden</span>`;
-  if (d === 0) return `<span class="days-chip days-danger">Udløber i dag!</span>`;
-  if (d <= 30) return `<span class="days-chip days-warn">Udløber om ${d} dage</span>`;
-  return `<span class="days-chip days-ok">Udløber om ${d} dage</span>`;
+  if (d < 0)   return `<span class="tag tag-critical">Udløbet for ${Math.abs(d)} dage siden</span>`;
+  if (d === 0) return `<span class="tag tag-critical">Udløber i dag!</span>`;
+  if (d <= 30) return `<span class="tag tag-warning">Udløber om ${d} dage</span>`;
+  return `<span class="tag tag-ok">Udløber om ${d} dage</span>`;
 }
 
 function buildCard(r) {
-  const sc         = safeClass(r.status);
-  const badgeLabel = STATUS_LABEL[sc] || r.status;
-  const dateStr    = formatDate(r.valid_until);
-  const errorHtml  = r.error ? `<div class="card-error">&#9888; ${r.error}</div>` : "";
-  const dbName     = r.traces_operator || r.asc_cert_holder || r.msc_cert_holder;
-  const chipHtml   = daysChip(r);
+  const sc       = safeClass(r.status);
+  const dateStr  = formatDate(r.valid_until);
+  const dbName   = r.traces_operator || r.asc_cert_holder || r.msc_cert_holder;
+  const chipHtml = daysChip(r);
 
   // Vises også når den er lig leverandørnavnet – ellers ligner det manglende data
   const operatorRow = dbName
-    ? `<div class="card-meta-row" style="color:#64748b;font-size:0.78rem">
-         <span style="font-weight:600;color:#94a3b8;text-transform:uppercase;letter-spacing:.04em;font-size:0.68rem">Certifikatholder&nbsp;</span>${dbName}
-       </div>` : "";
-
+    ? `<div class="cert-holder"><span class="cert-label">Certifikatholder</span>${escHtml(dbName)}</div>` : "";
   const refRow = r.traces_reference
-    ? `<div class="card-meta-row"><span class="cert-id" style="font-size:0.7rem">${r.traces_reference}</span></div>`
-    : "";
-
+    ? `<div class="cert-row"><code>${escHtml(r.traces_reference)}</code></div>` : "";
   const notCheckedRow = r._new
-    ? `<div class="card-meta-row" style="font-size:0.74rem;color:#94a3b8;font-style:italic">Ikke tjekket endnu – tjekkes ved næste kørsel</div>`
-    : "";
-
+    ? `<div class="cert-note">Ikke tjekket endnu – tjekkes ved næste kørsel</div>` : "";
   const staleRow = r.stale_since
-    ? `<div class="card-meta-row" style="font-size:0.74rem;color:#b45309;font-style:italic">Udløbsdato fra tidligere tjek (${formatDate(r.stale_since)})</div>`
-    : "";
+    ? `<div class="cert-note stale">Udløbsdato fra tidligere tjek (${formatDate(r.stale_since)})</div>` : "";
 
   const cardWarnings = warningsFor(r);
   const warningBadge = cardWarnings.length
-    ? `<span class="card-warning" data-key="${escAttr(warningKey(cardWarnings[0]))}"
+    ? `<span class="tag tag-warning cert-warning" data-key="${escAttr(warningKey(cardWarnings[0]))}"
              title="${escAttr(cardWarnings.map(w => w.message).join("\n") + "\n\nKlik for at se advarslen")}">&#9888; Advarsel</span>`
     : "";
 
   return `
-    <div class="card ${sc}${cardWarnings.length ? " has-warning" : ""}"
+    <div class="cert ${sc}${cardWarnings.length ? " has-warning" : ""}"
          ${r.type === "msc" ? `title="Åbner MSC's søgeside – certifikatnummeret kopieres, så du kan indsætte det (Ctrl+V)"` : ""}
-         data-url="${certUrl(r)}"
-         data-name="${r.name.replace(/"/g,"&quot;")}"
-         data-type="${r.type}"
-         data-cert="${r.certificate_id}">
-      <button class="card-delete" title="Fjern leverandør">&#215;</button>
-      <button class="card-edit" title="Ret leverandør">&#9998;</button>
-      <div class="card-top">
-        <div class="card-name">${r.name}</div>
-        <span class="badge badge-${sc}">${badgeLabel}</span>
+         data-url="${escAttr(certUrl(r))}"
+         data-name="${escAttr(r.name)}"
+         data-type="${escAttr(r.type)}"
+         data-cert="${escAttr(r.certificate_id)}">
+      <div class="cert-actions">
+        <button type="button" class="icon-btn danger cert-delete" title="Fjern leverandør" aria-label="Fjern leverandør">&#215;</button>
+        <button type="button" class="icon-btn cert-edit" title="Ret leverandør" aria-label="Ret leverandør">&#9998;</button>
       </div>
-      <div class="card-meta">
-        <div class="card-meta-row">
-          <span style="font-weight:600;color:#334155">${TYPE_LABEL[r.type] || r.type.toUpperCase()}</span>
-          <span class="cert-id">${r.certificate_id}</span>
+      <div class="cert-top">
+        <div class="cert-name">${escHtml(r.name)}</div>
+        <span class="tag ${STATUS_TAG[sc] ?? ""}">${STATUS_LABEL[sc] || escHtml(r.status)}</span>
+      </div>
+      <div class="cert-meta">
+        <div class="cert-row">
+          <span class="cert-type">${TYPE_LABEL[r.type] || escHtml(r.type.toUpperCase())}</span>
+          <code>${escHtml(r.certificate_id)}</code>
         </div>
         ${operatorRow}${refRow}
-        ${dateStr ? `<div class="card-meta-row">Udløber: <strong>${dateStr}</strong></div>` : ""}
-        ${chipHtml ? `<div class="card-meta-row">${chipHtml}</div>` : ""}
+        ${dateStr ? `<div class="cert-row">Udløber: <strong>${dateStr}</strong></div>` : ""}
+        ${chipHtml ? `<div class="cert-row">${chipHtml}</div>` : ""}
         ${staleRow}${notCheckedRow}
       </div>
-      ${errorHtml}${warningBadge}
+      ${r.error ? `<div class="cert-error">&#9888; ${escHtml(r.error)}</div>` : ""}${warningBadge}
     </div>`;
 }
 
 function buildSection(title, results) {
   if (!results.length) return "";
   return `
-    <div class="section">
-      <div class="section-header">
-        <span class="section-title">${title}</span>
-        <span class="section-badge">${results.length}</span>
-      </div>
-      <div class="cards">${results.map(buildCard).join("")}</div>
-    </div>`;
+    <section class="section">
+      <h2 class="section-title">${title} <span class="tag">${results.length}</span></h2>
+      <div class="certs">${results.map(buildCard).join("")}</div>
+    </section>`;
 }
 
 function renderWarnings() {
   const warnings = allWarnings;
   document.getElementById("s-advarsler").textContent = warnings.length;
-  document.getElementById("s-warnings-item").style.display = warnings.length ? "" : "none";
+  document.getElementById("t-advarsler").hidden = !warnings.length;
 
   const el = document.getElementById("warnings-section");
+  el.hidden = !warnings.length;
   if (!warnings.length) { el.innerHTML = ""; return; }
 
   const TYPE_LABEL_W = { duplicate: "Duplikat", format: "Format", data: "Datakilde" };
-  const cards = warnings.map(w => {
-    const icon  = w.warning_type === "duplicate" ? "⚠️" : "🔴";
+  const items = warnings.map(w => {
     const label = TYPE_LABEL_W[w.warning_type] || w.warning_type;
-    const cert  = w.certificate_id
-      ? `<span class="warning-cert">${w.certificate_id}</span> &mdash; ` : "";
+    const cert  = w.certificate_id ? `<code>${escHtml(w.certificate_id)}</code> &mdash; ` : "";
     // Datakilde-advarsler forsvinder af sig selv, når kilden virker igen – de kan ikke godkendes
     const approve = w.warning_type !== "data"
-      ? `<button class="warning-approve" title="Marker advarslen som i orden – den vises ikke længere">Godkend</button>` : "";
-    return `<div class="warning-card" data-key="${escAttr(warningKey(w))}">
-      <span class="warning-icon">${icon}</span>
-      <div class="warning-body">
-        <span class="warning-type">${label}</span>${cert}${w.message}
-      </div>
+      ? `<button type="button" class="btn warning-approve" title="Marker advarslen som i orden – den vises ikke længere">Godkend</button>` : "";
+    return `<div class="note warn-item${w.warning_type === "data" ? " note-critical" : ""}" data-key="${escAttr(warningKey(w))}">
+      <div class="body"><span class="tag tag-warning">${label}</span>${cert}${escHtml(w.message)}</div>
       ${approve}
     </div>`;
   }).join("");
 
   el.innerHTML = `
-    <div class="warnings-header">&#9888;&#65039; Advarsler (${warnings.length})</div>
-    ${cards}`;
+    <div class="card-head"><div>
+      <h2>&#9888; Advarsler (${warnings.length})</h2>
+      <p>Godkend en advarsel, hvis den er i orden – fx et certifikat, der bevidst er delt mellem to leverandører.</p>
+    </div></div>
+    <div class="warn-list">${items}</div>`;
 
   el.querySelectorAll(".warning-approve").forEach(btn => {
     btn.addEventListener("click", () => {
-      const key = btn.closest(".warning-card").dataset.key;
+      const key = btn.closest(".warn-item").dataset.key;
       approveWarning(allWarnings.find(w => warningKey(w) === key), btn);
     });
   });
@@ -659,7 +389,7 @@ async function approveWarning(w, btn) {
     await load();
   } catch (err) {
     btn.disabled = false;
-    alert("Fejl: " + err.message);
+    showToast("Fejl: " + err.message, true);
   }
 }
 
@@ -671,21 +401,30 @@ function renderDashboard() {
   const groups = { eco: [], msc: [], asc: [] };
   for (const r of sorted) (groups[r.type] ??= []).push(r);
 
-  document.getElementById("main").innerHTML =
+  document.getElementById("certs").innerHTML =
     buildSection("Øko-certifikater", groups.eco)
     + buildSection("MSC-certifikater", groups.msc)
-    + buildSection("ASC-certifikater", groups.asc);
+    + buildSection("ASC-certifikater", groups.asc)
+    || `<div class="loading">Ingen leverandører endnu – tilføj den første med «Tilføj leverandør».</div>`;
 
   attachCardClicks();
 }
 
 let toastTimer;
-function showToast(msg) {
+function showToast(msg, isError) {
   const el = document.getElementById("toast");
   el.textContent = msg;
-  el.classList.add("show");
+  el.classList.toggle("error", !!isError);
+  el.hidden = false;
   clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => el.classList.remove("show"), 4000);
+  toastTimer = setTimeout(() => el.hidden = true, isError ? 7000 : 4000);
+}
+
+function flashWarning(key) {
+  const target = [...document.querySelectorAll("#warnings-section .warn-item")].find(el => el.dataset.key === key)
+              || document.getElementById("warnings-section");
+  target.scrollIntoView({ behavior: "smooth", block: "center" });
+  target.classList.remove("flash"); void target.offsetWidth; target.classList.add("flash");
 }
 
 // MSC kan ikke deep-linkes (cert.msc.org kræver en session), så vi kopierer
@@ -702,19 +441,11 @@ function copyText(text) {
 }
 
 function attachCardClicks() {
-  document.querySelectorAll(".card[data-url]").forEach(card => {
+  document.querySelectorAll(".cert[data-url]").forEach(card => {
     card.addEventListener("click", e => {
-      if (e.target.closest(".card-delete, .card-edit")) return;
-      const badge = e.target.closest(".card-warning");
-      if (badge) {
-        const target = [...document.querySelectorAll("#warnings-section .warning-card")]
-          .find(el => el.dataset.key === badge.dataset.key);
-        if (target) {
-          target.scrollIntoView({ behavior: "smooth", block: "center" });
-          target.classList.remove("flash"); void target.offsetWidth; target.classList.add("flash");
-        }
-        return;
-      }
+      if (e.target.closest(".cert-actions")) return;
+      const badge = e.target.closest(".cert-warning");
+      if (badge) { flashWarning(badge.dataset.key); return; }
       if (card.dataset.type === "msc") {
         const certId = card.dataset.cert;
         copyText(certId).then(
@@ -725,17 +456,15 @@ function attachCardClicks() {
       window.open(card.dataset.url, "_blank", "noopener,noreferrer");
     });
   });
-  document.querySelectorAll(".card-delete").forEach(btn => {
-    btn.addEventListener("click", e => {
-      e.stopPropagation();
-      const card = btn.closest(".card");
+  document.querySelectorAll(".cert-delete").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const card = btn.closest(".cert");
       confirmDelete(card.dataset.name, card.dataset.type, card.dataset.cert);
     });
   });
-  document.querySelectorAll(".card-edit").forEach(btn => {
-    btn.addEventListener("click", e => {
-      e.stopPropagation();
-      const card = btn.closest(".card");
+  document.querySelectorAll(".cert-edit").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const card = btn.closest(".cert");
       openEditModal(card.dataset.name, card.dataset.type, card.dataset.cert);
     });
   });
@@ -748,15 +477,17 @@ async function load() {
     const data = await api("/api/resultater");
 
     document.getElementById("last-checked").textContent = data.checked_at
-      ? "Sidst tjekket: " + new Date(data.checked_at).toLocaleString("da-DK")
+      ? "Sidst tjekket " + new Date(data.checked_at).toLocaleString("da-DK", { dateStyle: "short", timeStyle: "short" })
       : "Ikke tjekket endnu";
 
     const s = data.summary || {};
-    document.getElementById("summary").style.display = "flex";
+    document.getElementById("summary").hidden = false;
     document.getElementById("s-gyldig").textContent   = s.gyldig         || 0;
     document.getElementById("s-snart").textContent    = s.udloeber_snart || 0;
     document.getElementById("s-udloebet").textContent = s.udloebet       || 0;
     document.getElementById("s-ukendt").textContent   = s.ukendt         || 0;
+    document.getElementById("t-snart").classList.toggle("warn", !!s.udloeber_snart);
+    document.getElementById("t-udloebet").classList.toggle("alert", !!s.udloebet);
 
     allWarnings = data.warnings || [];
     renderWarnings();
@@ -764,25 +495,25 @@ async function load() {
     allResults = data.results || [];
     renderDashboard();
   } catch (err) {
-    document.getElementById("main").innerHTML =
-      `<div id="no-data"><h2>Kunne ikke hente data</h2>
-       <p style="color:#dc2626;font-size:0.85rem;margin-top:12px">Fejl: ${err.message}</p>
-       <p style="font-size:0.82rem;margin-top:8px;color:#64748b">Kører server.py på mini-pc'en?</p></div>`;
+    document.getElementById("certs").innerHTML =
+      `<div class="note note-critical"><strong>Kunne ikke hente data:</strong> ${escHtml(err.message)}<br>
+       <span class="muted">Kører server.py på mini-pc'en?</span></div>`;
     console.error("load() fejl:", err);
   }
 }
 
 setInterval(load, 60 * 60 * 1000);
+document.getElementById("t-advarsler").addEventListener("click", () => flashWarning(null));
 
 /* ═══════════════════════════════════════════
-   ADD SUPPLIER MODAL
+   TILFØJ / RET LEVERANDØR
 ═══════════════════════════════════════════ */
 let editTarget = null;   // { name, type, certId } når formularen bruges til at rette
 
 function openAddModal() {
   editTarget = null;
   document.getElementById("modal-title").textContent = "Tilføj leverandør";
-  document.getElementById("f-name-hint").style.display = "none";
+  document.getElementById("f-name-hint").hidden = true;
   document.getElementById("f-type").disabled = false;
   document.getElementById("f-name").value    = "";
   document.getElementById("f-type").value    = "msc";
@@ -793,12 +524,12 @@ function openAddModal() {
   setModalStatus(null);
   document.getElementById("modal-save").disabled = false;
   document.getElementById("modal-save").textContent = "Gem leverandør";
-  document.getElementById("add-modal").style.display = "flex";
+  document.getElementById("add-modal").hidden = false;
   setTimeout(() => document.getElementById("f-name").focus(), 50);
 }
 
 function closeAddModal() {
-  document.getElementById("add-modal").style.display = "none";
+  document.getElementById("add-modal").hidden = true;
 }
 
 async function openEditModal(name, type, certId) {
@@ -827,24 +558,23 @@ async function openEditModal(name, type, certId) {
     if (n > 1) {
       const hint = document.getElementById("f-name-hint");
       hint.textContent = `${name} har ${n} ${TYPE_LABEL[type]}-certifikater – ændres navnet, gælder det dem alle.`;
-      hint.style.display = "";
+      hint.hidden = false;
     }
   }
 }
 
 function updateEcoFields() {
-  const isEco = document.getElementById("f-type").value === "eco";
-  document.getElementById("eco-fields").style.display = isEco ? "" : "none";
-  const certInput = document.getElementById("f-certid");
-  certInput.placeholder = isEco ? "IE-ORG-03 / DE-ÖKO-039" : (document.getElementById("f-type").value === "msc" ? "MSC-C-XXXXX" : "ASC-C-XXXXX");
+  const type = document.getElementById("f-type").value;
+  document.getElementById("eco-fields").hidden = type !== "eco";
+  document.getElementById("f-certid").placeholder =
+    type === "eco" ? "IE-ORG-03 / DE-ÖKO-039" : type === "msc" ? "MSC-C-XXXXX" : "ASC-C-XXXXX";
 }
 
 function setModalStatus(msg, isError) {
   const el = document.getElementById("modal-status");
-  if (!msg) { el.style.display = "none"; return; }
-  el.style.display = "";
-  el.className = "modal-status " + (isError ? "err" : "ok");
-  el.textContent = msg;
+  el.hidden = !msg;
+  el.className = "note " + (isError ? "note-critical" : "note-ok");
+  el.textContent = msg || "";
 }
 
 document.getElementById("add-btn").addEventListener("click", openAddModal);
@@ -887,7 +617,7 @@ document.getElementById("modal-save").addEventListener("click", async () => {
 });
 
 /* ═══════════════════════════════════════════
-   DELETE SUPPLIER
+   SLET LEVERANDØR
 ═══════════════════════════════════════════ */
 async function confirmDelete(name, type, certId) {
   const typeLabel = TYPE_LABEL[type] || type.toUpperCase();
@@ -899,14 +629,19 @@ async function confirmDelete(name, type, certId) {
     showToast(res.besked);
     await load();
   } catch (err) {
-    alert("Fejl: " + err.message);
+    showToast("Fejl: " + err.message, true);
   }
 }
 
 /* ═══════════════════════════════════════════
    TJEK LOG (kørsler på mini-pc'en)
 ═══════════════════════════════════════════ */
-const escHtml = s => String(s ?? "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+const RUN_TAG = {
+  ok:      `<span class="tag tag-ok">&#10003; Gennemført</span>`,
+  koerer:  `<span class="tag tag-warning">&#8635; Kører&hellip;</span>`,
+  fejl:    `<span class="tag tag-critical">&#10007; Fejlet</span>`,
+  afbrudt: `<span class="tag tag-critical">&#10007; Afbrudt</span>`,
+};
 
 function duration(r) {
   if (!r.slut) return "";
@@ -916,66 +651,61 @@ function duration(r) {
 
 async function showLog() {
   const content = document.getElementById("log-content");
-  content.innerHTML = "Indlæser&hellip;";
+  content.innerHTML = `<div class="loading">Indlæser&hellip;</div>`;
   try {
     const runs = (await api("/api/log")).koersler;
     if (!runs.length) {
-      content.innerHTML = "<p style='color:#64748b'>Ingen kørsler endnu.</p>";
+      content.innerHTML = `<p class="muted">Ingen kørsler endnu.</p>`;
       return;
     }
-    const rows = runs.map(r => {
-      const statusHtml =
-        r.status === "ok"     ? `<span class="log-ok">&#10003; Gennemført</span>` :
-        r.status === "koerer" ? `<span class="log-run">&#8635; Kører&hellip;</span>` :
-        r.status === "fejl"   ? `<span class="log-fail">&#10007; Fejlet</span>` :
-                                `<span class="log-fail">&#10007; Afbrudt</span>`;
-      return `<tr data-id="${escAttr(r.id)}" title="Klik for at se, hvad tjekket skrev">
-        <td>${new Date(r.startet).toLocaleString("da-DK")}</td>
-        <td>${statusHtml}${r.besked ? `<div class="log-note">${escHtml(r.besked)}</div>` : ""}</td>
-        <td class="log-dim">${r.udloest_af === "automatisk" ? "Automatisk" : "Manuel"}</td>
-        <td class="log-dim">${duration(r)}</td>
-      </tr>`;
-    }).join("");
+    const rows = runs.map(r => `
+      <tr class="click" data-id="${escAttr(r.id)}" title="Klik for at se, hvad tjekket skrev">
+        <td class="num">${new Date(r.startet).toLocaleString("da-DK", { dateStyle: "short", timeStyle: "short" })}</td>
+        <td>${RUN_TAG[r.status] || escHtml(r.status)}${r.besked ? `<div class="sub">${escHtml(r.besked)}</div>` : ""}</td>
+        <td class="muted">${r.udloest_af === "automatisk" ? "Automatisk" : "Manuel"}</td>
+        <td class="num muted">${duration(r)}</td>
+      </tr>`).join("");
     content.innerHTML = `
-      <table class="log-table">
-        <thead><tr>
-          <th>Tidspunkt</th><th>Status</th><th>Udl&oslash;st af</th><th>Varighed</th>
-        </tr></thead>
+      <div class="tbl-wrap"><table class="tbl">
+        <thead><tr><th>Tidspunkt</th><th>Status</th><th>Udl&oslash;st af</th><th class="num">Varighed</th></tr></thead>
         <tbody>${rows}</tbody>
-      </table>`;
+      </table></div>`;
     content.querySelectorAll("tbody tr").forEach(tr =>
       tr.addEventListener("click", () => showLogOutput(runs.find(r => r.id === tr.dataset.id))));
   } catch (err) {
-    content.innerHTML = `<p style="color:#dc2626;font-size:0.85rem">Kunne ikke hente log: ${escHtml(err.message)}</p>`;
+    content.innerHTML = `<div class="note note-critical">Kunne ikke hente log: ${escHtml(err.message)}</div>`;
   }
 }
 
 async function showLogOutput(run) {
   const content = document.getElementById("log-content");
-  content.innerHTML = "Indlæser&hellip;";
+  content.innerHTML = `<div class="loading">Indlæser&hellip;</div>`;
   try {
     const { tekst } = await api("/api/log/tekst?id=" + encodeURIComponent(run.id));
     content.innerHTML = `
-      <button type="button" class="log-back">&larr; Alle kørsler</button>
-      <div style="margin-top:10px;font-size:0.85rem">${new Date(run.startet).toLocaleString("da-DK")}</div>
+      <button type="button" class="link log-back">&larr; Alle kørsler</button>
+      <span class="muted"> · ${new Date(run.startet).toLocaleString("da-DK")}</span>
       <pre class="log-output">${escHtml(tekst || (run.status === "koerer" ? "Tjekket kører stadig…" : "Ingen output gemt."))}</pre>`;
     content.querySelector(".log-back").addEventListener("click", showLog);
   } catch (err) {
-    content.innerHTML = `<p style="color:#dc2626;font-size:0.85rem">Kunne ikke hente output: ${escHtml(err.message)}</p>`;
+    content.innerHTML = `<div class="note note-critical">Kunne ikke hente output: ${escHtml(err.message)}</div>`;
   }
 }
 
+function closeLog() { document.getElementById("log-modal").hidden = true; }
+
 document.getElementById("log-btn").addEventListener("click", () => {
-  document.getElementById("log-modal").style.display = "flex";
+  document.getElementById("log-modal").hidden = false;
   showLog();
 });
-
-document.getElementById("log-close").addEventListener("click", () => {
-  document.getElementById("log-modal").style.display = "none";
-});
+document.getElementById("log-close").addEventListener("click", closeLog);
 document.getElementById("log-modal").addEventListener("click", e => {
-  if (e.target === document.getElementById("log-modal"))
-    document.getElementById("log-modal").style.display = "none";
+  if (e.target === document.getElementById("log-modal")) closeLog();
+});
+document.addEventListener("keydown", e => {
+  if (e.key !== "Escape") return;
+  closeAddModal();
+  closeLog();
 });
 
 /* ═══════════════════════════════════════════
@@ -990,7 +720,7 @@ let runTimer;
 function showRunning(run) {
   const btn = document.getElementById("run-btn");
   btn.disabled = !!run;
-  btn.style.background = run ? "#d97706" : "";
+  btn.classList.toggle("running", !!run);
   btn.textContent = run
     ? `Kører… ${Math.floor(run.sekunder / 60)}:${String(run.sekunder % 60).padStart(2, "0")}`
     : RUN_LABEL;
@@ -1007,9 +737,8 @@ async function watchRun() {
     } else if (runWasActive) {
       runWasActive = false;
       await load();
-      showToast(st.sidste?.status === "ok"
-        ? "Tjekket er færdigt – dashboardet er opdateret"
-        : "Tjekket fejlede – se Tjek log");
+      const ok = st.sidste?.status === "ok";
+      showToast(ok ? "Tjekket er færdigt – dashboardet er opdateret" : "Tjekket fejlede – se Tjek log", !ok);
     }
   } catch (err) {
     console.error("watchRun() fejl:", err);
@@ -1025,7 +754,7 @@ document.getElementById("run-btn").addEventListener("click", async () => {
   try {
     await api("/api/tjek", {});
   } catch (err) {
-    alert("Fejl: " + err.message);   // fx at et tjek allerede kører – så viser watchRun det
+    showToast("Fejl: " + err.message, true);   // fx at et tjek allerede kører – så viser watchRun det
   }
   watchRun();
 });

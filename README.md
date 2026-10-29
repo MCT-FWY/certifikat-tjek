@@ -166,12 +166,19 @@ certifikat-tjek/
 ├── hemmeligheder.eksempel.json # Kopier til hemmeligheder.json (ikke i git)
 ├── requirements.txt
 ├── dashboard/
-│   └── index.html              # Dashboardet
+│   ├── index.html              # Dashboardet
+│   └── fwy.css                 # Fælles FWY-design – kopi, se nedenfor
 ├── results/
 │   └── latest.json             # Sidste resultat
 ├── logs/                       # Kørselslog (ikke i git)
 └── .github/workflows/          # GitHub Actions – bruges kun, indtil GitHub lukkes
 ```
+
+## Design
+
+Dashboardet bruger det fælles FWY-design. `dashboard/fwy.css` er en kopi. Originalen ligger i
+`fwy-vaerktoejer/forside/fwy.css` og opdateres med `python kopier_design.py` i `fwy-vaerktoejer`. Ret ikke i kopien.
+Det, der kun gælder certifikat-tjek (certifikatkortene), står i `<style>` øverst i `index.html`.
 
 ## API
 
