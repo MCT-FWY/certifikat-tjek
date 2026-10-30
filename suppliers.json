@@ -252,6 +252,12 @@
       "certificate_ids": [
         "MSC-C-57940"
       ]
+    },
+    {
+      "name": "605 Grand",
+      "certificate_ids": [
+        "MSC-C-58422"
+      ]
     }
   ],
   "asc": [
