@@ -439,6 +439,15 @@
         "628-1 MARFRESH ApS"
       ],
       "approved_on": "2026-10-08"
+    },
+    {
+      "warning_type": "duplicate",
+      "certificate_id": "MSC-C-51642",
+      "names": [
+        "473-2 Dalian Rich Enterprice Group Co. Ltd.",
+        "524-2 Dalian Huashan Aquatic Foods"
+      ],
+      "approved_on": "2026-11-04"
     }
   ]
 }
