@@ -258,6 +258,12 @@
       "certificate_ids": [
         "MSC-C-58422"
       ]
+    },
+    {
+      "name": "LL Cold ApS, (Pakkeri)",
+      "certificate_ids": [
+        "MSC-C-54121"
+      ]
     }
   ],
   "asc": [
